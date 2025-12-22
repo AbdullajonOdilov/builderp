@@ -1,4 +1,4 @@
-import { ResourceRequest } from '@/types/request';
+import { ResourceRequest, Status } from '@/types/request';
 import { PriorityBadge } from './PriorityBadge';
 import { StatusBadge } from './StatusBadge';
 import { ResourceIcon } from './ResourceIcon';
@@ -18,7 +18,7 @@ interface RequestCardProps {
 export function RequestCard({ request, role, onAccept, onDecline, onDeliver }: RequestCardProps) {
   const isSupplier = role === 'supplier';
   const isPending = request.status === 'pending';
-  const isAccepted = request.status === 'accepted';
+  const isOrdered = request.status === 'ordered';
 
   const formatDate = (dateStr: string) => {
     const date = new Date(dateStr);
@@ -79,7 +79,7 @@ export function RequestCard({ request, role, onAccept, onDecline, onDeliver }: R
             )}
             
             {request.deliveryNotes && (
-              <p className="text-sm text-status-accepted mt-2">
+              <p className="text-sm text-status-ordered mt-2">
                 📦 {request.deliveryNotes}
               </p>
             )}
@@ -93,7 +93,7 @@ export function RequestCard({ request, role, onAccept, onDecline, onDeliver }: R
                 <Button
                   size="sm"
                   onClick={() => onAccept?.(request.id)}
-                  className="bg-status-accepted hover:bg-status-accepted/90"
+                  className="bg-status-ordered hover:bg-status-ordered/90"
                 >
                   <Check className="h-4 w-4 mr-1" />
                   Accept
@@ -109,7 +109,7 @@ export function RequestCard({ request, role, onAccept, onDecline, onDeliver }: R
                 </Button>
               </>
             )}
-            {isAccepted && (
+            {isOrdered && (
               <Button
                 size="sm"
                 onClick={() => onDeliver?.(request.id)}
