@@ -8,7 +8,7 @@ import { SupplierDashboard } from '@/components/SupplierDashboard';
 
 const Index = () => {
   const [role, setRole] = useState<UserRole | null>(null);
-  const { requests, addRequest, updateStatus } = useRequests();
+  const { requests, addRequest, updateStatus, setAvailability } = useRequests();
 
   if (!role) {
     return <RoleSelector onSelectRole={setRole} />;
@@ -21,7 +21,11 @@ const Index = () => {
       {role === 'manager' ? (
         <ManagerDashboard requests={requests} onAddRequest={addRequest} />
       ) : (
-        <SupplierDashboard requests={requests} onUpdateStatus={updateStatus} />
+        <SupplierDashboard 
+          requests={requests} 
+          onUpdateStatus={updateStatus}
+          onSetAvailability={setAvailability}
+        />
       )}
     </div>
   );
