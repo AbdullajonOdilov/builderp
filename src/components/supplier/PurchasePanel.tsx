@@ -146,10 +146,10 @@ export function PurchasePanel({
           </Button>
         </div>
 
-        <div className="flex flex-col lg:flex-row max-h-[60vh]">
+        <div className="flex flex-col lg:flex-row max-h-[70vh]">
           {/* Left: Selected requests */}
           <div className="lg:w-1/3 border-r">
-            <ScrollArea className="h-[300px] lg:h-[400px]">
+            <ScrollArea className="h-[350px] lg:h-[450px]">
               <div className="p-4 space-y-3">
                 <h4 className="text-sm font-medium text-muted-foreground mb-3">Included Requests</h4>
                 {selectedRequests.map((req) => (
@@ -199,7 +199,7 @@ export function PurchasePanel({
 
           {/* Right: Vendor selection & details */}
           <div className="lg:w-2/3 flex flex-col">
-            <ScrollArea className="flex-1 h-[300px] lg:h-[400px]">
+            <ScrollArea className="flex-1 h-[350px] lg:h-[450px]">
               <div className="p-6 space-y-6">
                 {/* Vendor comparison */}
                 <Collapsible open={showVendorComparison} onOpenChange={setShowVendorComparison}>
