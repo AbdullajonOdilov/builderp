@@ -4,6 +4,19 @@ export type ResourceType = 'materials' | 'equipment' | 'services';
 export type UserRole = 'manager' | 'supplier';
 export type Availability = 'available' | 'limited' | 'not_available';
 
+export interface Company {
+  id: string;
+  name: string;
+}
+
+export const COMPANIES: Company[] = [
+  { id: '1', name: 'ABC Building Supplies' },
+  { id: '2', name: 'Metro Equipment Rentals' },
+  { id: '3', name: 'FastTrack Materials Co.' },
+  { id: '4', name: 'Premier Construction Services' },
+  { id: '5', name: 'BuildRight Contractors' },
+];
+
 export interface ResourceRequest {
   id: string;
   resourceType: ResourceType;
@@ -18,6 +31,7 @@ export interface ResourceRequest {
   notes?: string;
   deliveryNotes?: string;
   availability?: Availability;
+  assignedCompany?: Company;
 }
 
 export const PRIORITY_CONFIG = {
