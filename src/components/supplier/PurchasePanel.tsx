@@ -366,7 +366,7 @@ export function PurchasePanel({
             {/* Footer with action */}
             <div className="p-4 border-t bg-muted/30">
               <Button
-                className="w-full h-12 text-lg bg-status-ordered hover:bg-status-ordered/90"
+                className="w-full h-12 text-lg bg-primary text-primary-foreground hover:bg-primary/90"
                 disabled={!selectedVendorId || !deliveryDate}
                 onClick={handleCreatePurchase}
               >
