@@ -6,7 +6,8 @@ import { Button } from '@/components/ui/button';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
-import { Search, AlertTriangle, Zap, EyeOff, ShoppingCart, Package } from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
+import { Search, AlertTriangle, Zap, EyeOff, ShoppingCart, Package, Layers, ChevronDown } from 'lucide-react';
 import { toast } from 'sonner';
 import {
   Dialog,
@@ -15,6 +16,12 @@ import {
   DialogTitle,
   DialogDescription,
 } from '@/components/ui/dialog';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 import { PriorityBadge } from '../PriorityBadge';
 import { ResourceIcon } from '../ResourceIcon';
 import { cn } from '@/lib/utils';
@@ -115,6 +122,27 @@ export function SupplierKanbanBoard({
     );
   }).length;
 
+  // Group requests by resource type for quick bundling
+  const pendingByResourceType = useMemo(() => {
+    const pending = requests.filter(r => r.status === 'pending');
+    const grouped = new Map<string, ResourceRequest[]>();
+    pending.forEach(req => {
+      const key = req.resourceType;
+      if (!grouped.has(key)) {
+        grouped.set(key, []);
+      }
+      grouped.get(key)!.push(req);
+    });
+    return grouped;
+  }, [requests]);
+
+  // Get resource types that have multiple requests (can be bundled)
+  const bundleableTypes = useMemo(() => {
+    return Array.from(pendingByResourceType.entries())
+      .filter(([_, reqs]) => reqs.length > 1)
+      .map(([type, reqs]) => ({ type, count: reqs.length, requests: reqs }));
+  }, [pendingByResourceType]);
+
   // Selection handlers
   const handleSelect = (id: string, selected: boolean) => {
     const newSet = new Set(selectedRequestIds);
@@ -131,6 +159,14 @@ export function SupplierKanbanBoard({
     onSelectForPurchase(Array.from(selectedRequestIds));
     setSelectedRequestIds(new Set());
     toast.success(`${selectedRequestIds.size} request(s) added to purchase`);
+  };
+
+  const handleQuickBundle = (resourceType: string) => {
+    const reqs = pendingByResourceType.get(resourceType);
+    if (!reqs) return;
+    const ids = reqs.map(r => r.id);
+    onSelectForPurchase(ids);
+    toast.success(`Bundled ${ids.length} ${resourceType} requests for purchase`);
   };
 
   const handleRemoveFromPurchase = (id: string) => {
@@ -287,6 +323,38 @@ export function SupplierKanbanBoard({
               <EyeOff className="h-4 w-4 mr-2" />
               Declined ({declinedRequests.length})
             </Button>
+          )}
+
+          {/* Quick Bundle dropdown */}
+          {bundleableTypes.length > 0 && (
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="border-dashed border-primary/50 text-primary hover:bg-primary/10"
+                >
+                  <Layers className="h-4 w-4 mr-2" />
+                  Quick Bundle
+                  <ChevronDown className="h-3 w-3 ml-1" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-56">
+                {bundleableTypes.map(({ type, count }) => (
+                  <DropdownMenuItem
+                    key={type}
+                    onClick={() => handleQuickBundle(type)}
+                    className="cursor-pointer"
+                  >
+                    <Package className="h-4 w-4 mr-2 text-muted-foreground" />
+                    <span className="flex-1">{type}</span>
+                    <Badge variant="secondary" className="ml-2">
+                      {count} requests
+                    </Badge>
+                  </DropdownMenuItem>
+                ))}
+              </DropdownMenuContent>
+            </DropdownMenu>
           )}
 
           {/* Bulk selection actions */}
