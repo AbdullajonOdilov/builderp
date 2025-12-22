@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { ResourceRequest, Priority, Status, ResourceType, Availability, Company } from '@/types/request';
+import { ResourceRequest, Priority, Status, ResourceType, Availability, Purchase, Vendor } from '@/types/request';
 
 // Mock initial data
 const initialRequests: ResourceRequest[] = [
@@ -14,6 +14,7 @@ const initialRequests: ResourceRequest[] = [
     status: 'pending',
     createdAt: '2025-12-20T10:00:00',
     managerName: 'John Smith',
+    projectName: 'Tower Block A',
     notes: 'Needed for foundation work',
   },
   {
@@ -27,6 +28,7 @@ const initialRequests: ResourceRequest[] = [
     status: 'pending',
     createdAt: '2025-12-20T11:30:00',
     managerName: 'Maria Garcia',
+    projectName: 'Site Preparation',
   },
   {
     id: '3',
@@ -36,10 +38,14 @@ const initialRequests: ResourceRequest[] = [
     unit: 'pieces',
     neededDate: '2025-12-28',
     priority: 'medium',
-    status: 'accepted',
+    status: 'ordered',
     createdAt: '2025-12-19T09:00:00',
     managerName: 'John Smith',
+    projectName: 'Tower Block A',
     deliveryNotes: 'Scheduled for Dec 27',
+    purchaseId: 'p1',
+    fulfilledQuantity: 0,
+    deliveryStatus: 'pending',
   },
   {
     id: '4',
@@ -52,6 +58,9 @@ const initialRequests: ResourceRequest[] = [
     status: 'delivered',
     createdAt: '2025-12-18T14:00:00',
     managerName: 'Maria Garcia',
+    projectName: 'Phase 2 Wiring',
+    fulfilledQuantity: 1,
+    deliveryStatus: 'complete',
   },
   {
     id: '5',
@@ -64,6 +73,7 @@ const initialRequests: ResourceRequest[] = [
     status: 'pending',
     createdAt: '2025-12-21T08:00:00',
     managerName: 'Carlos Rodriguez',
+    projectName: 'Framing Works',
     notes: 'For framing second floor',
   },
   {
@@ -74,9 +84,10 @@ const initialRequests: ResourceRequest[] = [
     unit: 'units',
     neededDate: '2025-12-25',
     priority: 'medium',
-    status: 'in_review',
+    status: 'pending',
     createdAt: '2025-12-21T09:00:00',
     managerName: 'John Smith',
+    projectName: 'Tower Block A',
   },
   {
     id: '7',
@@ -89,11 +100,61 @@ const initialRequests: ResourceRequest[] = [
     status: 'in_delivery',
     createdAt: '2025-12-19T15:00:00',
     managerName: 'Maria Garcia',
+    projectName: 'Landscaping',
+    purchaseId: 'p2',
+    fulfilledQuantity: 5,
+    deliveryStatus: 'partial',
+  },
+  {
+    id: '8',
+    resourceType: 'materials',
+    resourceName: 'Cement Portland Type I',
+    quantity: 100,
+    unit: 'bags',
+    neededDate: '2025-12-24',
+    priority: 'critical',
+    status: 'pending',
+    createdAt: '2025-12-21T10:00:00',
+    managerName: 'John Smith',
+    projectName: 'Tower Block A',
+  },
+  {
+    id: '9',
+    resourceType: 'materials',
+    resourceName: 'Gravel 20mm',
+    quantity: 15,
+    unit: 'tons',
+    neededDate: '2025-12-25',
+    priority: 'medium',
+    status: 'pending',
+    createdAt: '2025-12-21T11:00:00',
+    managerName: 'Carlos Rodriguez',
+    projectName: 'Driveway Construction',
+  },
+];
+
+const initialPurchases: Purchase[] = [
+  {
+    id: 'p1',
+    requestIds: ['3'],
+    vendorId: 'v1',
+    createdAt: '2025-12-19T10:00:00',
+    estimatedDelivery: '2025-12-27',
+    status: 'ordered',
+  },
+  {
+    id: 'p2',
+    requestIds: ['7'],
+    vendorId: 'v3',
+    createdAt: '2025-12-20T14:00:00',
+    estimatedDelivery: '2025-12-26',
+    status: 'in_delivery',
   },
 ];
 
 export function useRequests() {
   const [requests, setRequests] = useState<ResourceRequest[]>(initialRequests);
+  const [purchases, setPurchases] = useState<Purchase[]>(initialPurchases);
 
   const addRequest = (request: Omit<ResourceRequest, 'id' | 'createdAt' | 'status'>) => {
     const newRequest: ResourceRequest = {
@@ -106,16 +167,40 @@ export function useRequests() {
     return newRequest;
   };
 
-  const updateStatus = (id: string, status: Status, deliveryNotes?: string, assignedCompany?: Company) => {
+  const updateStatus = (id: string, status: Status, deliveryNotes?: string) => {
     setRequests((prev) =>
       prev.map((req) =>
         req.id === id ? { 
           ...req, 
           status, 
           deliveryNotes: deliveryNotes || req.deliveryNotes,
-          assignedCompany: assignedCompany || req.assignedCompany,
         } : req
       )
+    );
+  };
+
+  const updateQuantity = (id: string, quantity: number) => {
+    setRequests((prev) =>
+      prev.map((req) =>
+        req.id === id ? { ...req, quantity } : req
+      )
+    );
+  };
+
+  const updateFulfilledQuantity = (id: string, fulfilledQuantity: number) => {
+    setRequests((prev) =>
+      prev.map((req) => {
+        if (req.id !== id) return req;
+        const deliveryStatus: 'pending' | 'partial' | 'complete' = 
+          fulfilledQuantity === 0 ? 'pending' :
+          fulfilledQuantity >= req.quantity ? 'complete' : 'partial';
+        return { 
+          ...req, 
+          fulfilledQuantity,
+          deliveryStatus,
+          status: deliveryStatus === 'complete' ? 'delivered' : req.status,
+        };
+      })
     );
   };
 
@@ -127,12 +212,93 @@ export function useRequests() {
     );
   };
 
+  const selectForPurchase = (ids: string[]) => {
+    setRequests((prev) =>
+      prev.map((req) =>
+        ids.includes(req.id) ? { ...req, status: 'selected' as Status } : req
+      )
+    );
+  };
+
+  const deselectFromPurchase = (ids: string[]) => {
+    setRequests((prev) =>
+      prev.map((req) =>
+        ids.includes(req.id) && req.status === 'selected' 
+          ? { ...req, status: 'pending' as Status } 
+          : req
+      )
+    );
+  };
+
+  const createPurchase = (
+    requestIds: string[], 
+    vendorId: string, 
+    estimatedDelivery: string,
+    notes?: string
+  ) => {
+    const purchaseId = `p${Date.now()}`;
+    const newPurchase: Purchase = {
+      id: purchaseId,
+      requestIds,
+      vendorId,
+      createdAt: new Date().toISOString(),
+      estimatedDelivery,
+      notes,
+      status: 'ordered',
+    };
+    
+    setPurchases((prev) => [...prev, newPurchase]);
+    
+    setRequests((prev) =>
+      prev.map((req) =>
+        requestIds.includes(req.id) ? { 
+          ...req, 
+          status: 'ordered' as Status,
+          purchaseId,
+          fulfilledQuantity: 0,
+          deliveryStatus: 'pending' as const,
+        } : req
+      )
+    );
+    
+    return newPurchase;
+  };
+
+  const updatePurchaseStatus = (purchaseId: string, status: Purchase['status']) => {
+    setPurchases((prev) =>
+      prev.map((p) =>
+        p.id === purchaseId ? { ...p, status } : p
+      )
+    );
+    
+    // Update all requests in this purchase
+    const purchase = purchases.find((p) => p.id === purchaseId);
+    if (purchase) {
+      const newStatus: Status = status === 'delivered' ? 'delivered' : 
+                                status === 'in_delivery' ? 'in_delivery' : 'ordered';
+      setRequests((prev) =>
+        prev.map((req) =>
+          purchase.requestIds.includes(req.id) ? { ...req, status: newStatus } : req
+        )
+      );
+    }
+  };
+
+  const getPurchaseById = (id: string) => purchases.find((p) => p.id === id);
+
+  const getPurchaseForRequest = (requestId: string) => {
+    const request = requests.find((r) => r.id === requestId);
+    if (!request?.purchaseId) return null;
+    return purchases.find((p) => p.id === request.purchaseId);
+  };
+
   const getRequestsByStatus = (status?: Status) => {
     if (!status) return requests;
     return requests.filter((req) => req.status === status);
   };
 
   const getPendingRequests = () => requests.filter((req) => req.status === 'pending');
+  const getSelectedRequests = () => requests.filter((req) => req.status === 'selected');
   
   const sortByPriority = (reqs: ResourceRequest[]) => {
     const priorityOrder = { critical: 1, high: 2, medium: 3, low: 4 };
@@ -141,11 +307,21 @@ export function useRequests() {
 
   return {
     requests,
+    purchases,
     addRequest,
     updateStatus,
+    updateQuantity,
+    updateFulfilledQuantity,
     setAvailability,
+    selectForPurchase,
+    deselectFromPurchase,
+    createPurchase,
+    updatePurchaseStatus,
+    getPurchaseById,
+    getPurchaseForRequest,
     getRequestsByStatus,
     getPendingRequests,
+    getSelectedRequests,
     sortByPriority,
   };
 }

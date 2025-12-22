@@ -17,7 +17,8 @@ interface RequestListProps {
 const statusFilters: { value: Status | 'all'; label: string }[] = [
   { value: 'all', label: 'All' },
   { value: 'pending', label: 'Pending' },
-  { value: 'accepted', label: 'Accepted' },
+  { value: 'ordered', label: 'Ordered' },
+  { value: 'in_delivery', label: 'In Delivery' },
   { value: 'delivered', label: 'Delivered' },
   { value: 'declined', label: 'Declined' },
 ];
