@@ -1,9 +1,9 @@
-import { ResourceRequest, Status, Availability } from '@/types/request';
+import { ResourceRequest, Status, Availability, Company } from '@/types/request';
 import { SupplierKanbanBoard } from './supplier/SupplierKanbanBoard';
 
 interface SupplierDashboardProps {
   requests: ResourceRequest[];
-  onUpdateStatus: (id: string, status: Status, deliveryNotes?: string) => void;
+  onUpdateStatus: (id: string, status: Status, deliveryNotes?: string, assignedCompany?: Company) => void;
   onSetAvailability: (id: string, availability: Availability) => void;
 }
 

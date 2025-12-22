@@ -2,7 +2,7 @@ import { ResourceRequest, Availability, AVAILABILITY_CONFIG } from '@/types/requ
 import { PriorityBadge } from '../PriorityBadge';
 import { ResourceIcon } from '../ResourceIcon';
 import { Button } from '@/components/ui/button';
-import { Calendar, Check, X, Eye, ChevronDown } from 'lucide-react';
+import { Calendar, Check, X, Eye, ChevronDown, Building2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import {
   DropdownMenu,
@@ -110,6 +110,14 @@ export function KanbanCard({
           )}
         </span>
       </div>
+
+      {/* Assigned Company Badge */}
+      {request.assignedCompany && (
+        <div className="flex items-center gap-2 text-xs bg-status-accepted/10 text-status-accepted border border-status-accepted/20 rounded-lg px-2 py-1.5 mb-3">
+          <Building2 className="h-3 w-3" />
+          <span className="font-medium truncate">{request.assignedCompany.name}</span>
+        </div>
+      )}
 
       {/* Availability selector */}
       <div className="mb-3">

@@ -1,11 +1,11 @@
 import { useState } from 'react';
-import { ResourceRequest, Status, Availability, KANBAN_COLUMNS, PRIORITY_CONFIG } from '@/types/request';
+import { ResourceRequest, Status, Availability, Company, KANBAN_COLUMNS, PRIORITY_CONFIG, COMPANIES } from '@/types/request';
 import { KanbanColumn } from './KanbanColumn';
 import { Button } from '@/components/ui/button';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
-import { Search, AlertTriangle, Zap, EyeOff } from 'lucide-react';
+import { Search, AlertTriangle, Zap, EyeOff, Building2 } from 'lucide-react';
 import { toast } from 'sonner';
 import {
   Dialog,
@@ -14,13 +14,20 @@ import {
   DialogTitle,
   DialogDescription,
 } from '@/components/ui/dialog';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import { PriorityBadge } from '../PriorityBadge';
 import { ResourceIcon } from '../ResourceIcon';
 import { cn } from '@/lib/utils';
 
 interface SupplierKanbanBoardProps {
   requests: ResourceRequest[];
-  onUpdateStatus: (id: string, status: Status, deliveryNotes?: string) => void;
+  onUpdateStatus: (id: string, status: Status, deliveryNotes?: string, assignedCompany?: Company) => void;
   onSetAvailability: (id: string, availability: Availability) => void;
 }
 
@@ -34,6 +41,8 @@ export function SupplierKanbanBoard({
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedRequest, setSelectedRequest] = useState<ResourceRequest | null>(null);
   const [showDeclined, setShowDeclined] = useState(false);
+  const [acceptDialogRequest, setAcceptDialogRequest] = useState<ResourceRequest | null>(null);
+  const [selectedCompanyId, setSelectedCompanyId] = useState<string>('');
 
   const declinedRequests = requests.filter((r) => r.status === 'declined');
 
@@ -89,9 +98,27 @@ export function SupplierKanbanBoard({
   }).length;
 
   // Handlers
-  const handleAccept = (id: string) => {
-    onUpdateStatus(id, 'accepted');
-    toast.success('Request accepted!');
+  const handleAcceptClick = (id: string) => {
+    const request = requests.find((r) => r.id === id);
+    if (request) {
+      setAcceptDialogRequest(request);
+      setSelectedCompanyId('');
+    }
+  };
+
+  const handleConfirmAccept = () => {
+    if (!acceptDialogRequest) return;
+    
+    const company = COMPANIES.find((c) => c.id === selectedCompanyId);
+    if (!company) {
+      toast.error('Please select a company');
+      return;
+    }
+    
+    onUpdateStatus(acceptDialogRequest.id, 'accepted', undefined, company);
+    toast.success(`Request accepted! Assigned to ${company.name}`);
+    setAcceptDialogRequest(null);
+    setSelectedCompanyId('');
   };
 
   const handleDecline = (id: string) => {
@@ -233,7 +260,7 @@ export function SupplierKanbanBoard({
               label={column.label}
               color={column.color}
               requests={getColumnRequests(column.id)}
-              onAccept={handleAccept}
+              onAccept={handleAcceptClick}
               onDecline={handleDecline}
               onMoveToReview={handleMoveToReview}
               onStartDelivery={handleStartDelivery}
@@ -329,7 +356,7 @@ export function SupplierKanbanBoard({
                       <Button
                         className="flex-1 bg-status-accepted hover:bg-status-accepted/90"
                         onClick={() => {
-                          handleAccept(selectedRequest.id);
+                          handleAcceptClick(selectedRequest.id);
                           setSelectedRequest(null);
                         }}
                       >
@@ -347,6 +374,66 @@ export function SupplierKanbanBoard({
                     </>
                   )}
                 </div>
+              </div>
+            </>
+          )}
+        </DialogContent>
+      </Dialog>
+
+      {/* Accept with Company Selection Dialog */}
+      <Dialog open={!!acceptDialogRequest} onOpenChange={() => setAcceptDialogRequest(null)}>
+        <DialogContent className="max-w-md">
+          {acceptDialogRequest && (
+            <>
+              <DialogHeader>
+                <DialogTitle>Assign to Company</DialogTitle>
+                <DialogDescription>
+                  Select which company will fulfill this request for {acceptDialogRequest.resourceName}
+                </DialogDescription>
+              </DialogHeader>
+              
+              <div className="space-y-4 py-4">
+                <div className="flex items-center gap-3 p-3 bg-secondary rounded-lg">
+                  <ResourceIcon type={acceptDialogRequest.resourceType} className="h-5 w-5 text-muted-foreground" />
+                  <div>
+                    <p className="font-medium">{acceptDialogRequest.resourceName}</p>
+                    <p className="text-sm text-muted-foreground">
+                      {acceptDialogRequest.quantity} {acceptDialogRequest.unit}
+                    </p>
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="company-select" className="flex items-center gap-2">
+                    <Building2 className="h-4 w-4" />
+                    Select Company / Vendor
+                  </Label>
+                  <Select value={selectedCompanyId} onValueChange={setSelectedCompanyId}>
+                    <SelectTrigger id="company-select">
+                      <SelectValue placeholder="Choose a company..." />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {COMPANIES.map((company) => (
+                        <SelectItem key={company.id} value={company.id}>
+                          {company.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+
+              <div className="flex gap-2 justify-end">
+                <Button variant="outline" onClick={() => setAcceptDialogRequest(null)}>
+                  Cancel
+                </Button>
+                <Button 
+                  className="bg-status-accepted hover:bg-status-accepted/90"
+                  onClick={handleConfirmAccept}
+                  disabled={!selectedCompanyId}
+                >
+                  Accept & Assign
+                </Button>
               </div>
             </>
           )}

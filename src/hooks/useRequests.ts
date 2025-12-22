@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { ResourceRequest, Priority, Status, ResourceType, Availability } from '@/types/request';
+import { ResourceRequest, Priority, Status, ResourceType, Availability, Company } from '@/types/request';
 
 // Mock initial data
 const initialRequests: ResourceRequest[] = [
@@ -106,10 +106,15 @@ export function useRequests() {
     return newRequest;
   };
 
-  const updateStatus = (id: string, status: Status, deliveryNotes?: string) => {
+  const updateStatus = (id: string, status: Status, deliveryNotes?: string, assignedCompany?: Company) => {
     setRequests((prev) =>
       prev.map((req) =>
-        req.id === id ? { ...req, status, deliveryNotes: deliveryNotes || req.deliveryNotes } : req
+        req.id === id ? { 
+          ...req, 
+          status, 
+          deliveryNotes: deliveryNotes || req.deliveryNotes,
+          assignedCompany: assignedCompany || req.assignedCompany,
+        } : req
       )
     );
   };
