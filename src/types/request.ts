@@ -1,7 +1,8 @@
 export type Priority = 'critical' | 'high' | 'medium' | 'low';
-export type Status = 'pending' | 'accepted' | 'delivered' | 'declined';
+export type Status = 'pending' | 'in_review' | 'accepted' | 'in_delivery' | 'delivered' | 'declined';
 export type ResourceType = 'materials' | 'equipment' | 'services';
 export type UserRole = 'manager' | 'supplier';
+export type Availability = 'available' | 'limited' | 'not_available';
 
 export interface ResourceRequest {
   id: string;
@@ -16,6 +17,7 @@ export interface ResourceRequest {
   managerName: string;
   notes?: string;
   deliveryNotes?: string;
+  availability?: Availability;
 }
 
 export const PRIORITY_CONFIG = {
@@ -26,11 +28,27 @@ export const PRIORITY_CONFIG = {
 } as const;
 
 export const STATUS_CONFIG = {
-  pending: { label: 'Pending', color: 'status-pending' },
+  pending: { label: 'New', color: 'status-pending' },
+  in_review: { label: 'In Review', color: 'status-review' },
   accepted: { label: 'Accepted', color: 'status-accepted' },
-  delivered: { label: 'Delivered', color: 'status-delivered' },
+  in_delivery: { label: 'In Delivery', color: 'status-delivery' },
+  delivered: { label: 'Completed', color: 'status-delivered' },
   declined: { label: 'Declined', color: 'status-declined' },
 } as const;
+
+export const AVAILABILITY_CONFIG = {
+  available: { label: 'Available', color: 'bg-status-delivered/20 text-status-delivered border-status-delivered/30' },
+  limited: { label: 'Limited', color: 'bg-status-medium/20 text-status-medium border-status-medium/30' },
+  not_available: { label: 'Not Available', color: 'bg-status-critical/20 text-status-critical border-status-critical/30' },
+} as const;
+
+export const KANBAN_COLUMNS = [
+  { id: 'pending', label: 'New Requests', color: 'hsl(var(--status-pending))' },
+  { id: 'in_review', label: 'In Review', color: 'hsl(var(--status-review))' },
+  { id: 'accepted', label: 'Accepted', color: 'hsl(var(--status-accepted))' },
+  { id: 'in_delivery', label: 'In Delivery', color: 'hsl(var(--status-delivery))' },
+  { id: 'delivered', label: 'Completed', color: 'hsl(var(--status-delivered))' },
+] as const;
 
 export const RESOURCE_TYPES = {
   materials: { label: 'Materials', icon: 'Package' },
