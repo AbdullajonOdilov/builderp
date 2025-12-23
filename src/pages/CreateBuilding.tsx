@@ -36,8 +36,8 @@ const CreateBuilding = () => {
     addBuilding({
       objectName: objectName.trim(),
       contractNumber: contractNumber.trim() || undefined,
-      startDate: new Date(startDate),
-      expectedEndDate: new Date(expectedEndDate),
+      startDate: startDate ? new Date(startDate) : new Date(),
+      expectedEndDate: expectedEndDate ? new Date(expectedEndDate) : new Date(),
       totalPrice: parseFloat(totalPrice) || 0,
       usedMoney: parseFloat(usedMoney) || 0,
       documents,
@@ -106,7 +106,6 @@ const CreateBuilding = () => {
                   type="date"
                   value={startDate}
                   onChange={(e) => setStartDate(e.target.value)}
-                  required
                 />
               </div>
               <div className="space-y-2">
@@ -116,7 +115,6 @@ const CreateBuilding = () => {
                   type="date"
                   value={expectedEndDate}
                   onChange={(e) => setExpectedEndDate(e.target.value)}
-                  required
                 />
               </div>
             </div>
@@ -133,7 +131,6 @@ const CreateBuilding = () => {
                   placeholder="0.00"
                   value={totalPrice}
                   onChange={(e) => setTotalPrice(e.target.value)}
-                  required
                 />
               </div>
               <div className="space-y-2">
@@ -146,7 +143,6 @@ const CreateBuilding = () => {
                   placeholder="0.00"
                   value={usedMoney}
                   onChange={(e) => setUsedMoney(e.target.value)}
-                  required
                 />
               </div>
               <div className="p-4 bg-muted rounded-lg">
