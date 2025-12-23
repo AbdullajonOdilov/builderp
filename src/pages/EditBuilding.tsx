@@ -1,0 +1,212 @@
+import { useState, useEffect } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
+import { ArrowLeft, Building2 } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Card } from '@/components/ui/card';
+import { DocumentUpload } from '@/components/buildings/DocumentUpload';
+import { DocumentCard } from '@/components/buildings/DocumentCard';
+import { useBuildings } from '@/hooks/useBuildings';
+import { BuildingDocument } from '@/types/building';
+import { toast } from 'sonner';
+
+const EditBuilding = () => {
+  const navigate = useNavigate();
+  const { buildingId } = useParams();
+  const { getBuilding, updateBuilding } = useBuildings();
+  
+  const building = getBuilding(buildingId || '');
+  
+  const [objectName, setObjectName] = useState('');
+  const [contractNumber, setContractNumber] = useState('');
+  const [startDate, setStartDate] = useState('');
+  const [expectedEndDate, setExpectedEndDate] = useState('');
+  const [totalPrice, setTotalPrice] = useState('');
+  const [usedMoney, setUsedMoney] = useState('');
+  const [documents, setDocuments] = useState<BuildingDocument[]>([]);
+
+  useEffect(() => {
+    if (building) {
+      setObjectName(building.objectName);
+      setContractNumber(building.contractNumber || '');
+      setStartDate(building.startDate ? new Date(building.startDate).toISOString().split('T')[0] : '');
+      setExpectedEndDate(building.expectedEndDate ? new Date(building.expectedEndDate).toISOString().split('T')[0] : '');
+      setTotalPrice(building.totalPrice?.toString() || '');
+      setUsedMoney(building.usedMoney?.toString() || '');
+      setDocuments(building.documents || []);
+    }
+  }, [building]);
+
+  if (!building) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="text-center">
+          <h2 className="text-xl font-semibold mb-2">Building not found</h2>
+          <Button onClick={() => navigate('/buildings')}>Go back to Buildings</Button>
+        </div>
+      </div>
+    );
+  }
+
+  const leftMoney = (parseFloat(totalPrice) || 0) - (parseFloat(usedMoney) || 0);
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (!objectName.trim()) {
+      toast.error('Please enter an object name');
+      return;
+    }
+
+    updateBuilding(building.id, {
+      objectName: objectName.trim(),
+      contractNumber: contractNumber.trim() || undefined,
+      startDate: startDate ? new Date(startDate) : new Date(),
+      expectedEndDate: expectedEndDate ? new Date(expectedEndDate) : new Date(),
+      totalPrice: parseFloat(totalPrice) || 0,
+      usedMoney: parseFloat(usedMoney) || 0,
+      documents,
+    });
+
+    toast.success('Building updated successfully');
+    navigate(`/buildings/${building.id}`);
+  };
+
+  const handleDocumentUpload = (doc: BuildingDocument) => {
+    setDocuments(prev => [...prev, doc]);
+  };
+
+  const handleDocumentDelete = (id: string) => {
+    setDocuments(prev => prev.filter(d => d.id !== id));
+  };
+
+  return (
+    <div className="min-h-screen bg-background">
+      <div className="max-w-xl mx-auto p-6">
+        {/* Header */}
+        <div className="flex items-center gap-4 mb-8">
+          <Button variant="ghost" size="icon" onClick={() => navigate(`/buildings/${building.id}`)}>
+            <ArrowLeft className="h-5 w-5" />
+          </Button>
+          <div className="flex items-center gap-3">
+            <div className="p-2 bg-primary/10 rounded-xl">
+              <Building2 className="h-6 w-6 text-primary" />
+            </div>
+            <h1 className="text-2xl font-bold">Edit Building</h1>
+          </div>
+        </div>
+
+        {/* Form */}
+        <form onSubmit={handleSubmit}>
+          <Card className="p-6 space-y-6">
+            {/* Object Name */}
+            <div className="space-y-2">
+              <Label htmlFor="objectName">Object Name *</Label>
+              <Input
+                id="objectName"
+                placeholder="e.g., Office Tower A"
+                value={objectName}
+                onChange={(e) => setObjectName(e.target.value)}
+                required
+              />
+            </div>
+
+            {/* Contract Number */}
+            <div className="space-y-2">
+              <Label htmlFor="contractNumber">Contract Number</Label>
+              <Input
+                id="contractNumber"
+                placeholder="e.g., CT-2024-001"
+                value={contractNumber}
+                onChange={(e) => setContractNumber(e.target.value)}
+              />
+            </div>
+
+            {/* Dates */}
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="startDate">Start Date</Label>
+                <Input
+                  id="startDate"
+                  type="date"
+                  value={startDate}
+                  onChange={(e) => setStartDate(e.target.value)}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="expectedEndDate">Expected End Date</Label>
+                <Input
+                  id="expectedEndDate"
+                  type="date"
+                  value={expectedEndDate}
+                  onChange={(e) => setExpectedEndDate(e.target.value)}
+                />
+              </div>
+            </div>
+
+            {/* Money */}
+            <div className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="totalPrice">Total Price ($)</Label>
+                <Input
+                  id="totalPrice"
+                  type="number"
+                  min="0"
+                  step="0.01"
+                  placeholder="0.00"
+                  value={totalPrice}
+                  onChange={(e) => setTotalPrice(e.target.value)}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="usedMoney">Used Money ($)</Label>
+                <Input
+                  id="usedMoney"
+                  type="number"
+                  min="0"
+                  step="0.01"
+                  placeholder="0.00"
+                  value={usedMoney}
+                  onChange={(e) => setUsedMoney(e.target.value)}
+                />
+              </div>
+              <div className="p-4 bg-muted rounded-lg">
+                <div className="flex justify-between items-center">
+                  <span className="text-sm text-muted-foreground">Left Money</span>
+                  <span className={`text-lg font-bold ${leftMoney >= 0 ? 'text-green-600' : 'text-destructive'}`}>
+                    ${leftMoney.toLocaleString('en-US', { minimumFractionDigits: 2 })}
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            {/* Documents */}
+            <div className="space-y-3">
+              <Label>Documents</Label>
+              <DocumentUpload onUpload={handleDocumentUpload} />
+              {documents.length > 0 && (
+                <div className="space-y-2 mt-3">
+                  {documents.map(doc => (
+                    <DocumentCard 
+                      key={doc.id} 
+                      document={doc} 
+                      onDelete={() => handleDocumentDelete(doc.id)}
+                    />
+                  ))}
+                </div>
+              )}
+            </div>
+          </Card>
+
+          {/* Submit */}
+          <Button type="submit" size="lg" className="w-full mt-6">
+            Save Changes
+          </Button>
+        </form>
+      </div>
+    </div>
+  );
+};
+
+export default EditBuilding;
