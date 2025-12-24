@@ -436,6 +436,7 @@ export function PurchaseOrderReceipt({
               <thead>
                 <tr className="bg-primary text-primary-foreground">
                   <th className="p-2 text-left text-[10px] font-semibold uppercase rounded-tl-md">#</th>
+                  <th className="p-2 text-left text-[10px] font-semibold uppercase">Code</th>
                   <th className="p-2 text-left text-[10px] font-semibold uppercase">Description</th>
                   <th className="p-2 text-center text-[10px] font-semibold uppercase">Quantity</th>
                   <th className="p-2 text-center text-[10px] font-semibold uppercase">Unit</th>
@@ -450,6 +451,7 @@ export function PurchaseOrderReceipt({
                   return (
                     <tr key={req.id} className={index % 2 === 0 ? 'bg-muted/20' : ''}>
                       <td className="p-2 border-b text-xs">{index + 1}</td>
+                      <td className="p-2 border-b text-xs font-mono">{req.resourceCode || '-'}</td>
                       <td className="p-2 border-b">
                         <span className="text-xs font-medium">{req.resourceName}</span>
                         {req.projectName && (
