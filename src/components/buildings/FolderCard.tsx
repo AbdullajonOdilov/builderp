@@ -40,13 +40,22 @@ export const FolderCard = ({ name, subtitle, completionPercentage, onClick, onDe
         <div className="mt-4 space-y-1.5">
           <div className="flex items-center justify-between text-xs">
             <span className="text-muted-foreground">Completion</span>
-            <span className={`font-medium ${completionPercentage >= 100 ? 'text-green-600' : completionPercentage >= 75 ? 'text-amber-600' : ''}`}>
+            <span className={`font-medium ${
+              completionPercentage >= 90 ? 'text-green-600' : 
+              completionPercentage >= 20 ? 'text-amber-600' : 
+              'text-red-600'
+            }`}>
               {completionPercentage.toFixed(0)}%
             </span>
           </div>
           <Progress 
             value={Math.min(completionPercentage, 100)} 
             className="h-2"
+            indicatorClassName={
+              completionPercentage >= 90 ? 'bg-green-500' : 
+              completionPercentage >= 20 ? 'bg-amber-500' : 
+              'bg-red-500'
+            }
           />
         </div>
       )}
