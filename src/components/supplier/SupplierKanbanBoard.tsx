@@ -10,7 +10,10 @@ import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Checkbox } from '@/components/ui/checkbox';
-import { Search, AlertTriangle, Zap, EyeOff, ShoppingCart, Package, Layers, ChevronDown } from 'lucide-react';
+import { Search, AlertTriangle, Zap, EyeOff, ShoppingCart, Package, Layers, ChevronDown, Building2, Tag, Calendar, X } from 'lucide-react';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { format } from 'date-fns';
+import { Calendar as CalendarComponent } from '@/components/ui/calendar';
 import { toast } from 'sonner';
 import {
   Dialog,
@@ -61,6 +64,27 @@ export function SupplierKanbanBoard({
   const [showPurchasePanel, setShowPurchasePanel] = useState(false);
   const [selectedRequestIds, setSelectedRequestIds] = useState<Set<string>>(new Set());
   const [selectedOrderId, setSelectedOrderId] = useState<string | null>(null);
+  
+  // Filter states
+  const [selectedBuildings, setSelectedBuildings] = useState<string[]>([]);
+  const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
+  const [startDate, setStartDate] = useState<Date | undefined>();
+  const [endDate, setEndDate] = useState<Date | undefined>();
+
+  // Extract unique buildings and categories from requests
+  const uniqueBuildings = useMemo(() => {
+    const buildings = new Set<string>();
+    requests.forEach(r => {
+      if (r.projectName) buildings.add(r.projectName);
+    });
+    return Array.from(buildings).sort();
+  }, [requests]);
+
+  const uniqueCategories = useMemo(() => {
+    const categories = new Set<string>();
+    requests.forEach(r => categories.add(r.resourceType));
+    return Array.from(categories).sort();
+  }, [requests]);
 
   const declinedRequests = requests.filter((r) => r.status === 'declined');
 
@@ -124,6 +148,29 @@ export function SupplierKanbanBoard({
           (r.projectName && r.projectName.toLowerCase().includes(query))
         );
       }
+      return true;
+    })
+    .filter((r) => {
+      // Building filter
+      if (selectedBuildings.length > 0 && r.projectName) {
+        if (!selectedBuildings.includes(r.projectName)) return false;
+      } else if (selectedBuildings.length > 0 && !r.projectName) {
+        return false;
+      }
+      return true;
+    })
+    .filter((r) => {
+      // Category filter
+      if (selectedCategories.length > 0) {
+        if (!selectedCategories.includes(r.resourceType)) return false;
+      }
+      return true;
+    })
+    .filter((r) => {
+      // Date range filter
+      const requestDate = new Date(r.neededDate);
+      if (startDate && requestDate < startDate) return false;
+      if (endDate && requestDate > endDate) return false;
       return true;
     });
 
@@ -363,18 +410,176 @@ export function SupplierKanbanBoard({
           )}
         </div>
 
-        {/* Controls row */}
-        <div className="flex flex-wrap items-center gap-4">
+        {/* Filters row */}
+        <div className="flex flex-wrap items-center gap-3 mb-4">
           {/* Search */}
-          <div className="relative flex-1 min-w-[200px] max-w-sm">
+          <div className="relative min-w-[180px] max-w-[220px]">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <Input
-              placeholder="Search requests..."
+              placeholder="Search..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-10"
+              className="pl-10 h-9"
             />
           </div>
+
+          {/* Building Filter */}
+          <Popover>
+            <PopoverTrigger asChild>
+              <Button variant="outline" size="sm" className="h-9 gap-2">
+                <Building2 className="h-4 w-4" />
+                Building
+                {selectedBuildings.length > 0 && (
+                  <Badge variant="secondary" className="ml-1 h-5 px-1.5">
+                    {selectedBuildings.length}
+                  </Badge>
+                )}
+                <ChevronDown className="h-3 w-3 opacity-50" />
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-56 p-2 bg-popover" align="start">
+              <div className="space-y-1">
+                {uniqueBuildings.length === 0 ? (
+                  <p className="text-sm text-muted-foreground p-2">No buildings found</p>
+                ) : (
+                  uniqueBuildings.map((building) => (
+                    <div
+                      key={building}
+                      className="flex items-center gap-2 p-2 rounded-md hover:bg-accent cursor-pointer"
+                      onClick={() => {
+                        setSelectedBuildings(prev =>
+                          prev.includes(building)
+                            ? prev.filter(b => b !== building)
+                            : [...prev, building]
+                        );
+                      }}
+                    >
+                      <Checkbox checked={selectedBuildings.includes(building)} />
+                      <span className="text-sm truncate">{building}</span>
+                    </div>
+                  ))
+                )}
+                {selectedBuildings.length > 0 && (
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="w-full mt-2"
+                    onClick={() => setSelectedBuildings([])}
+                  >
+                    <X className="h-3 w-3 mr-1" />
+                    Clear
+                  </Button>
+                )}
+              </div>
+            </PopoverContent>
+          </Popover>
+
+          {/* Category Filter */}
+          <Popover>
+            <PopoverTrigger asChild>
+              <Button variant="outline" size="sm" className="h-9 gap-2">
+                <Tag className="h-4 w-4" />
+                Category
+                {selectedCategories.length > 0 && (
+                  <Badge variant="secondary" className="ml-1 h-5 px-1.5">
+                    {selectedCategories.length}
+                  </Badge>
+                )}
+                <ChevronDown className="h-3 w-3 opacity-50" />
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-48 p-2 bg-popover" align="start">
+              <div className="space-y-1">
+                {uniqueCategories.map((category) => (
+                  <div
+                    key={category}
+                    className="flex items-center gap-2 p-2 rounded-md hover:bg-accent cursor-pointer"
+                    onClick={() => {
+                      setSelectedCategories(prev =>
+                        prev.includes(category)
+                          ? prev.filter(c => c !== category)
+                          : [...prev, category]
+                      );
+                    }}
+                  >
+                    <Checkbox checked={selectedCategories.includes(category)} />
+                    <span className="text-sm capitalize">{category}</span>
+                  </div>
+                ))}
+                {selectedCategories.length > 0 && (
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="w-full mt-2"
+                    onClick={() => setSelectedCategories([])}
+                  >
+                    <X className="h-3 w-3 mr-1" />
+                    Clear
+                  </Button>
+                )}
+              </div>
+            </PopoverContent>
+          </Popover>
+
+          {/* Start Date */}
+          <Popover>
+            <PopoverTrigger asChild>
+              <Button variant="outline" size="sm" className="h-9 gap-2">
+                <Calendar className="h-4 w-4" />
+                {startDate ? format(startDate, 'MMM d') : 'Start Date'}
+                {startDate && (
+                  <X
+                    className="h-3 w-3 ml-1 hover:text-destructive"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setStartDate(undefined);
+                    }}
+                  />
+                )}
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-auto p-0 bg-popover" align="start">
+              <CalendarComponent
+                mode="single"
+                selected={startDate}
+                onSelect={setStartDate}
+                initialFocus
+                className="pointer-events-auto"
+              />
+            </PopoverContent>
+          </Popover>
+
+          {/* End Date */}
+          <Popover>
+            <PopoverTrigger asChild>
+              <Button variant="outline" size="sm" className="h-9 gap-2">
+                <Calendar className="h-4 w-4" />
+                {endDate ? format(endDate, 'MMM d') : 'End Date'}
+                {endDate && (
+                  <X
+                    className="h-3 w-3 ml-1 hover:text-destructive"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setEndDate(undefined);
+                    }}
+                  />
+                )}
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-auto p-0 bg-popover" align="start">
+              <CalendarComponent
+                mode="single"
+                selected={endDate}
+                onSelect={setEndDate}
+                initialFocus
+                className="pointer-events-auto"
+              />
+            </PopoverContent>
+          </Popover>
+        </div>
+
+        {/* Controls row */}
+        <div className="flex flex-wrap items-center gap-4">
 
           {/* Priority Mode Toggle */}
           <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-secondary/50">
