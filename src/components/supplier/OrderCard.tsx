@@ -2,7 +2,7 @@ import { Purchase, ResourceRequest, VENDORS, PURCHASE_COLORS } from '@/types/req
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Package, Calendar, Truck, ChevronDown, ChevronUp, Eye } from 'lucide-react';
+import { Package, Calendar, Truck, ChevronDown, ChevronUp, Eye, CheckCircle2 } from 'lucide-react';
 import { useState } from 'react';
 import { cn } from '@/lib/utils';
 
@@ -12,6 +12,7 @@ interface OrderCardProps {
   colorIndex: number;
   onViewDetails?: (purchaseId: string) => void;
   onStartDelivery?: (purchaseId: string) => void;
+  onMarkComplete?: (purchaseId: string) => void;
 }
 
 export function OrderCard({
@@ -20,6 +21,7 @@ export function OrderCard({
   colorIndex,
   onViewDetails,
   onStartDelivery,
+  onMarkComplete,
 }: OrderCardProps) {
   const [expanded, setExpanded] = useState(false);
   
@@ -135,7 +137,7 @@ export function OrderCard({
           </div>
         )}
 
-        {/* Action button */}
+        {/* Action buttons based on status */}
         {purchase.status === 'ordered' && onStartDelivery && (
           <Button
             size="sm"
@@ -145,6 +147,24 @@ export function OrderCard({
             <Truck className="h-4 w-4 mr-2" />
             Start Delivery
           </Button>
+        )}
+        
+        {purchase.status === 'in_delivery' && onMarkComplete && (
+          <Button
+            size="sm"
+            className="w-full mt-3 bg-status-delivered hover:bg-status-delivered/90"
+            onClick={() => onMarkComplete(purchase.id)}
+          >
+            <CheckCircle2 className="h-4 w-4 mr-2" />
+            Mark Complete
+          </Button>
+        )}
+        
+        {purchase.status === 'delivered' && (
+          <div className="mt-3 flex items-center justify-center gap-2 text-xs text-status-delivered font-medium">
+            <CheckCircle2 className="h-4 w-4" />
+            Completed
+          </div>
         )}
       </div>
     </Card>

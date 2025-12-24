@@ -82,6 +82,28 @@ export function SupplierKanbanBoard({
       }));
   }, [purchases, requests]);
 
+  // Get in-delivery purchases with their requests
+  const inDeliveryPurchases = useMemo(() => {
+    return purchases
+      .filter((p) => p.status === 'in_delivery')
+      .map((purchase, idx) => ({
+        purchase,
+        requests: requests.filter((r) => purchase.requestIds.includes(r.id)),
+        colorIndex: idx,
+      }));
+  }, [purchases, requests]);
+
+  // Get delivered purchases with their requests
+  const deliveredPurchases = useMemo(() => {
+    return purchases
+      .filter((p) => p.status === 'delivered')
+      .map((purchase, idx) => ({
+        purchase,
+        requests: requests.filter((r) => purchase.requestIds.includes(r.id)),
+        colorIndex: idx,
+      }));
+  }, [purchases, requests]);
+
   // Filter and sort requests
   const filteredRequests = requests
     .filter((r) => r.status !== 'declined')
@@ -224,6 +246,17 @@ export function SupplierKanbanBoard({
   const handleComplete = (id: string) => {
     onUpdateStatus(id, 'delivered');
     toast.success('Marked as completed!');
+  };
+
+  // Mark all requests in a purchase as complete
+  const handleCompletePurchase = (purchaseId: string) => {
+    const purchase = purchases.find((p) => p.id === purchaseId);
+    if (!purchase) return;
+    
+    purchase.requestIds.forEach((requestId) => {
+      onUpdateStatus(requestId, 'delivered');
+    });
+    toast.success('Order marked as complete!');
   };
 
   const handleDrop = (requestId: string, newStatus: Status) => {
@@ -452,7 +485,13 @@ export function SupplierKanbanBoard({
                   className="text-xs font-medium px-2 py-0.5 rounded-full"
                   style={{ backgroundColor: `${column.color}20`, color: column.color }}
                 >
-                  {column.id === 'ordered' ? orderedPurchases.length : columnRequests.length}
+                  {column.id === 'ordered' 
+                    ? orderedPurchases.length 
+                    : column.id === 'in_delivery'
+                    ? inDeliveryPurchases.length
+                    : column.id === 'delivered'
+                    ? deliveredPurchases.length
+                    : columnRequests.length}
                 </span>
               </div>
 
@@ -488,7 +527,7 @@ export function SupplierKanbanBoard({
                 
                 <ScrollArea className="h-[calc(100vh-350px)]">
                   <div className="space-y-3 pr-2">
-                    {/* Show OrderCards for ordered column, SelectableKanbanCards for others */}
+                    {/* Show OrderCards for ordered/in_delivery/delivered columns, SelectableKanbanCards for others */}
                     {column.id === 'ordered' ? (
                       <>
                         {orderedPurchases.map(({ purchase, requests: purchaseRequests, colorIndex }) => (
@@ -506,6 +545,39 @@ export function SupplierKanbanBoard({
                           </div>
                         )}
                       </>
+                    ) : column.id === 'in_delivery' ? (
+                      <>
+                        {inDeliveryPurchases.map(({ purchase, requests: purchaseRequests, colorIndex }) => (
+                          <OrderCard
+                            key={purchase.id}
+                            purchase={purchase}
+                            requests={purchaseRequests}
+                            colorIndex={colorIndex}
+                            onMarkComplete={handleCompletePurchase}
+                          />
+                        ))}
+                        {inDeliveryPurchases.length === 0 && (
+                          <div className="text-center py-8 text-muted-foreground text-sm">
+                            No deliveries
+                          </div>
+                        )}
+                      </>
+                    ) : column.id === 'delivered' ? (
+                      <>
+                        {deliveredPurchases.map(({ purchase, requests: purchaseRequests, colorIndex }) => (
+                          <OrderCard
+                            key={purchase.id}
+                            purchase={purchase}
+                            requests={purchaseRequests}
+                            colorIndex={colorIndex}
+                          />
+                        ))}
+                        {deliveredPurchases.length === 0 && (
+                          <div className="text-center py-8 text-muted-foreground text-sm">
+                            No completed orders
+                          </div>
+                        )}
+                      </>
                     ) : (
                       <>
                         {columnRequests.map((request) => (
@@ -518,7 +590,6 @@ export function SupplierKanbanBoard({
                             onSetAvailability={column.id === 'pending' ? onSetAvailability : undefined}
                             onViewDetails={handleViewDetails}
                             onUpdateQuantity={column.id === 'selected' ? onUpdateQuantity : undefined}
-                            onUpdateFulfilled={column.id === 'in_delivery' ? onUpdateFulfilledQuantity : undefined}
                             onDecline={column.id === 'pending' ? handleDecline : undefined}
                           />
                         ))}
