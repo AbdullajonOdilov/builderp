@@ -109,15 +109,8 @@ export function SelectableKanbanCard({
       {/* Simplified layout for pending/new requests */}
       {request.status === 'pending' ? (
         <>
-          {/* Row 1: Checkbox, Resource name, Quantity and eye icon */}
+          {/* Row 1: Resource name, Quantity and eye icon */}
           <div className="flex items-start gap-2 mb-2">
-            {onSelect && (
-              <Checkbox
-                checked={isSelected}
-                onCheckedChange={(checked) => onSelect(request.id, !!checked)}
-                className="h-5 w-5 mt-0.5 shrink-0"
-              />
-            )}
             <div className="flex-1 min-w-0">
               <div className="flex items-baseline gap-2">
                 <h3 className="font-semibold text-foreground leading-tight truncate">
