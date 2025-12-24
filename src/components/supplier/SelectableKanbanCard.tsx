@@ -106,8 +106,8 @@ export function SelectableKanbanCard({
         e.dataTransfer.effectAllowed = 'move';
       }}
     >
-      {/* Simplified layout for pending/new requests */}
-      {request.status === 'pending' ? (
+      {/* Simplified layout for pending and selected requests */}
+      {(request.status === 'pending' || request.status === 'selected') ? (
         <>
           {/* Row 1: Resource name, Quantity and eye icon */}
           <div className="flex items-start gap-2 mb-2">
@@ -131,9 +131,9 @@ export function SelectableKanbanCard({
             </Button>
           </div>
 
-          {/* Row 2: Checkbox, Project and Date */}
+          {/* Row 2: Checkbox (only for pending), Project and Date */}
           <div className="flex items-center gap-2 text-xs text-muted-foreground">
-            {onSelect && (
+            {request.status === 'pending' && onSelect && (
               <Checkbox
                 checked={isSelected}
                 onCheckedChange={(checked) => onSelect(request.id, !!checked)}
@@ -180,31 +180,9 @@ export function SelectableKanbanCard({
             {request.resourceName}
           </h3>
 
-          {/* Quantity - editable for selected */}
+          {/* Quantity */}
           <div className="flex items-center gap-2 text-sm text-muted-foreground mb-3">
-            {request.status === 'selected' && isEditingQty ? (
-              <Input
-                type="number"
-                value={tempQty}
-                onChange={(e) => setTempQty(Number(e.target.value))}
-                onBlur={handleQuantityChange}
-                onKeyDown={(e) => e.key === 'Enter' && handleQuantityChange()}
-                className="h-7 w-20 text-sm"
-                autoFocus
-              />
-            ) : (
-              <span 
-                className={cn(
-                  request.status === 'selected' && 'cursor-pointer hover:text-foreground underline decoration-dashed'
-                )}
-                onClick={() => request.status === 'selected' && setIsEditingQty(true)}
-              >
-                {request.quantity} {request.unit}
-              </span>
-            )}
-            {request.status === 'selected' && !isEditingQty && (
-              <span className="text-xs text-muted-foreground/60">(click to edit)</span>
-            )}
+            <span>{request.quantity} {request.unit}</span>
           </div>
 
           {/* Project and Manager */}
@@ -285,19 +263,9 @@ export function SelectableKanbanCard({
             </div>
           )}
 
-          {/* Quick actions for non-pending */}
+          {/* Quick actions for non-pending/selected */}
           {showActions && (
             <div className="flex gap-2">
-              {request.status === 'selected' && onSelect && (
-                <Button
-                  size="sm"
-                  className="flex-1 h-9 bg-primary hover:bg-primary/90"
-                  onClick={() => onSelect(request.id, false)}
-                >
-                  Selected ✓
-                </Button>
-              )}
-
               {request.status === 'in_delivery' && (
                 <div className="flex-1 flex items-center justify-center gap-2 text-sm text-status-delivery font-medium py-2">
                   <Truck className="h-4 w-4" />
