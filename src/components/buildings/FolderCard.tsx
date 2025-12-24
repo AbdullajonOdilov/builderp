@@ -1,5 +1,6 @@
 import { Folder, MoreVertical, Trash2, Edit } from 'lucide-react';
 import { Card } from '@/components/ui/card';
+import { Progress } from '@/components/ui/progress';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -11,12 +12,13 @@ import { Button } from '@/components/ui/button';
 interface FolderCardProps {
   name: string;
   subtitle?: string;
+  completionPercentage?: number;
   onClick: () => void;
   onDelete?: () => void;
   onEdit?: () => void;
 }
 
-export const FolderCard = ({ name, subtitle, onClick, onDelete, onEdit }: FolderCardProps) => {
+export const FolderCard = ({ name, subtitle, completionPercentage, onClick, onDelete, onEdit }: FolderCardProps) => {
   return (
     <Card 
       className="group relative p-6 cursor-pointer hover:bg-accent/50 transition-all duration-200 border-2 hover:border-primary/30 hover:shadow-lg"
@@ -33,6 +35,21 @@ export const FolderCard = ({ name, subtitle, onClick, onDelete, onEdit }: Folder
           )}
         </div>
       </div>
+      
+      {completionPercentage !== undefined && (
+        <div className="mt-4 space-y-1.5">
+          <div className="flex items-center justify-between text-xs">
+            <span className="text-muted-foreground">Completion</span>
+            <span className={`font-medium ${completionPercentage >= 100 ? 'text-green-600' : completionPercentage >= 75 ? 'text-amber-600' : ''}`}>
+              {completionPercentage.toFixed(0)}%
+            </span>
+          </div>
+          <Progress 
+            value={Math.min(completionPercentage, 100)} 
+            className="h-2"
+          />
+        </div>
+      )}
       
       {(onDelete || onEdit) && (
         <div 

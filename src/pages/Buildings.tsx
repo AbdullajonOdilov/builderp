@@ -72,16 +72,22 @@ const Buildings = () => {
           </div>
         ) : (
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-            {buildings.map((building) => (
-              <FolderCard
-                key={building.id}
-                name={building.objectName}
-                subtitle={`${building.sections.length} sections • ${formatCurrency(building.totalPrice - building.usedMoney)} left`}
-                onClick={() => navigate(`/buildings/${building.id}`)}
-                onDelete={() => setDeleteId(building.id)}
-                onEdit={() => navigate(`/buildings/${building.id}/edit`)}
-              />
-            ))}
+            {buildings.map((building) => {
+              const completionPercentage = building.totalPrice > 0 
+                ? (building.usedMoney / building.totalPrice) * 100 
+                : 0;
+              return (
+                <FolderCard
+                  key={building.id}
+                  name={building.objectName}
+                  subtitle={`${building.sections.length} sections • ${formatCurrency(building.totalPrice - building.usedMoney)} left`}
+                  completionPercentage={completionPercentage}
+                  onClick={() => navigate(`/buildings/${building.id}`)}
+                  onDelete={() => setDeleteId(building.id)}
+                  onEdit={() => navigate(`/buildings/${building.id}/edit`)}
+                />
+              );
+            })}
           </div>
         )}
       </div>
