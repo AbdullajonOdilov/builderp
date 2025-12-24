@@ -34,6 +34,7 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
+import { PurchaseOrderReceipt } from './PurchaseOrderReceipt';
 
 interface PurchasePanelProps {
   selectedRequests: ResourceRequest[];
@@ -89,6 +90,9 @@ export function PurchasePanel({
     contact: '',
     phone: '',
   });
+  const [showReceipt, setShowReceipt] = useState(false);
+  const [createdPurchaseId, setCreatedPurchaseId] = useState<string>('');
+  const [createdAt, setCreatedAt] = useState<string>('');
   
   // Track unit price and given amount per request
   const [lineItems, setLineItems] = useState<Record<string, RequestLineItem>>(() => {
@@ -178,7 +182,22 @@ export function PurchasePanel({
     });
     
     savePricingHistory(history);
-    onCreatePurchase(selectedVendorId, deliveryDate, notes);
+    
+    // Generate purchase ID and show receipt
+    const purchaseId = `PO-${Date.now()}`;
+    setCreatedPurchaseId(purchaseId);
+    setCreatedAt(new Date().toISOString());
+    setShowReceipt(true);
+  };
+
+  const handleReceiptClose = (open: boolean) => {
+    if (!open) {
+      setShowReceipt(false);
+      // Now actually create the purchase and close the panel
+      if (selectedVendorId && deliveryDate) {
+        onCreatePurchase(selectedVendorId, deliveryDate, notes);
+      }
+    }
   };
 
   const handleAddVendor = () => {
@@ -475,6 +494,21 @@ export function PurchasePanel({
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {/* Purchase Order Receipt Dialog */}
+      {selectedVendorId && (
+        <PurchaseOrderReceipt
+          open={showReceipt}
+          onOpenChange={handleReceiptClose}
+          purchaseId={createdPurchaseId}
+          vendorId={selectedVendorId}
+          requests={selectedRequests}
+          lineItems={lineItems}
+          deliveryDate={deliveryDate}
+          notes={notes}
+          createdAt={createdAt}
+        />
+      )}
     </>
   );
 }
