@@ -40,11 +40,14 @@ export const useBuildings = () => {
     saveBuildings(buildings.filter(b => b.id !== id));
   };
 
-  const addSection = (buildingId: string, name: string) => {
+  const addSection = (buildingId: string, name: string, options?: { startDate?: Date; expectedEndDate?: Date; sectionPrice?: number }) => {
     const newSection: BuildingSection = {
       id: crypto.randomUUID(),
       buildingId,
       name,
+      startDate: options?.startDate,
+      expectedEndDate: options?.expectedEndDate,
+      sectionPrice: options?.sectionPrice,
       documents: [],
       createdAt: new Date(),
     };

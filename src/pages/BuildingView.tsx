@@ -1,15 +1,20 @@
 import { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { Plus, FolderPlus } from 'lucide-react';
+import { Plus, FolderPlus, CalendarIcon } from 'lucide-react';
+import { format } from 'date-fns';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card } from '@/components/ui/card';
+import { Label } from '@/components/ui/label';
+import { Calendar } from '@/components/ui/calendar';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { FolderCard } from '@/components/buildings/FolderCard';
 import { DocumentCard } from '@/components/buildings/DocumentCard';
 import { DocumentUpload } from '@/components/buildings/DocumentUpload';
 import { BuildingBreadcrumbs } from '@/components/buildings/BuildingBreadcrumbs';
 import { useBuildings } from '@/hooks/useBuildings';
 import { BuildingDocument } from '@/types/building';
+import { cn } from '@/lib/utils';
 import {
   Dialog,
   DialogContent,
@@ -36,6 +41,9 @@ const BuildingView = () => {
   
   const [showNewSection, setShowNewSection] = useState(false);
   const [newSectionName, setNewSectionName] = useState('');
+  const [newSectionStartDate, setNewSectionStartDate] = useState<Date | undefined>();
+  const [newSectionEndDate, setNewSectionEndDate] = useState<Date | undefined>();
+  const [newSectionPrice, setNewSectionPrice] = useState('');
   const [deleteSectionId, setDeleteSectionId] = useState<string | null>(null);
 
   const building = getBuilding(buildingId || '');
@@ -56,8 +64,15 @@ const BuildingView = () => {
       toast.error('Please enter a section name');
       return;
     }
-    addSection(building.id, newSectionName.trim());
+    addSection(building.id, newSectionName.trim(), {
+      startDate: newSectionStartDate,
+      expectedEndDate: newSectionEndDate,
+      sectionPrice: newSectionPrice ? parseFloat(newSectionPrice) : undefined,
+    });
     setNewSectionName('');
+    setNewSectionStartDate(undefined);
+    setNewSectionEndDate(undefined);
+    setNewSectionPrice('');
     setShowNewSection(false);
     toast.success('Section created');
   };
@@ -171,17 +186,89 @@ const BuildingView = () => {
 
       {/* New Section Dialog */}
       <Dialog open={showNewSection} onOpenChange={setShowNewSection}>
-        <DialogContent>
+        <DialogContent className="sm:max-w-md">
           <DialogHeader>
             <DialogTitle>New Section</DialogTitle>
           </DialogHeader>
-          <Input
-            placeholder="Section name (e.g., Floor 1, Block A)"
-            value={newSectionName}
-            onChange={(e) => setNewSectionName(e.target.value)}
-            onKeyDown={(e) => e.key === 'Enter' && handleCreateSection()}
-            autoFocus
-          />
+          <div className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="sectionName">Section Name *</Label>
+              <Input
+                id="sectionName"
+                placeholder="e.g., Floor 1, Block A"
+                value={newSectionName}
+                onChange={(e) => setNewSectionName(e.target.value)}
+                autoFocus
+              />
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label>Start Date</Label>
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <Button
+                      variant="outline"
+                      className={cn(
+                        "w-full justify-start text-left font-normal",
+                        !newSectionStartDate && "text-muted-foreground"
+                      )}
+                    >
+                      <CalendarIcon className="mr-2 h-4 w-4" />
+                      {newSectionStartDate ? format(newSectionStartDate, "PP") : "Pick date"}
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-auto p-0" align="start">
+                    <Calendar
+                      mode="single"
+                      selected={newSectionStartDate}
+                      onSelect={setNewSectionStartDate}
+                      initialFocus
+                      className="p-3 pointer-events-auto"
+                    />
+                  </PopoverContent>
+                </Popover>
+              </div>
+
+              <div className="space-y-2">
+                <Label>Expected End Date</Label>
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <Button
+                      variant="outline"
+                      className={cn(
+                        "w-full justify-start text-left font-normal",
+                        !newSectionEndDate && "text-muted-foreground"
+                      )}
+                    >
+                      <CalendarIcon className="mr-2 h-4 w-4" />
+                      {newSectionEndDate ? format(newSectionEndDate, "PP") : "Pick date"}
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-auto p-0" align="start">
+                    <Calendar
+                      mode="single"
+                      selected={newSectionEndDate}
+                      onSelect={setNewSectionEndDate}
+                      initialFocus
+                      className="p-3 pointer-events-auto"
+                    />
+                  </PopoverContent>
+                </Popover>
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="sectionPrice">Section Price</Label>
+              <Input
+                id="sectionPrice"
+                type="number"
+                placeholder="e.g., 50000"
+                value={newSectionPrice}
+                onChange={(e) => setNewSectionPrice(e.target.value)}
+              />
+            </div>
+          </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setShowNewSection(false)}>Cancel</Button>
             <Button onClick={handleCreateSection}>Create</Button>

@@ -10,6 +10,9 @@ export interface BuildingSection {
   id: string;
   buildingId: string;
   name: string;
+  startDate?: Date;
+  expectedEndDate?: Date;
+  sectionPrice?: number;
   documents: BuildingDocument[];
   createdAt: Date;
 }
