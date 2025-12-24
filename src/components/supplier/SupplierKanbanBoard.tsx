@@ -3,6 +3,7 @@ import { ResourceRequest, Status, Availability, Purchase, KANBAN_COLUMNS, PRIORI
 import { SelectableKanbanCard } from './SelectableKanbanCard';
 import { PurchasePanel } from './PurchasePanel';
 import { OrderCard } from './OrderCard';
+import { OrderDetailsDialog } from './OrderDetailsDialog';
 import { Button } from '@/components/ui/button';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
@@ -59,6 +60,7 @@ export function SupplierKanbanBoard({
   const [showDeclined, setShowDeclined] = useState(false);
   const [showPurchasePanel, setShowPurchasePanel] = useState(false);
   const [selectedRequestIds, setSelectedRequestIds] = useState<Set<string>>(new Set());
+  const [selectedOrderId, setSelectedOrderId] = useState<string | null>(null);
 
   const declinedRequests = requests.filter((r) => r.status === 'declined');
 
@@ -312,6 +314,11 @@ export function SupplierKanbanBoard({
 
     const columnLabel = KANBAN_COLUMNS.find(c => c.id === newStatus)?.label || newStatus;
     toast.success(`Order moved to ${columnLabel}`);
+  };
+
+
+  const handleViewOrderDetails = (purchaseId: string) => {
+    setSelectedOrderId(purchaseId);
   };
 
   const handleViewDetails = (id: string) => {
@@ -572,6 +579,7 @@ export function SupplierKanbanBoard({
                             purchase={purchase}
                             requests={purchaseRequests}
                             colorIndex={colorIndex}
+                            onViewDetails={handleViewOrderDetails}
                             onStartDelivery={handleStartPurchaseDelivery}
                           />
                         ))}
@@ -589,6 +597,7 @@ export function SupplierKanbanBoard({
                             purchase={purchase}
                             requests={purchaseRequests}
                             colorIndex={colorIndex}
+                            onViewDetails={handleViewOrderDetails}
                             onMarkComplete={handleCompletePurchase}
                           />
                         ))}
@@ -606,6 +615,7 @@ export function SupplierKanbanBoard({
                             purchase={purchase}
                             requests={purchaseRequests}
                             colorIndex={colorIndex}
+                            onViewDetails={handleViewOrderDetails}
                           />
                         ))}
                         {deliveredPurchases.length === 0 && (
@@ -808,6 +818,15 @@ export function SupplierKanbanBoard({
           )}
         </DialogContent>
       </Dialog>
+
+      {/* Order Details Dialog */}
+      <OrderDetailsDialog
+        purchase={purchases.find(p => p.id === selectedOrderId) || null}
+        requests={selectedOrderId ? requests.filter(r => purchases.find(p => p.id === selectedOrderId)?.requestIds.includes(r.id)) : []}
+        colorIndex={purchases.findIndex(p => p.id === selectedOrderId)}
+        open={!!selectedOrderId}
+        onOpenChange={(open) => !open && setSelectedOrderId(null)}
+      />
     </div>
   );
 }
