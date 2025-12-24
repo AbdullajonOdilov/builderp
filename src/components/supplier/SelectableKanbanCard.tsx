@@ -131,29 +131,17 @@ export function SelectableKanbanCard({
             </Button>
           </div>
 
-          {/* Row 2: Checkbox (only for pending), Project and Date */}
-          <div className="flex items-center gap-2 text-xs text-muted-foreground">
-            {request.status === 'pending' && onSelect && (
+          {/* Row 2: Checkbox (only for pending) */}
+          {request.status === 'pending' && onSelect && (
+            <div className="flex items-center gap-2 text-xs text-muted-foreground">
               <Checkbox
                 checked={isSelected}
                 onCheckedChange={(checked) => onSelect(request.id, !!checked)}
                 className="h-4 w-4 shrink-0"
               />
-            )}
-            <span className="font-medium truncate flex-1">
-              {request.projectName || 'General'}
-            </span>
-            <span className={cn(
-              'flex items-center gap-1 shrink-0',
-              isSoon ? 'text-status-critical font-medium' : ''
-            )}>
-              <Calendar className="h-3 w-3" />
-              {formatDate(request.neededDate)}
-              {isSoon && daysUntil >= 0 && (
-                <span>({daysUntil === 0 ? 'Today!' : `${daysUntil}d`})</span>
-              )}
-            </span>
-          </div>
+              <span className="text-muted-foreground">Select for purchase</span>
+            </div>
+          )}
         </>
       ) : (
         <>
