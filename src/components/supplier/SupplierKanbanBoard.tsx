@@ -16,24 +16,12 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import { format } from 'date-fns';
 import { Calendar as CalendarComponent } from '@/components/ui/calendar';
 import { toast } from 'sonner';
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogDescription,
-} from '@/components/ui/dialog';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { PriorityBadge } from '../PriorityBadge';
 import { ResourceIcon } from '../ResourceIcon';
 import { cn } from '@/lib/utils';
 import { ScrollArea } from '@/components/ui/scroll-area';
-
 interface SupplierKanbanBoardProps {
   requests: ResourceRequest[];
   purchases: Purchase[];
@@ -45,7 +33,6 @@ interface SupplierKanbanBoardProps {
   onUpdateQuantity: (id: string, quantity: number) => void;
   onUpdateFulfilledQuantity: (id: string, fulfilledQuantity: number) => void;
 }
-
 export function SupplierKanbanBoard({
   requests,
   purchases,
@@ -55,7 +42,7 @@ export function SupplierKanbanBoard({
   onDeselectFromPurchase,
   onCreatePurchase,
   onUpdateQuantity,
-  onUpdateFulfilledQuantity,
+  onUpdateFulfilledQuantity
 }: SupplierKanbanBoardProps) {
   const [priorityMode, setPriorityMode] = useState(false);
   const [showUrgentOnly, setShowUrgentOnly] = useState(false);
@@ -80,105 +67,86 @@ export function SupplierKanbanBoard({
     });
     return Array.from(buildings).sort();
   }, [requests]);
-
   const uniqueCategories = useMemo(() => {
     const categories = new Set<string>();
     requests.forEach(r => categories.add(r.resourceType));
     return Array.from(categories).sort();
   }, [requests]);
-
-  const declinedRequests = requests.filter((r) => r.status === 'declined');
+  const declinedRequests = requests.filter(r => r.status === 'declined');
 
   // Get purchase color index for grouped requests
   const purchaseColorMap = useMemo(() => {
     const map = new Map<string, number>();
     purchases.forEach((p, idx) => {
-      p.requestIds.forEach((rid) => map.set(rid, idx));
+      p.requestIds.forEach(rid => map.set(rid, idx));
     });
     return map;
   }, [purchases]);
 
   // Get ordered purchases with their requests
   const orderedPurchases = useMemo(() => {
-    return purchases
-      .filter((p) => p.status === 'ordered')
-      .map((purchase, idx) => ({
-        purchase,
-        requests: requests.filter((r) => purchase.requestIds.includes(r.id)),
-        colorIndex: idx,
-      }));
+    return purchases.filter(p => p.status === 'ordered').map((purchase, idx) => ({
+      purchase,
+      requests: requests.filter(r => purchase.requestIds.includes(r.id)),
+      colorIndex: idx
+    }));
   }, [purchases, requests]);
 
   // Get in-delivery purchases with their requests
   const inDeliveryPurchases = useMemo(() => {
-    return purchases
-      .filter((p) => p.status === 'in_delivery')
-      .map((purchase, idx) => ({
-        purchase,
-        requests: requests.filter((r) => purchase.requestIds.includes(r.id)),
-        colorIndex: idx,
-      }));
+    return purchases.filter(p => p.status === 'in_delivery').map((purchase, idx) => ({
+      purchase,
+      requests: requests.filter(r => purchase.requestIds.includes(r.id)),
+      colorIndex: idx
+    }));
   }, [purchases, requests]);
 
   // Get delivered purchases with their requests
   const deliveredPurchases = useMemo(() => {
-    return purchases
-      .filter((p) => p.status === 'delivered')
-      .map((purchase, idx) => ({
-        purchase,
-        requests: requests.filter((r) => purchase.requestIds.includes(r.id)),
-        colorIndex: idx,
-      }));
+    return purchases.filter(p => p.status === 'delivered').map((purchase, idx) => ({
+      purchase,
+      requests: requests.filter(r => purchase.requestIds.includes(r.id)),
+      colorIndex: idx
+    }));
   }, [purchases, requests]);
 
   // Filter and sort requests
-  const filteredRequests = requests
-    .filter((r) => r.status !== 'declined')
-    .filter((r) => {
-      if (showUrgentOnly) {
-        return r.priority === 'critical' || r.priority === 'high';
-      }
-      return true;
-    })
-    .filter((r) => {
-      if (searchQuery) {
-        const query = searchQuery.toLowerCase();
-        return (
-          r.resourceName.toLowerCase().includes(query) ||
-          r.managerName.toLowerCase().includes(query) ||
-          (r.projectName && r.projectName.toLowerCase().includes(query))
-        );
-      }
-      return true;
-    })
-    .filter((r) => {
-      // Building filter
-      if (selectedBuildings.length > 0 && r.projectName) {
-        if (!selectedBuildings.includes(r.projectName)) return false;
-      } else if (selectedBuildings.length > 0 && !r.projectName) {
-        return false;
-      }
-      return true;
-    })
-    .filter((r) => {
-      // Category filter
-      if (selectedCategories.length > 0) {
-        if (!selectedCategories.includes(r.resourceType)) return false;
-      }
-      return true;
-    })
-    .filter((r) => {
-      // Date range filter
-      const requestDate = new Date(r.neededDate);
-      if (startDate && requestDate < startDate) return false;
-      if (endDate && requestDate > endDate) return false;
-      return true;
-    });
+  const filteredRequests = requests.filter(r => r.status !== 'declined').filter(r => {
+    if (showUrgentOnly) {
+      return r.priority === 'critical' || r.priority === 'high';
+    }
+    return true;
+  }).filter(r => {
+    if (searchQuery) {
+      const query = searchQuery.toLowerCase();
+      return r.resourceName.toLowerCase().includes(query) || r.managerName.toLowerCase().includes(query) || r.projectName && r.projectName.toLowerCase().includes(query);
+    }
+    return true;
+  }).filter(r => {
+    // Building filter
+    if (selectedBuildings.length > 0 && r.projectName) {
+      if (!selectedBuildings.includes(r.projectName)) return false;
+    } else if (selectedBuildings.length > 0 && !r.projectName) {
+      return false;
+    }
+    return true;
+  }).filter(r => {
+    // Category filter
+    if (selectedCategories.length > 0) {
+      if (!selectedCategories.includes(r.resourceType)) return false;
+    }
+    return true;
+  }).filter(r => {
+    // Date range filter
+    const requestDate = new Date(r.neededDate);
+    if (startDate && requestDate < startDate) return false;
+    if (endDate && requestDate > endDate) return false;
+    return true;
+  });
 
   // Sort by priority and date in priority mode
   const sortRequests = (reqs: ResourceRequest[]) => {
     if (!priorityMode) return reqs;
-    
     return [...reqs].sort((a, b) => {
       const priorityOrder = PRIORITY_CONFIG[a.priority].order - PRIORITY_CONFIG[b.priority].order;
       if (priorityOrder !== 0) return priorityOrder;
@@ -188,23 +156,17 @@ export function SupplierKanbanBoard({
 
   // Get requests for each column
   const getColumnRequests = (status: Status) => {
-    return sortRequests(filteredRequests.filter((r) => r.status === status));
+    return sortRequests(filteredRequests.filter(r => r.status === status));
   };
 
   // Stats
-  const pendingCount = requests.filter((r) => r.status === 'pending').length;
-  const selectedCount = requests.filter((r) => r.status === 'selected').length;
-  const criticalCount = requests.filter(
-    (r) => r.priority === 'critical' && r.status === 'pending'
-  ).length;
-  const todayCount = requests.filter((r) => {
+  const pendingCount = requests.filter(r => r.status === 'pending').length;
+  const selectedCount = requests.filter(r => r.status === 'selected').length;
+  const criticalCount = requests.filter(r => r.priority === 'critical' && r.status === 'pending').length;
+  const todayCount = requests.filter(r => {
     const today = new Date();
     const needed = new Date(r.neededDate);
-    return (
-      r.status !== 'delivered' &&
-      r.status !== 'declined' &&
-      needed.toDateString() === today.toDateString()
-    );
+    return r.status !== 'delivered' && r.status !== 'declined' && needed.toDateString() === today.toDateString();
   }).length;
 
   // Group requests by resource type for quick bundling
@@ -223,9 +185,11 @@ export function SupplierKanbanBoard({
 
   // Get resource types that have multiple requests (can be bundled)
   const bundleableTypes = useMemo(() => {
-    return Array.from(pendingByResourceType.entries())
-      .filter(([_, reqs]) => reqs.length > 1)
-      .map(([type, reqs]) => ({ type, count: reqs.length, requests: reqs }));
+    return Array.from(pendingByResourceType.entries()).filter(([_, reqs]) => reqs.length > 1).map(([type, reqs]) => ({
+      type,
+      count: reqs.length,
+      requests: reqs
+    }));
   }, [pendingByResourceType]);
 
   // Selection handlers
@@ -238,14 +202,12 @@ export function SupplierKanbanBoard({
     }
     setSelectedRequestIds(newSet);
   };
-
   const handleAddToPurchase = () => {
     if (selectedRequestIds.size === 0) return;
     onSelectForPurchase(Array.from(selectedRequestIds));
     setSelectedRequestIds(new Set());
     toast.success(`${selectedRequestIds.size} request(s) added to purchase`);
   };
-
   const handleQuickBundle = (resourceType: string) => {
     const reqs = pendingByResourceType.get(resourceType);
     if (!reqs) return;
@@ -253,30 +215,20 @@ export function SupplierKanbanBoard({
     onSelectForPurchase(ids);
     toast.success(`Bundled ${ids.length} ${resourceType} requests for purchase`);
   };
-
   const handleRemoveFromPurchase = (id: string) => {
     onDeselectFromPurchase([id]);
   };
-
   const handleCreatePurchase = (vendorId: string, deliveryDate: string, notes: string) => {
-    const selectedReqs = requests.filter((r) => r.status === 'selected');
+    const selectedReqs = requests.filter(r => r.status === 'selected');
     if (selectedReqs.length === 0) return;
-    
-    onCreatePurchase(
-      selectedReqs.map((r) => r.id),
-      vendorId,
-      deliveryDate,
-      notes
-    );
+    onCreatePurchase(selectedReqs.map(r => r.id), vendorId, deliveryDate, notes);
     setShowPurchasePanel(false);
     toast.success('Purchase order created successfully!');
   };
-
   const handleDecline = (id: string) => {
     onUpdateStatus(id, 'declined');
     toast.info('Request declined');
   };
-
   const handleStartDelivery = (id: string) => {
     onUpdateStatus(id, 'in_delivery');
     toast.info('Delivery started');
@@ -284,15 +236,13 @@ export function SupplierKanbanBoard({
 
   // Start delivery for all requests in a purchase order
   const handleStartPurchaseDelivery = (purchaseId: string) => {
-    const purchase = purchases.find((p) => p.id === purchaseId);
+    const purchase = purchases.find(p => p.id === purchaseId);
     if (!purchase) return;
-    
-    purchase.requestIds.forEach((requestId) => {
+    purchase.requestIds.forEach(requestId => {
       onUpdateStatus(requestId, 'in_delivery');
     });
     toast.info('Delivery started for all items in order');
   };
-
   const handleComplete = (id: string) => {
     onUpdateStatus(id, 'delivered');
     toast.success('Marked as completed!');
@@ -300,10 +250,9 @@ export function SupplierKanbanBoard({
 
   // Mark all requests in a purchase as complete
   const handleCompletePurchase = (purchaseId: string) => {
-    const purchase = purchases.find((p) => p.id === purchaseId);
+    const purchase = purchases.find(p => p.id === purchaseId);
     if (!purchase) return;
-    
-    purchase.requestIds.forEach((requestId) => {
+    purchase.requestIds.forEach(requestId => {
       onUpdateStatus(requestId, 'delivered');
     });
     toast.success('Order marked as complete!');
@@ -313,11 +262,10 @@ export function SupplierKanbanBoard({
   const handlePrintReceipt = (purchaseId: string) => {
     setReceiptPurchaseId(purchaseId);
   };
-
   const handleDrop = (requestId: string, newStatus: Status) => {
-    const request = requests.find((r) => r.id === requestId);
+    const request = requests.find(r => r.id === requestId);
     if (!request) return;
-    
+
     // Validate status transitions
     const validTransitions: Record<Status, Status[]> = {
       pending: ['selected', 'declined'],
@@ -325,14 +273,12 @@ export function SupplierKanbanBoard({
       ordered: ['in_delivery'],
       in_delivery: ['ordered', 'delivered'],
       delivered: [],
-      declined: ['pending'],
+      declined: ['pending']
     };
-
     if (!validTransitions[request.status].includes(newStatus)) {
       toast.error('Invalid status transition');
       return;
     }
-
     if (newStatus === 'selected') {
       onSelectForPurchase([requestId]);
     } else if (request.status === 'selected' && newStatus === 'pending') {
@@ -345,88 +291,60 @@ export function SupplierKanbanBoard({
 
   // Handle order card drop (moves entire purchase order)
   const handleOrderDrop = (purchaseId: string, currentStatus: string, newStatus: Status) => {
-    const purchase = purchases.find((p) => p.id === purchaseId);
+    const purchase = purchases.find(p => p.id === purchaseId);
     if (!purchase) return;
 
     // Validate purchase status transitions
     const validOrderTransitions: Record<string, Status[]> = {
       ordered: ['in_delivery'],
       in_delivery: ['delivered'],
-      delivered: [],
+      delivered: []
     };
-
     if (!validOrderTransitions[currentStatus]?.includes(newStatus)) {
       toast.error('Invalid order status transition');
       return;
     }
 
     // Update all requests in the purchase
-    purchase.requestIds.forEach((requestId) => {
+    purchase.requestIds.forEach(requestId => {
       onUpdateStatus(requestId, newStatus);
     });
-
     const columnLabel = KANBAN_COLUMNS.find(c => c.id === newStatus)?.label || newStatus;
     toast.success(`Order moved to ${columnLabel}`);
   };
-
-
   const handleViewOrderDetails = (purchaseId: string) => {
     setSelectedOrderId(purchaseId);
   };
-
   const handleViewDetails = (id: string) => {
-    const request = requests.find((r) => r.id === id);
+    const request = requests.find(r => r.id === id);
     if (request) {
       setSelectedRequest(request);
     }
   };
 
   // Selected requests for purchase panel
-  const selectedForPurchase = requests.filter((r) => r.status === 'selected');
-
-  return (
-    <div className="h-full flex flex-col">
+  const selectedForPurchase = requests.filter(r => r.status === 'selected');
+  return <div className="h-full flex flex-col">
       {/* Header with stats and controls */}
       <div className="px-6 py-4 border-b bg-background/95 backdrop-blur-sm sticky top-0 z-10">
         {/* Stats row */}
         <div className="flex gap-3 mb-4 overflow-x-auto pb-2">
-          <div className="flex-shrink-0 px-4 py-2 rounded-lg bg-status-pending/10 border border-status-pending/20">
-            <span className="text-xl font-bold text-status-pending">{pendingCount}</span>
-            <span className="text-sm text-muted-foreground ml-2">New</span>
-          </div>
-          {selectedCount > 0 && (
-            <div className="flex-shrink-0 px-4 py-2 rounded-lg bg-status-selected/10 border border-status-selected/20">
+          
+          {selectedCount > 0 && <div className="flex-shrink-0 px-4 py-2 rounded-lg bg-status-selected/10 border border-status-selected/20">
               <Package className="h-4 w-4 inline text-status-selected mr-1" />
               <span className="text-xl font-bold text-status-selected">{selectedCount}</span>
               <span className="text-sm text-muted-foreground ml-2">Selected</span>
-            </div>
-          )}
-          {criticalCount > 0 && (
-            <div className="flex-shrink-0 px-4 py-2 rounded-lg bg-status-critical/10 border border-status-critical/20 animate-pulse-soft">
-              <AlertTriangle className="h-4 w-4 inline text-status-critical mr-1" />
-              <span className="text-xl font-bold text-status-critical">{criticalCount}</span>
-              <span className="text-sm text-muted-foreground ml-2">Critical</span>
-            </div>
-          )}
-          {todayCount > 0 && (
-            <div className="flex-shrink-0 px-4 py-2 rounded-lg bg-status-high/10 border border-status-high/20">
-              <span className="text-xl font-bold text-status-high">{todayCount}</span>
-              <span className="text-sm text-muted-foreground ml-2">Due Today</span>
-            </div>
-          )}
+            </div>}
+          {criticalCount > 0}
+          {todayCount > 0}
         </div>
 
-        {/* Filters row - all in one line */}
-        <div className="flex flex-wrap items-center gap-3">
+        {/* Filters row */}
+        <div className="flex flex-wrap items-center gap-3 mb-4">
           {/* Search */}
-          <div className="relative min-w-[160px] max-w-[200px]">
+          <div className="relative min-w-[180px] max-w-[220px]">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-            <Input
-              placeholder="Search..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-10 h-9"
-            />
+            <Input placeholder="Search..." value={searchQuery} onChange={e => setSearchQuery(e.target.value)} className="pl-10 h-9" />
           </div>
 
           {/* Building Filter */}
@@ -435,47 +353,24 @@ export function SupplierKanbanBoard({
               <Button variant="outline" size="sm" className="h-9 gap-2">
                 <Building2 className="h-4 w-4" />
                 Building
-                {selectedBuildings.length > 0 && (
-                  <Badge variant="secondary" className="ml-1 h-5 px-1.5">
+                {selectedBuildings.length > 0 && <Badge variant="secondary" className="ml-1 h-5 px-1.5">
                     {selectedBuildings.length}
-                  </Badge>
-                )}
+                  </Badge>}
                 <ChevronDown className="h-3 w-3 opacity-50" />
               </Button>
             </PopoverTrigger>
             <PopoverContent className="w-56 p-2 bg-popover" align="start">
               <div className="space-y-1">
-                {uniqueBuildings.length === 0 ? (
-                  <p className="text-sm text-muted-foreground p-2">No buildings found</p>
-                ) : (
-                  uniqueBuildings.map((building) => (
-                    <div
-                      key={building}
-                      className="flex items-center gap-2 p-2 rounded-md hover:bg-accent cursor-pointer"
-                      onClick={() => {
-                        setSelectedBuildings(prev =>
-                          prev.includes(building)
-                            ? prev.filter(b => b !== building)
-                            : [...prev, building]
-                        );
-                      }}
-                    >
+                {uniqueBuildings.length === 0 ? <p className="text-sm text-muted-foreground p-2">No buildings found</p> : uniqueBuildings.map(building => <div key={building} className="flex items-center gap-2 p-2 rounded-md hover:bg-accent cursor-pointer" onClick={() => {
+                setSelectedBuildings(prev => prev.includes(building) ? prev.filter(b => b !== building) : [...prev, building]);
+              }}>
                       <Checkbox checked={selectedBuildings.includes(building)} />
                       <span className="text-sm truncate">{building}</span>
-                    </div>
-                  ))
-                )}
-                {selectedBuildings.length > 0 && (
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    className="w-full mt-2"
-                    onClick={() => setSelectedBuildings([])}
-                  >
+                    </div>)}
+                {selectedBuildings.length > 0 && <Button variant="ghost" size="sm" className="w-full mt-2" onClick={() => setSelectedBuildings([])}>
                     <X className="h-3 w-3 mr-1" />
                     Clear
-                  </Button>
-                )}
+                  </Button>}
               </div>
             </PopoverContent>
           </Popover>
@@ -486,43 +381,24 @@ export function SupplierKanbanBoard({
               <Button variant="outline" size="sm" className="h-9 gap-2">
                 <Tag className="h-4 w-4" />
                 Category
-                {selectedCategories.length > 0 && (
-                  <Badge variant="secondary" className="ml-1 h-5 px-1.5">
+                {selectedCategories.length > 0 && <Badge variant="secondary" className="ml-1 h-5 px-1.5">
                     {selectedCategories.length}
-                  </Badge>
-                )}
+                  </Badge>}
                 <ChevronDown className="h-3 w-3 opacity-50" />
               </Button>
             </PopoverTrigger>
             <PopoverContent className="w-48 p-2 bg-popover" align="start">
               <div className="space-y-1">
-                {uniqueCategories.map((category) => (
-                  <div
-                    key={category}
-                    className="flex items-center gap-2 p-2 rounded-md hover:bg-accent cursor-pointer"
-                    onClick={() => {
-                      setSelectedCategories(prev =>
-                        prev.includes(category)
-                          ? prev.filter(c => c !== category)
-                          : [...prev, category]
-                      );
-                    }}
-                  >
+                {uniqueCategories.map(category => <div key={category} className="flex items-center gap-2 p-2 rounded-md hover:bg-accent cursor-pointer" onClick={() => {
+                setSelectedCategories(prev => prev.includes(category) ? prev.filter(c => c !== category) : [...prev, category]);
+              }}>
                     <Checkbox checked={selectedCategories.includes(category)} />
                     <span className="text-sm capitalize">{category}</span>
-                  </div>
-                ))}
-                {selectedCategories.length > 0 && (
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    className="w-full mt-2"
-                    onClick={() => setSelectedCategories([])}
-                  >
+                  </div>)}
+                {selectedCategories.length > 0 && <Button variant="ghost" size="sm" className="w-full mt-2" onClick={() => setSelectedCategories([])}>
                     <X className="h-3 w-3 mr-1" />
                     Clear
-                  </Button>
-                )}
+                  </Button>}
               </div>
             </PopoverContent>
           </Popover>
@@ -532,26 +408,15 @@ export function SupplierKanbanBoard({
             <PopoverTrigger asChild>
               <Button variant="outline" size="sm" className="h-9 gap-2">
                 <Calendar className="h-4 w-4" />
-                {startDate ? format(startDate, 'MMM d') : 'Start'}
-                {startDate && (
-                  <X
-                    className="h-3 w-3 ml-1 hover:text-destructive"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      setStartDate(undefined);
-                    }}
-                  />
-                )}
+                {startDate ? format(startDate, 'MMM d') : 'Start Date'}
+                {startDate && <X className="h-3 w-3 ml-1 hover:text-destructive" onClick={e => {
+                e.stopPropagation();
+                setStartDate(undefined);
+              }} />}
               </Button>
             </PopoverTrigger>
             <PopoverContent className="w-auto p-0 bg-popover" align="start">
-              <CalendarComponent
-                mode="single"
-                selected={startDate}
-                onSelect={setStartDate}
-                initialFocus
-                className="pointer-events-auto"
-              />
+              <CalendarComponent mode="single" selected={startDate} onSelect={setStartDate} initialFocus className="pointer-events-auto" />
             </PopoverContent>
           </Popover>
 
@@ -560,360 +425,217 @@ export function SupplierKanbanBoard({
             <PopoverTrigger asChild>
               <Button variant="outline" size="sm" className="h-9 gap-2">
                 <Calendar className="h-4 w-4" />
-                {endDate ? format(endDate, 'MMM d') : 'End'}
-                {endDate && (
-                  <X
-                    className="h-3 w-3 ml-1 hover:text-destructive"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      setEndDate(undefined);
-                    }}
-                  />
-                )}
+                {endDate ? format(endDate, 'MMM d') : 'End Date'}
+                {endDate && <X className="h-3 w-3 ml-1 hover:text-destructive" onClick={e => {
+                e.stopPropagation();
+                setEndDate(undefined);
+              }} />}
               </Button>
             </PopoverTrigger>
             <PopoverContent className="w-auto p-0 bg-popover" align="start">
-              <CalendarComponent
-                mode="single"
-                selected={endDate}
-                onSelect={setEndDate}
-                initialFocus
-                className="pointer-events-auto"
-              />
+              <CalendarComponent mode="single" selected={endDate} onSelect={setEndDate} initialFocus className="pointer-events-auto" />
             </PopoverContent>
           </Popover>
+        </div>
 
-          {/* Separator */}
-          <div className="h-6 w-px bg-border" />
+        {/* Controls row */}
+        <div className="flex flex-wrap items-center gap-4">
 
           {/* Priority Mode Toggle */}
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-secondary/50">
             <Zap className={cn("h-4 w-4", priorityMode ? "text-status-critical" : "text-muted-foreground")} />
-            <Label htmlFor="priority-mode" className="text-sm font-medium cursor-pointer whitespace-nowrap">
-              Priority
+            <Label htmlFor="priority-mode" className="text-sm font-medium cursor-pointer">
+              Priority Mode
             </Label>
-            <Switch
-              id="priority-mode"
-              checked={priorityMode}
-              onCheckedChange={setPriorityMode}
-            />
+            <Switch id="priority-mode" checked={priorityMode} onCheckedChange={setPriorityMode} />
           </div>
 
+          {/* Show Declined */}
+          {declinedRequests.length > 0 && <Button variant="ghost" size="sm" onClick={() => setShowDeclined(!showDeclined)} className="text-muted-foreground">
+              <EyeOff className="h-4 w-4 mr-2" />
+              Declined ({declinedRequests.length})
+            </Button>}
+
           {/* Quick Bundle dropdown */}
-          {bundleableTypes.length > 0 && (
-            <DropdownMenu>
+          {bundleableTypes.length > 0 && <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="h-9 border-dashed border-primary/50 text-primary hover:bg-primary/10"
-                >
-                  <Layers className="h-4 w-4 mr-1" />
-                  Bundle
+                <Button variant="outline" size="sm" className="border-dashed border-primary/50 text-primary hover:bg-primary/10">
+                  <Layers className="h-4 w-4 mr-2" />
+                  Quick Bundle
                   <ChevronDown className="h-3 w-3 ml-1" />
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-56">
-                {bundleableTypes.map(({ type, count }) => (
-                  <DropdownMenuItem
-                    key={type}
-                    onClick={() => handleQuickBundle(type)}
-                    className="cursor-pointer"
-                  >
+                {bundleableTypes.map(({
+              type,
+              count
+            }) => <DropdownMenuItem key={type} onClick={() => handleQuickBundle(type)} className="cursor-pointer">
                     <Package className="h-4 w-4 mr-2 text-muted-foreground" />
                     <span className="flex-1">{type}</span>
                     <Badge variant="secondary" className="ml-2">
                       {count} requests
                     </Badge>
-                  </DropdownMenuItem>
-                ))}
+                  </DropdownMenuItem>)}
               </DropdownMenuContent>
-            </DropdownMenu>
-          )}
-
-          {/* Show Declined */}
-          {declinedRequests.length > 0 && (
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => setShowDeclined(!showDeclined)}
-              className="h-9 text-muted-foreground"
-            >
-              <EyeOff className="h-4 w-4 mr-1" />
-              Declined ({declinedRequests.length})
-            </Button>
-          )}
+            </DropdownMenu>}
 
           {/* Bulk selection actions */}
-          {selectedRequestIds.size > 0 && (
-            <Button
-              size="sm"
-              onClick={handleAddToPurchase}
-              className="h-9 bg-status-selected hover:bg-status-selected/90"
-            >
-              <Package className="h-4 w-4 mr-1" />
-              Add {selectedRequestIds.size}
-            </Button>
-          )}
+          {selectedRequestIds.size > 0 && <Button size="sm" onClick={handleAddToPurchase} className="bg-status-selected hover:bg-status-selected/90">
+              <Package className="h-4 w-4 mr-2" />
+              Add {selectedRequestIds.size} to Purchase
+            </Button>}
         </div>
       </div>
 
       {/* Kanban Board */}
       <div className="flex-1 overflow-x-auto p-6">
         <div className="flex gap-4 min-w-max">
-          {KANBAN_COLUMNS.map((column) => {
-            const columnRequests = getColumnRequests(column.id as Status);
-            const isPendingColumn = column.id === 'pending';
-            const allPendingSelected = isPendingColumn && columnRequests.length > 0 && 
-              columnRequests.every(r => selectedRequestIds.has(r.id));
-            const somePendingSelected = isPendingColumn && columnRequests.length > 0 &&
-              columnRequests.some(r => selectedRequestIds.has(r.id)) && !allPendingSelected;
-
-            const handleSelectAll = () => {
-              if (allPendingSelected) {
-                // Deselect all
-                columnRequests.forEach(r => {
-                  selectedRequestIds.delete(r.id);
-                });
-                setSelectedRequestIds(new Set(selectedRequestIds));
-              } else {
-                // Select all
-                const newSet = new Set(selectedRequestIds);
-                columnRequests.forEach(r => newSet.add(r.id));
-                setSelectedRequestIds(newSet);
-              }
-            };
-
-            return (
-            <div 
-              key={column.id}
-              className="w-80 flex-shrink-0"
-            >
+          {KANBAN_COLUMNS.map(column => {
+          const columnRequests = getColumnRequests(column.id as Status);
+          const isPendingColumn = column.id === 'pending';
+          const allPendingSelected = isPendingColumn && columnRequests.length > 0 && columnRequests.every(r => selectedRequestIds.has(r.id));
+          const somePendingSelected = isPendingColumn && columnRequests.length > 0 && columnRequests.some(r => selectedRequestIds.has(r.id)) && !allPendingSelected;
+          const handleSelectAll = () => {
+            if (allPendingSelected) {
+              // Deselect all
+              columnRequests.forEach(r => {
+                selectedRequestIds.delete(r.id);
+              });
+              setSelectedRequestIds(new Set(selectedRequestIds));
+            } else {
+              // Select all
+              const newSet = new Set(selectedRequestIds);
+              columnRequests.forEach(r => newSet.add(r.id));
+              setSelectedRequestIds(newSet);
+            }
+          };
+          return <div key={column.id} className="w-80 flex-shrink-0">
               {/* Column header */}
-              <div 
-                className="flex items-center justify-between mb-4 px-3 py-2 rounded-lg"
-                style={{ backgroundColor: `${column.color}15` }}
-              >
+              <div className="flex items-center justify-between mb-4 px-3 py-2 rounded-lg" style={{
+              backgroundColor: `${column.color}15`
+            }}>
                 <div className="flex items-center gap-2">
-                  {isPendingColumn && columnRequests.length > 0 && (
-                    <Checkbox
-                      checked={allPendingSelected}
-                      onCheckedChange={handleSelectAll}
-                      className={cn(
-                        "h-4 w-4",
-                        somePendingSelected && "data-[state=unchecked]:bg-primary/30"
-                      )}
-                    />
-                  )}
-                  <div 
-                    className="w-3 h-3 rounded-full"
-                    style={{ backgroundColor: column.color }}
-                  />
+                  {isPendingColumn && columnRequests.length > 0 && <Checkbox checked={allPendingSelected} onCheckedChange={handleSelectAll} className={cn("h-4 w-4", somePendingSelected && "data-[state=unchecked]:bg-primary/30")} />}
+                  <div className="w-3 h-3 rounded-full" style={{
+                  backgroundColor: column.color
+                }} />
                   <h3 className="font-semibold text-sm">{column.label}</h3>
                 </div>
-                <span 
-                  className="text-xs font-medium px-2 py-0.5 rounded-full"
-                  style={{ backgroundColor: `${column.color}20`, color: column.color }}
-                >
-                  {column.id === 'ordered' 
-                    ? orderedPurchases.length 
-                    : column.id === 'in_delivery'
-                    ? inDeliveryPurchases.length
-                    : column.id === 'delivered'
-                    ? deliveredPurchases.length
-                    : columnRequests.length}
+                <span className="text-xs font-medium px-2 py-0.5 rounded-full" style={{
+                backgroundColor: `${column.color}20`,
+                color: column.color
+              }}>
+                  {column.id === 'ordered' ? orderedPurchases.length : column.id === 'in_delivery' ? inDeliveryPurchases.length : column.id === 'delivered' ? deliveredPurchases.length : columnRequests.length}
                 </span>
               </div>
 
               {/* Column content */}
-              <div
-                className="min-h-[400px] p-2 rounded-xl bg-muted/30 border-2 border-dashed border-transparent transition-colors"
-                onDragOver={(e) => {
-                  e.preventDefault();
-                  e.currentTarget.classList.add('border-primary/50', 'bg-primary/5');
-                }}
-                onDragLeave={(e) => {
-                  e.currentTarget.classList.remove('border-primary/50', 'bg-primary/5');
-                }}
-                onDrop={(e) => {
-                  e.preventDefault();
-                  e.currentTarget.classList.remove('border-primary/50', 'bg-primary/5');
-                  
-                  // Check if it's a purchase order drop
-                  const purchaseId = e.dataTransfer.getData('purchaseId');
-                  const purchaseStatus = e.dataTransfer.getData('purchaseStatus');
-                  if (purchaseId && purchaseStatus) {
-                    handleOrderDrop(purchaseId, purchaseStatus, column.id as Status);
-                    return;
-                  }
-                  
-                  // Otherwise handle individual request drop
-                  const requestId = e.dataTransfer.getData('requestId');
-                  if (requestId) {
-                    handleDrop(requestId, column.id as Status);
-                  }
-                }}
-              >
+              <div className="min-h-[400px] p-2 rounded-xl bg-muted/30 border-2 border-dashed border-transparent transition-colors" onDragOver={e => {
+              e.preventDefault();
+              e.currentTarget.classList.add('border-primary/50', 'bg-primary/5');
+            }} onDragLeave={e => {
+              e.currentTarget.classList.remove('border-primary/50', 'bg-primary/5');
+            }} onDrop={e => {
+              e.preventDefault();
+              e.currentTarget.classList.remove('border-primary/50', 'bg-primary/5');
+
+              // Check if it's a purchase order drop
+              const purchaseId = e.dataTransfer.getData('purchaseId');
+              const purchaseStatus = e.dataTransfer.getData('purchaseStatus');
+              if (purchaseId && purchaseStatus) {
+                handleOrderDrop(purchaseId, purchaseStatus, column.id as Status);
+                return;
+              }
+
+              // Otherwise handle individual request drop
+              const requestId = e.dataTransfer.getData('requestId');
+              if (requestId) {
+                handleDrop(requestId, column.id as Status);
+              }
+            }}>
                 {/* Create for Purchase button in Selected column */}
-                {column.id === 'selected' && getColumnRequests('selected').length > 0 && (
-                  <Button
-                    className="w-full mb-3"
-                    onClick={() => setShowPurchasePanel(true)}
-                  >
+                {column.id === 'selected' && getColumnRequests('selected').length > 0 && <Button className="w-full mb-3" onClick={() => setShowPurchasePanel(true)}>
                     <ShoppingCart className="h-4 w-4 mr-2" />
                     Create for Purchase
-                  </Button>
-                )}
+                  </Button>}
                 
                 <ScrollArea className="h-[calc(100vh-350px)]">
                   <div className="space-y-3 pr-2">
                     {/* Show OrderCards for ordered/in_delivery/delivered columns, SelectableKanbanCards for others */}
-                    {column.id === 'ordered' ? (
-                      <>
-                        {orderedPurchases.map(({ purchase, requests: purchaseRequests, colorIndex }) => (
-                          <OrderCard
-                            key={purchase.id}
-                            purchase={purchase}
-                            requests={purchaseRequests}
-                            colorIndex={colorIndex}
-                            onViewDetails={handleViewOrderDetails}
-                            onStartDelivery={handleStartPurchaseDelivery}
-                            onPrintReceipt={handlePrintReceipt}
-                          />
-                        ))}
-                        {orderedPurchases.length === 0 && (
-                          <div className="text-center py-8 text-muted-foreground text-sm">
+                    {column.id === 'ordered' ? <>
+                        {orderedPurchases.map(({
+                      purchase,
+                      requests: purchaseRequests,
+                      colorIndex
+                    }) => <OrderCard key={purchase.id} purchase={purchase} requests={purchaseRequests} colorIndex={colorIndex} onViewDetails={handleViewOrderDetails} onStartDelivery={handleStartPurchaseDelivery} onPrintReceipt={handlePrintReceipt} />)}
+                        {orderedPurchases.length === 0 && <div className="text-center py-8 text-muted-foreground text-sm">
                             No orders
-                          </div>
-                        )}
-                      </>
-                    ) : column.id === 'in_delivery' ? (
-                      <>
-                        {inDeliveryPurchases.map(({ purchase, requests: purchaseRequests, colorIndex }) => (
-                          <OrderCard
-                            key={purchase.id}
-                            purchase={purchase}
-                            requests={purchaseRequests}
-                            colorIndex={colorIndex}
-                            onViewDetails={handleViewOrderDetails}
-                            onMarkComplete={handleCompletePurchase}
-                            onPrintReceipt={handlePrintReceipt}
-                          />
-                        ))}
-                        {inDeliveryPurchases.length === 0 && (
-                          <div className="text-center py-8 text-muted-foreground text-sm">
+                          </div>}
+                      </> : column.id === 'in_delivery' ? <>
+                        {inDeliveryPurchases.map(({
+                      purchase,
+                      requests: purchaseRequests,
+                      colorIndex
+                    }) => <OrderCard key={purchase.id} purchase={purchase} requests={purchaseRequests} colorIndex={colorIndex} onViewDetails={handleViewOrderDetails} onMarkComplete={handleCompletePurchase} onPrintReceipt={handlePrintReceipt} />)}
+                        {inDeliveryPurchases.length === 0 && <div className="text-center py-8 text-muted-foreground text-sm">
                             No deliveries
-                          </div>
-                        )}
-                      </>
-                    ) : column.id === 'delivered' ? (
-                      <>
-                        {deliveredPurchases.map(({ purchase, requests: purchaseRequests, colorIndex }) => (
-                          <OrderCard
-                            key={purchase.id}
-                            purchase={purchase}
-                            requests={purchaseRequests}
-                            colorIndex={colorIndex}
-                            onViewDetails={handleViewOrderDetails}
-                            onPrintReceipt={handlePrintReceipt}
-                          />
-                        ))}
-                        {deliveredPurchases.length === 0 && (
-                          <div className="text-center py-8 text-muted-foreground text-sm">
+                          </div>}
+                      </> : column.id === 'delivered' ? <>
+                        {deliveredPurchases.map(({
+                      purchase,
+                      requests: purchaseRequests,
+                      colorIndex
+                    }) => <OrderCard key={purchase.id} purchase={purchase} requests={purchaseRequests} colorIndex={colorIndex} onViewDetails={handleViewOrderDetails} onPrintReceipt={handlePrintReceipt} />)}
+                        {deliveredPurchases.length === 0 && <div className="text-center py-8 text-muted-foreground text-sm">
                             No completed orders
-                          </div>
-                        )}
-                      </>
-                    ) : (
-                      <>
-                        {columnRequests.map((request) => (
-                          <SelectableKanbanCard
-                            key={request.id}
-                            request={request}
-                            isSelected={selectedRequestIds.has(request.id)}
-                            purchaseColorIndex={purchaseColorMap.get(request.id)}
-                            onSelect={column.id === 'pending' ? handleSelect : undefined}
-                            onSetAvailability={column.id === 'pending' ? onSetAvailability : undefined}
-                            onViewDetails={handleViewDetails}
-                            onUpdateQuantity={column.id === 'selected' ? onUpdateQuantity : undefined}
-                            onDecline={column.id === 'pending' ? handleDecline : undefined}
-                          />
-                        ))}
-                        {columnRequests.length === 0 && (
-                          <div className="text-center py-8 text-muted-foreground text-sm">
+                          </div>}
+                      </> : <>
+                        {columnRequests.map(request => <SelectableKanbanCard key={request.id} request={request} isSelected={selectedRequestIds.has(request.id)} purchaseColorIndex={purchaseColorMap.get(request.id)} onSelect={column.id === 'pending' ? handleSelect : undefined} onSetAvailability={column.id === 'pending' ? onSetAvailability : undefined} onViewDetails={handleViewDetails} onUpdateQuantity={column.id === 'selected' ? onUpdateQuantity : undefined} onDecline={column.id === 'pending' ? handleDecline : undefined} />)}
+                        {columnRequests.length === 0 && <div className="text-center py-8 text-muted-foreground text-sm">
                             No requests
-                          </div>
-                        )}
-                      </>
-                    )}
+                          </div>}
+                      </>}
                   </div>
                 </ScrollArea>
               </div>
-            </div>
-          );
-          })}
+            </div>;
+        })}
         </div>
       </div>
 
       {/* Declined requests drawer */}
-      {showDeclined && declinedRequests.length > 0 && (
-        <div className="border-t bg-muted/30 p-4 max-h-48 overflow-y-auto">
+      {showDeclined && declinedRequests.length > 0 && <div className="border-t bg-muted/30 p-4 max-h-48 overflow-y-auto">
           <h3 className="text-sm font-medium text-muted-foreground mb-3">
             Declined Requests ({declinedRequests.length})
           </h3>
           <div className="flex gap-3 overflow-x-auto pb-2">
-            {declinedRequests.map((req) => (
-              <div
-                key={req.id}
-                className="flex-shrink-0 px-4 py-2 bg-card rounded-lg border text-sm"
-              >
+            {declinedRequests.map(req => <div key={req.id} className="flex-shrink-0 px-4 py-2 bg-card rounded-lg border text-sm">
                 <span className="font-medium">{req.resourceName}</span>
                 <span className="text-muted-foreground ml-2">
                   {req.quantity} {req.unit}
                 </span>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="ml-2 h-6 text-xs"
-                  onClick={() => onUpdateStatus(req.id, 'pending')}
-                >
+                <Button variant="ghost" size="sm" className="ml-2 h-6 text-xs" onClick={() => onUpdateStatus(req.id, 'pending')}>
                   Restore
                 </Button>
-              </div>
-            ))}
+              </div>)}
           </div>
-        </div>
-      )}
+        </div>}
 
       {/* Floating Create Purchase button */}
-      {selectedForPurchase.length > 0 && (
-        <div className="fixed bottom-6 right-6 z-40">
-          <Button
-            size="lg"
-            className="h-14 px-6 shadow-2xl bg-status-ordered hover:bg-status-ordered/90 text-white"
-            onClick={() => setShowPurchasePanel(true)}
-          >
+      {selectedForPurchase.length > 0 && <div className="fixed bottom-6 right-6 z-40">
+          <Button size="lg" className="h-14 px-6 shadow-2xl bg-status-ordered hover:bg-status-ordered/90 text-white" onClick={() => setShowPurchasePanel(true)}>
             <ShoppingCart className="h-5 w-5 mr-2" />
             Create Purchase ({selectedForPurchase.length})
           </Button>
-        </div>
-      )}
+        </div>}
 
       {/* Purchase Panel */}
-      {showPurchasePanel && (
-        <PurchasePanel
-          selectedRequests={selectedForPurchase}
-          onRemoveRequest={handleRemoveFromPurchase}
-          onCreatePurchase={handleCreatePurchase}
-          onClose={() => setShowPurchasePanel(false)}
-        />
-      )}
+      {showPurchasePanel && <PurchasePanel selectedRequests={selectedForPurchase} onRemoveRequest={handleRemoveFromPurchase} onCreatePurchase={handleCreatePurchase} onClose={() => setShowPurchasePanel(false)} />}
 
       {/* Request Details Dialog */}
       <Dialog open={!!selectedRequest} onOpenChange={() => setSelectedRequest(null)}>
         <DialogContent className="max-w-md">
-          {selectedRequest && (
-            <>
+          {selectedRequest && <>
               <DialogHeader>
                 <div className="flex items-center gap-3 mb-2">
                   <div className="p-3 rounded-xl bg-secondary">
@@ -955,106 +677,70 @@ export function SupplierKanbanBoard({
                   </div>
                 </div>
 
-                {selectedRequest.purchaseId && (
-                  <div className="p-3 bg-status-ordered/10 rounded-lg border border-status-ordered/20">
+                {selectedRequest.purchaseId && <div className="p-3 bg-status-ordered/10 rounded-lg border border-status-ordered/20">
                     <p className="text-sm font-medium text-status-ordered">
                       Purchase #{selectedRequest.purchaseId.slice(-4)}
                     </p>
-                    {selectedRequest.fulfilledQuantity !== undefined && (
-                      <p className="text-xs text-muted-foreground mt-1">
+                    {selectedRequest.fulfilledQuantity !== undefined && <p className="text-xs text-muted-foreground mt-1">
                         Delivered: {selectedRequest.fulfilledQuantity} / {selectedRequest.quantity} {selectedRequest.unit}
-                      </p>
-                    )}
-                  </div>
-                )}
+                      </p>}
+                  </div>}
 
-                {selectedRequest.notes && (
-                  <div>
+                {selectedRequest.notes && <div>
                     <span className="text-sm text-muted-foreground">Notes</span>
                     <p className="text-sm mt-1 p-3 bg-secondary rounded-lg">
                       {selectedRequest.notes}
                     </p>
-                  </div>
-                )}
+                  </div>}
 
                 <div className="flex gap-2 pt-4">
-                  {selectedRequest.status === 'pending' && (
-                    <>
-                      <Button
-                        className="flex-1 bg-status-selected hover:bg-status-selected/90"
-                        onClick={() => {
-                          onSelectForPurchase([selectedRequest.id]);
-                          setSelectedRequest(null);
-                          toast.success('Added to purchase');
-                        }}
-                      >
+                  {selectedRequest.status === 'pending' && <>
+                      <Button className="flex-1 bg-status-selected hover:bg-status-selected/90" onClick={() => {
+                  onSelectForPurchase([selectedRequest.id]);
+                  setSelectedRequest(null);
+                  toast.success('Added to purchase');
+                }}>
                         Add to Purchase
                       </Button>
-                      <Button
-                        variant="outline"
-                        onClick={() => {
-                          handleDecline(selectedRequest.id);
-                          setSelectedRequest(null);
-                        }}
-                      >
+                      <Button variant="outline" onClick={() => {
+                  handleDecline(selectedRequest.id);
+                  setSelectedRequest(null);
+                }}>
                         Decline
                       </Button>
-                    </>
-                  )}
-                  {selectedRequest.status === 'in_delivery' && (
-                    <Button
-                      className="flex-1 bg-status-delivered hover:bg-status-delivered/90"
-                      onClick={() => {
-                        handleComplete(selectedRequest.id);
-                        setSelectedRequest(null);
-                      }}
-                    >
+                    </>}
+                  {selectedRequest.status === 'in_delivery' && <Button className="flex-1 bg-status-delivered hover:bg-status-delivered/90" onClick={() => {
+                handleComplete(selectedRequest.id);
+                setSelectedRequest(null);
+              }}>
                       Mark Complete
-                    </Button>
-                  )}
+                    </Button>}
                 </div>
               </div>
-            </>
-          )}
+            </>}
         </DialogContent>
       </Dialog>
 
       {/* Order Details Dialog */}
-      <OrderDetailsDialog
-        purchase={purchases.find(p => p.id === selectedOrderId) || null}
-        requests={selectedOrderId ? requests.filter(r => purchases.find(p => p.id === selectedOrderId)?.requestIds.includes(r.id)) : []}
-        colorIndex={purchases.findIndex(p => p.id === selectedOrderId)}
-        open={!!selectedOrderId}
-        onOpenChange={(open) => !open && setSelectedOrderId(null)}
-      />
+      <OrderDetailsDialog purchase={purchases.find(p => p.id === selectedOrderId) || null} requests={selectedOrderId ? requests.filter(r => purchases.find(p => p.id === selectedOrderId)?.requestIds.includes(r.id)) : []} colorIndex={purchases.findIndex(p => p.id === selectedOrderId)} open={!!selectedOrderId} onOpenChange={open => !open && setSelectedOrderId(null)} />
 
       {/* Purchase Order Receipt Dialog */}
       {receiptPurchaseId && (() => {
-        const purchase = purchases.find(p => p.id === receiptPurchaseId);
-        if (!purchase) return null;
-        const purchaseRequests = requests.filter(r => purchase.requestIds.includes(r.id));
-        // Create line items from requests (default pricing since we don't have stored prices)
-        const lineItems: Record<string, { unitPrice: number; givenAmount: number }> = {};
-        purchaseRequests.forEach(req => {
-          lineItems[req.id] = {
-            unitPrice: 0,
-            givenAmount: req.quantity
-          };
-        });
-        return (
-          <PurchaseOrderReceipt
-            open={true}
-            onOpenChange={(open) => !open && setReceiptPurchaseId(null)}
-            purchaseId={purchase.id}
-            vendorId={purchase.vendorId}
-            requests={purchaseRequests}
-            lineItems={lineItems}
-            deliveryDate={purchase.estimatedDelivery}
-            notes={purchase.notes}
-            createdAt={purchase.createdAt}
-          />
-        );
-      })()}
-    </div>
-  );
+      const purchase = purchases.find(p => p.id === receiptPurchaseId);
+      if (!purchase) return null;
+      const purchaseRequests = requests.filter(r => purchase.requestIds.includes(r.id));
+      // Create line items from requests (default pricing since we don't have stored prices)
+      const lineItems: Record<string, {
+        unitPrice: number;
+        givenAmount: number;
+      }> = {};
+      purchaseRequests.forEach(req => {
+        lineItems[req.id] = {
+          unitPrice: 0,
+          givenAmount: req.quantity
+        };
+      });
+      return <PurchaseOrderReceipt open={true} onOpenChange={open => !open && setReceiptPurchaseId(null)} purchaseId={purchase.id} vendorId={purchase.vendorId} requests={purchaseRequests} lineItems={lineItems} deliveryDate={purchase.estimatedDelivery} notes={purchase.notes} createdAt={purchase.createdAt} />;
+    })()}
+    </div>;
 }
