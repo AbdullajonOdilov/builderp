@@ -4,6 +4,7 @@ import { SelectableKanbanCard } from './SelectableKanbanCard';
 import { PurchasePanel } from './PurchasePanel';
 import { OrderCard } from './OrderCard';
 import { OrderDetailsDialog } from './OrderDetailsDialog';
+import { PurchaseOrderReceipt } from './PurchaseOrderReceipt';
 import { Button } from '@/components/ui/button';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
@@ -64,7 +65,7 @@ export function SupplierKanbanBoard({
   const [showPurchasePanel, setShowPurchasePanel] = useState(false);
   const [selectedRequestIds, setSelectedRequestIds] = useState<Set<string>>(new Set());
   const [selectedOrderId, setSelectedOrderId] = useState<string | null>(null);
-  
+  const [receiptPurchaseId, setReceiptPurchaseId] = useState<string | null>(null);
   // Filter states
   const [selectedBuildings, setSelectedBuildings] = useState<string[]>([]);
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
@@ -306,6 +307,11 @@ export function SupplierKanbanBoard({
       onUpdateStatus(requestId, 'delivered');
     });
     toast.success('Order marked as complete!');
+  };
+
+  // Open receipt dialog for a purchase
+  const handlePrintReceipt = (purchaseId: string) => {
+    setReceiptPurchaseId(purchaseId);
   };
 
   const handleDrop = (requestId: string, newStatus: Status) => {
@@ -773,6 +779,7 @@ export function SupplierKanbanBoard({
                             colorIndex={colorIndex}
                             onViewDetails={handleViewOrderDetails}
                             onStartDelivery={handleStartPurchaseDelivery}
+                            onPrintReceipt={handlePrintReceipt}
                           />
                         ))}
                         {orderedPurchases.length === 0 && (
@@ -791,6 +798,7 @@ export function SupplierKanbanBoard({
                             colorIndex={colorIndex}
                             onViewDetails={handleViewOrderDetails}
                             onMarkComplete={handleCompletePurchase}
+                            onPrintReceipt={handlePrintReceipt}
                           />
                         ))}
                         {inDeliveryPurchases.length === 0 && (
@@ -808,6 +816,7 @@ export function SupplierKanbanBoard({
                             requests={purchaseRequests}
                             colorIndex={colorIndex}
                             onViewDetails={handleViewOrderDetails}
+                            onPrintReceipt={handlePrintReceipt}
                           />
                         ))}
                         {deliveredPurchases.length === 0 && (
@@ -1019,6 +1028,34 @@ export function SupplierKanbanBoard({
         open={!!selectedOrderId}
         onOpenChange={(open) => !open && setSelectedOrderId(null)}
       />
+
+      {/* Purchase Order Receipt Dialog */}
+      {receiptPurchaseId && (() => {
+        const purchase = purchases.find(p => p.id === receiptPurchaseId);
+        if (!purchase) return null;
+        const purchaseRequests = requests.filter(r => purchase.requestIds.includes(r.id));
+        // Create line items from requests (default pricing since we don't have stored prices)
+        const lineItems: Record<string, { unitPrice: number; givenAmount: number }> = {};
+        purchaseRequests.forEach(req => {
+          lineItems[req.id] = {
+            unitPrice: 0,
+            givenAmount: req.quantity
+          };
+        });
+        return (
+          <PurchaseOrderReceipt
+            open={true}
+            onOpenChange={(open) => !open && setReceiptPurchaseId(null)}
+            purchaseId={purchase.id}
+            vendorId={purchase.vendorId}
+            requests={purchaseRequests}
+            lineItems={lineItems}
+            deliveryDate={purchase.estimatedDelivery}
+            notes={purchase.notes}
+            createdAt={purchase.createdAt}
+          />
+        );
+      })()}
     </div>
   );
 }

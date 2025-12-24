@@ -2,7 +2,7 @@ import { Purchase, ResourceRequest, VENDORS, PURCHASE_COLORS } from '@/types/req
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Package, Calendar, Truck, ChevronDown, ChevronUp, Eye, CheckCircle2, GripVertical } from 'lucide-react';
+import { Package, Calendar, Truck, ChevronDown, ChevronUp, Eye, CheckCircle2, GripVertical, Printer } from 'lucide-react';
 import { useState } from 'react';
 import { cn } from '@/lib/utils';
 
@@ -13,6 +13,7 @@ interface OrderCardProps {
   onViewDetails?: (purchaseId: string) => void;
   onStartDelivery?: (purchaseId: string) => void;
   onMarkComplete?: (purchaseId: string) => void;
+  onPrintReceipt?: (purchaseId: string) => void;
   isDraggable?: boolean;
 }
 
@@ -23,6 +24,7 @@ export function OrderCard({
   onViewDetails,
   onStartDelivery,
   onMarkComplete,
+  onPrintReceipt,
   isDraggable = true,
 }: OrderCardProps) {
   const [expanded, setExpanded] = useState(false);
@@ -95,14 +97,27 @@ export function OrderCard({
             </div>
           </div>
           
-          <Button
-            variant="ghost"
-            size="sm"
-            className="h-7 w-7 p-0 text-muted-foreground hover:text-foreground"
-            onClick={() => onViewDetails?.(purchase.id)}
-          >
-            <Eye className="h-4 w-4" />
-          </Button>
+          <div className="flex items-center gap-1">
+            {onPrintReceipt && (
+              <Button
+                variant="ghost"
+                size="sm"
+                className="h-7 w-7 p-0 text-muted-foreground hover:text-foreground"
+                onClick={() => onPrintReceipt(purchase.id)}
+                title="Print Receipt"
+              >
+                <Printer className="h-4 w-4" />
+              </Button>
+            )}
+            <Button
+              variant="ghost"
+              size="sm"
+              className="h-7 w-7 p-0 text-muted-foreground hover:text-foreground"
+              onClick={() => onViewDetails?.(purchase.id)}
+            >
+              <Eye className="h-4 w-4" />
+            </Button>
+          </div>
         </div>
 
         {/* Stats row */}
