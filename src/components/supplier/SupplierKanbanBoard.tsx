@@ -594,19 +594,6 @@ export function SupplierKanbanBoard({
             />
           </div>
 
-          {/* Show Urgent Only Toggle */}
-          <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-secondary/50">
-            <AlertTriangle className={cn("h-4 w-4", showUrgentOnly ? "text-status-high" : "text-muted-foreground")} />
-            <Label htmlFor="urgent-only" className="text-sm font-medium cursor-pointer">
-              Urgent Only
-            </Label>
-            <Switch
-              id="urgent-only"
-              checked={showUrgentOnly}
-              onCheckedChange={setShowUrgentOnly}
-            />
-          </div>
-
           {/* Show Declined */}
           {declinedRequests.length > 0 && (
             <Button
