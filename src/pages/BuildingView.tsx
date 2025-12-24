@@ -118,7 +118,19 @@ const BuildingView = () => {
                   <p className="text-muted-foreground">Contract: {building.contractNumber}</p>
                 )}
               </div>
-              <div className="flex gap-6 text-sm">
+              <div className="flex flex-wrap gap-6 text-sm">
+                <div>
+                  <p className="text-muted-foreground">Start Date</p>
+                  <p className="font-semibold">
+                    {building.startDate ? format(new Date(building.startDate), "PP") : "—"}
+                  </p>
+                </div>
+                <div>
+                  <p className="text-muted-foreground">End Date</p>
+                  <p className="font-semibold">
+                    {building.expectedEndDate ? format(new Date(building.expectedEndDate), "PP") : "—"}
+                  </p>
+                </div>
                 <div>
                   <p className="text-muted-foreground">Total</p>
                   <p className="font-semibold">${building.totalPrice.toLocaleString()}</p>
@@ -136,40 +148,26 @@ const BuildingView = () => {
               </div>
             </div>
             
-            <div className="flex flex-wrap gap-6 text-sm border-t pt-4">
-              <div>
-                <p className="text-muted-foreground">Start Date</p>
-                <p className="font-semibold">
-                  {building.startDate ? format(new Date(building.startDate), "PP") : "—"}
+            <div className="border-t pt-4">
+              <div className="flex items-center justify-between mb-1.5 text-sm">
+                <p className="text-muted-foreground">Completion</p>
+                <p className={`font-semibold ${
+                  completePercentage >= 90 ? 'text-green-600' : 
+                  completePercentage >= 20 ? 'text-amber-600' : 
+                  'text-red-600'
+                }`}>
+                  {completePercentage.toFixed(0)}%
                 </p>
               </div>
-              <div>
-                <p className="text-muted-foreground">End Date</p>
-                <p className="font-semibold">
-                  {building.expectedEndDate ? format(new Date(building.expectedEndDate), "PP") : "—"}
-                </p>
-              </div>
-              <div className="flex-1 min-w-[200px]">
-                <div className="flex items-center justify-between mb-1.5">
-                  <p className="text-muted-foreground">Completion</p>
-                  <p className={`font-semibold ${
-                    completePercentage >= 90 ? 'text-green-600' : 
-                    completePercentage >= 20 ? 'text-amber-600' : 
-                    'text-red-600'
-                  }`}>
-                    {completePercentage.toFixed(0)}%
-                  </p>
-                </div>
-                <Progress 
-                  value={Math.min(completePercentage, 100)} 
-                  className="h-2"
-                  indicatorClassName={
-                    completePercentage >= 90 ? 'bg-green-500' : 
-                    completePercentage >= 20 ? 'bg-amber-500' : 
-                    'bg-red-500'
-                  }
-                />
-              </div>
+              <Progress 
+                value={Math.min(completePercentage, 100)} 
+                className="h-2"
+                indicatorClassName={
+                  completePercentage >= 90 ? 'bg-green-500' : 
+                  completePercentage >= 20 ? 'bg-amber-500' : 
+                  'bg-red-500'
+                }
+              />
             </div>
           </div>
         </Card>
