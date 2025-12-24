@@ -2,7 +2,7 @@ import { Purchase, ResourceRequest, VENDORS, PURCHASE_COLORS } from '@/types/req
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Package, Calendar, Truck, ChevronDown, ChevronUp, Eye, CheckCircle2 } from 'lucide-react';
+import { Package, Calendar, Truck, ChevronDown, ChevronUp, Eye, CheckCircle2, GripVertical } from 'lucide-react';
 import { useState } from 'react';
 import { cn } from '@/lib/utils';
 
@@ -13,6 +13,7 @@ interface OrderCardProps {
   onViewDetails?: (purchaseId: string) => void;
   onStartDelivery?: (purchaseId: string) => void;
   onMarkComplete?: (purchaseId: string) => void;
+  isDraggable?: boolean;
 }
 
 export function OrderCard({
@@ -22,8 +23,10 @@ export function OrderCard({
   onViewDetails,
   onStartDelivery,
   onMarkComplete,
+  isDraggable = true,
 }: OrderCardProps) {
   const [expanded, setExpanded] = useState(false);
+  const [isDragging, setIsDragging] = useState(false);
   
   const vendor = VENDORS.find((v) => v.id === purchase.vendorId);
   const color = PURCHASE_COLORS[colorIndex % PURCHASE_COLORS.length];
@@ -45,15 +48,37 @@ export function OrderCard({
 
   const days = daysUntilDelivery();
 
+  const handleDragStart = (e: React.DragEvent) => {
+    if (!isDraggable) return;
+    e.dataTransfer.setData('purchaseId', purchase.id);
+    e.dataTransfer.setData('purchaseStatus', purchase.status);
+    e.dataTransfer.effectAllowed = 'move';
+    setIsDragging(true);
+  };
+
+  const handleDragEnd = () => {
+    setIsDragging(false);
+  };
+
   return (
     <Card
-      className="overflow-hidden transition-all duration-200 hover:shadow-md"
+      className={cn(
+        "overflow-hidden transition-all duration-200 hover:shadow-md",
+        isDraggable && "cursor-grab active:cursor-grabbing",
+        isDragging && "opacity-50 shadow-lg ring-2 ring-primary"
+      )}
       style={{ borderLeftWidth: '4px', borderLeftColor: color }}
+      draggable={isDraggable}
+      onDragStart={handleDragStart}
+      onDragEnd={handleDragEnd}
     >
       <div className="p-4">
         {/* Header row */}
         <div className="flex items-start justify-between gap-2 mb-3">
           <div className="flex items-center gap-2">
+            {isDraggable && (
+              <GripVertical className="h-4 w-4 text-muted-foreground/50 flex-shrink-0" />
+            )}
             <div 
               className="p-2 rounded-lg"
               style={{ backgroundColor: `${color}20` }}
