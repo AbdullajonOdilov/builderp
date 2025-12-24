@@ -88,6 +88,7 @@ export interface Purchase {
 export interface ResourceRequest {
   id: string;
   resourceType: ResourceType;
+  resourceCode?: string;
   resourceName: string;
   quantity: number;
   unit: string;
