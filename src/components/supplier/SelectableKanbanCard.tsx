@@ -109,7 +109,7 @@ export function SelectableKanbanCard({
       {/* Simplified layout for pending/new requests */}
       {request.status === 'pending' ? (
         <>
-          {/* Header: Checkbox, Resource name and eye icon */}
+          {/* Row 1: Checkbox, Resource name, Quantity and eye icon */}
           <div className="flex items-start gap-2 mb-2">
             {onSelect && (
               <Checkbox
@@ -118,9 +118,16 @@ export function SelectableKanbanCard({
                 className="h-5 w-5 mt-0.5 shrink-0"
               />
             )}
-            <h3 className="font-semibold text-foreground leading-tight line-clamp-2 flex-1">
-              {request.resourceName}
-            </h3>
+            <div className="flex-1 min-w-0">
+              <div className="flex items-baseline gap-2">
+                <h3 className="font-semibold text-foreground leading-tight truncate">
+                  {request.resourceName}
+                </h3>
+                <span className="text-sm text-muted-foreground shrink-0">
+                  {request.quantity} {request.unit}
+                </span>
+              </div>
+            </div>
             <Button
               variant="ghost"
               size="sm"
@@ -130,11 +137,6 @@ export function SelectableKanbanCard({
               <Eye className="h-4 w-4" />
             </Button>
           </div>
-
-          {/* Row 1: Quantity */}
-          <p className="text-sm text-muted-foreground mb-2">
-            {request.quantity} {request.unit}
-          </p>
 
           {/* Row 2: Project and Date */}
           <div className="flex items-center justify-between text-xs text-muted-foreground">
