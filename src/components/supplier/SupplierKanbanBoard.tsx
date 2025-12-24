@@ -2,6 +2,7 @@ import { useState, useMemo } from 'react';
 import { ResourceRequest, Status, Availability, Purchase, KANBAN_COLUMNS, PRIORITY_CONFIG, PURCHASE_COLORS, VENDORS } from '@/types/request';
 import { SelectableKanbanCard } from './SelectableKanbanCard';
 import { PurchasePanel } from './PurchasePanel';
+import { OrderCard } from './OrderCard';
 import { Button } from '@/components/ui/button';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
@@ -69,6 +70,17 @@ export function SupplierKanbanBoard({
     });
     return map;
   }, [purchases]);
+
+  // Get ordered purchases with their requests
+  const orderedPurchases = useMemo(() => {
+    return purchases
+      .filter((p) => p.status === 'ordered')
+      .map((purchase, idx) => ({
+        purchase,
+        requests: requests.filter((r) => purchase.requestIds.includes(r.id)),
+        colorIndex: idx,
+      }));
+  }, [purchases, requests]);
 
   // Filter and sort requests
   const filteredRequests = requests
@@ -196,6 +208,17 @@ export function SupplierKanbanBoard({
   const handleStartDelivery = (id: string) => {
     onUpdateStatus(id, 'in_delivery');
     toast.info('Delivery started');
+  };
+
+  // Start delivery for all requests in a purchase order
+  const handleStartPurchaseDelivery = (purchaseId: string) => {
+    const purchase = purchases.find((p) => p.id === purchaseId);
+    if (!purchase) return;
+    
+    purchase.requestIds.forEach((requestId) => {
+      onUpdateStatus(requestId, 'in_delivery');
+    });
+    toast.info('Delivery started for all items in order');
   };
 
   const handleComplete = (id: string) => {
@@ -429,7 +452,7 @@ export function SupplierKanbanBoard({
                   className="text-xs font-medium px-2 py-0.5 rounded-full"
                   style={{ backgroundColor: `${column.color}20`, color: column.color }}
                 >
-                  {columnRequests.length}
+                  {column.id === 'ordered' ? orderedPurchases.length : columnRequests.length}
                 </span>
               </div>
 
@@ -465,24 +488,46 @@ export function SupplierKanbanBoard({
                 
                 <ScrollArea className="h-[calc(100vh-350px)]">
                   <div className="space-y-3 pr-2">
-                    {columnRequests.map((request) => (
-                      <SelectableKanbanCard
-                        key={request.id}
-                        request={request}
-                        isSelected={selectedRequestIds.has(request.id)}
-                        purchaseColorIndex={purchaseColorMap.get(request.id)}
-                        onSelect={column.id === 'pending' ? handleSelect : undefined}
-                        onSetAvailability={column.id === 'pending' ? onSetAvailability : undefined}
-                        onViewDetails={handleViewDetails}
-                        onUpdateQuantity={column.id === 'selected' ? onUpdateQuantity : undefined}
-                        onUpdateFulfilled={column.id === 'in_delivery' ? onUpdateFulfilledQuantity : undefined}
-                        onDecline={column.id === 'pending' ? handleDecline : undefined}
-                      />
-                    ))}
-                    {columnRequests.length === 0 && (
-                      <div className="text-center py-8 text-muted-foreground text-sm">
-                        No requests
-                      </div>
+                    {/* Show OrderCards for ordered column, SelectableKanbanCards for others */}
+                    {column.id === 'ordered' ? (
+                      <>
+                        {orderedPurchases.map(({ purchase, requests: purchaseRequests, colorIndex }) => (
+                          <OrderCard
+                            key={purchase.id}
+                            purchase={purchase}
+                            requests={purchaseRequests}
+                            colorIndex={colorIndex}
+                            onStartDelivery={handleStartPurchaseDelivery}
+                          />
+                        ))}
+                        {orderedPurchases.length === 0 && (
+                          <div className="text-center py-8 text-muted-foreground text-sm">
+                            No orders
+                          </div>
+                        )}
+                      </>
+                    ) : (
+                      <>
+                        {columnRequests.map((request) => (
+                          <SelectableKanbanCard
+                            key={request.id}
+                            request={request}
+                            isSelected={selectedRequestIds.has(request.id)}
+                            purchaseColorIndex={purchaseColorMap.get(request.id)}
+                            onSelect={column.id === 'pending' ? handleSelect : undefined}
+                            onSetAvailability={column.id === 'pending' ? onSetAvailability : undefined}
+                            onViewDetails={handleViewDetails}
+                            onUpdateQuantity={column.id === 'selected' ? onUpdateQuantity : undefined}
+                            onUpdateFulfilled={column.id === 'in_delivery' ? onUpdateFulfilledQuantity : undefined}
+                            onDecline={column.id === 'pending' ? handleDecline : undefined}
+                          />
+                        ))}
+                        {columnRequests.length === 0 && (
+                          <div className="text-center py-8 text-muted-foreground text-sm">
+                            No requests
+                          </div>
+                        )}
+                      </>
                     )}
                   </div>
                 </ScrollArea>
