@@ -138,13 +138,20 @@ export function SelectableKanbanCard({
             </Button>
           </div>
 
-          {/* Row 2: Project and Date */}
-          <div className="flex items-center justify-between text-xs text-muted-foreground">
-            <span className="font-medium truncate max-w-[120px]">
+          {/* Row 2: Checkbox, Project and Date */}
+          <div className="flex items-center gap-2 text-xs text-muted-foreground">
+            {onSelect && (
+              <Checkbox
+                checked={isSelected}
+                onCheckedChange={(checked) => onSelect(request.id, !!checked)}
+                className="h-4 w-4 shrink-0"
+              />
+            )}
+            <span className="font-medium truncate flex-1">
               {request.projectName || 'General'}
             </span>
             <span className={cn(
-              'flex items-center gap-1',
+              'flex items-center gap-1 shrink-0',
               isSoon ? 'text-status-critical font-medium' : ''
             )}>
               <Calendar className="h-3 w-3" />
