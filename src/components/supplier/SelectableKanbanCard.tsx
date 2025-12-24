@@ -109,8 +109,15 @@ export function SelectableKanbanCard({
       {/* Simplified layout for pending/new requests */}
       {request.status === 'pending' ? (
         <>
-          {/* Header: Resource name and eye icon */}
-          <div className="flex items-start justify-between gap-2 mb-2">
+          {/* Header: Checkbox, Resource name and eye icon */}
+          <div className="flex items-start gap-2 mb-2">
+            {onSelect && (
+              <Checkbox
+                checked={isSelected}
+                onCheckedChange={(checked) => onSelect(request.id, !!checked)}
+                className="h-5 w-5 mt-0.5 shrink-0"
+              />
+            )}
             <h3 className="font-semibold text-foreground leading-tight line-clamp-2 flex-1">
               {request.resourceName}
             </h3>
@@ -124,27 +131,27 @@ export function SelectableKanbanCard({
             </Button>
           </div>
 
-          {/* Quantity */}
+          {/* Row 1: Quantity */}
           <p className="text-sm text-muted-foreground mb-2">
             {request.quantity} {request.unit}
           </p>
 
-          {/* Needed by date */}
-          <div className={cn(
-            'flex items-center gap-1 text-xs mb-2',
-            isSoon ? 'text-status-critical font-medium' : 'text-muted-foreground'
-          )}>
-            <Calendar className="h-3 w-3" />
-            {formatDate(request.neededDate)}
-            {isSoon && daysUntil >= 0 && (
-              <span>({daysUntil === 0 ? 'Today!' : `${daysUntil}d`})</span>
-            )}
+          {/* Row 2: Project and Date */}
+          <div className="flex items-center justify-between text-xs text-muted-foreground">
+            <span className="font-medium truncate max-w-[120px]">
+              {request.projectName || 'General'}
+            </span>
+            <span className={cn(
+              'flex items-center gap-1',
+              isSoon ? 'text-status-critical font-medium' : ''
+            )}>
+              <Calendar className="h-3 w-3" />
+              {formatDate(request.neededDate)}
+              {isSoon && daysUntil >= 0 && (
+                <span>({daysUntil === 0 ? 'Today!' : `${daysUntil}d`})</span>
+              )}
+            </span>
           </div>
-
-          {/* Project name */}
-          <p className="text-xs text-muted-foreground font-medium truncate">
-            {request.projectName || 'General'}
-          </p>
         </>
       ) : (
         <>
