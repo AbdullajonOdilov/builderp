@@ -92,14 +92,6 @@ export function SupplierKanbanBoard({
     }));
   }, [purchases, requests]);
 
-  // Get in-delivery purchases with their requests
-  const inDeliveryPurchases = useMemo(() => {
-    return purchases.filter(p => p.status === 'in_delivery').map((purchase, idx) => ({
-      purchase,
-      requests: requests.filter(r => purchase.requestIds.includes(r.id)),
-      colorIndex: idx
-    }));
-  }, [purchases, requests]);
 
   // Get delivered purchases with their requests
   const deliveredPurchases = useMemo(() => {
@@ -229,20 +221,6 @@ export function SupplierKanbanBoard({
     onUpdateStatus(id, 'declined');
     toast.info('Request declined');
   };
-  const handleStartDelivery = (id: string) => {
-    onUpdateStatus(id, 'in_delivery');
-    toast.info('Delivery started');
-  };
-
-  // Start delivery for all requests in a purchase order
-  const handleStartPurchaseDelivery = (purchaseId: string) => {
-    const purchase = purchases.find(p => p.id === purchaseId);
-    if (!purchase) return;
-    purchase.requestIds.forEach(requestId => {
-      onUpdateStatus(requestId, 'in_delivery');
-    });
-    toast.info('Delivery started for all items in order');
-  };
   const handleComplete = (id: string) => {
     onUpdateStatus(id, 'delivered');
     toast.success('Marked as completed!');
@@ -270,8 +248,8 @@ export function SupplierKanbanBoard({
     const validTransitions: Record<Status, Status[]> = {
       pending: ['selected', 'declined'],
       selected: ['pending', 'declined'],
-      ordered: ['in_delivery'],
-      in_delivery: ['ordered', 'delivered'],
+      ordered: ['delivered'],
+      in_delivery: ['delivered'],
       delivered: [],
       declined: ['pending']
     };
@@ -296,7 +274,7 @@ export function SupplierKanbanBoard({
 
     // Validate purchase status transitions
     const validOrderTransitions: Record<string, Status[]> = {
-      ordered: ['in_delivery'],
+      ordered: ['delivered'],
       in_delivery: ['delivered'],
       delivered: []
     };
@@ -543,7 +521,7 @@ export function SupplierKanbanBoard({
                 backgroundColor: `${column.color}20`,
                 color: column.color
               }}>
-                  {column.id === 'ordered' ? orderedPurchases.length : column.id === 'in_delivery' ? inDeliveryPurchases.length : column.id === 'delivered' ? deliveredPurchases.length : columnRequests.length}
+                  {column.id === 'ordered' ? orderedPurchases.length : column.id === 'delivered' ? deliveredPurchases.length : columnRequests.length}
                 </span>
               </div>
 
@@ -585,18 +563,9 @@ export function SupplierKanbanBoard({
                       purchase,
                       requests: purchaseRequests,
                       colorIndex
-                    }) => <OrderCard key={purchase.id} purchase={purchase} requests={purchaseRequests} colorIndex={colorIndex} onViewDetails={handleViewOrderDetails} onStartDelivery={handleStartPurchaseDelivery} onPrintReceipt={handlePrintReceipt} />)}
+                    }) => <OrderCard key={purchase.id} purchase={purchase} requests={purchaseRequests} colorIndex={colorIndex} onViewDetails={handleViewOrderDetails} onMarkComplete={handleCompletePurchase} onPrintReceipt={handlePrintReceipt} />)}
                         {orderedPurchases.length === 0 && <div className="text-center py-8 text-muted-foreground text-sm">
                             No orders
-                          </div>}
-                      </> : column.id === 'in_delivery' ? <>
-                        {inDeliveryPurchases.map(({
-                      purchase,
-                      requests: purchaseRequests,
-                      colorIndex
-                    }) => <OrderCard key={purchase.id} purchase={purchase} requests={purchaseRequests} colorIndex={colorIndex} onViewDetails={handleViewOrderDetails} onMarkComplete={handleCompletePurchase} onPrintReceipt={handlePrintReceipt} />)}
-                        {inDeliveryPurchases.length === 0 && <div className="text-center py-8 text-muted-foreground text-sm">
-                            No deliveries
                           </div>}
                       </> : column.id === 'delivered' ? <>
                         {deliveredPurchases.map(({
@@ -727,12 +696,6 @@ export function SupplierKanbanBoard({
                         Decline
                       </Button>
                     </>}
-                  {selectedRequest.status === 'in_delivery' && <Button className="flex-1 bg-status-delivered hover:bg-status-delivered/90" onClick={() => {
-                handleComplete(selectedRequest.id);
-                setSelectedRequest(null);
-              }}>
-                      Mark Complete
-                    </Button>}
                 </div>
               </div>
             </>}

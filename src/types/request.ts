@@ -132,7 +132,6 @@ export const KANBAN_COLUMNS = [
   { id: 'pending', label: 'New Requests', color: 'hsl(var(--status-pending))' },
   { id: 'selected', label: 'Selected for Purchase', color: 'hsl(var(--status-selected))' },
   { id: 'ordered', label: 'Ordered', color: 'hsl(var(--status-ordered))' },
-  { id: 'in_delivery', label: 'In Delivery', color: 'hsl(var(--status-delivery))' },
   { id: 'delivered', label: 'Completed', color: 'hsl(var(--status-delivered))' },
 ] as const;
 
