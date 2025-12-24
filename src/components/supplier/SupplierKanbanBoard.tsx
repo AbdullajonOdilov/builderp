@@ -7,6 +7,7 @@ import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
+import { Checkbox } from '@/components/ui/checkbox';
 import { Search, AlertTriangle, Zap, EyeOff, ShoppingCart, Package, Layers, ChevronDown } from 'lucide-react';
 import { toast } from 'sonner';
 import {
@@ -374,7 +375,30 @@ export function SupplierKanbanBoard({
       {/* Kanban Board */}
       <div className="flex-1 overflow-x-auto p-6">
         <div className="flex gap-4 min-w-max">
-          {KANBAN_COLUMNS.map((column) => (
+          {KANBAN_COLUMNS.map((column) => {
+            const columnRequests = getColumnRequests(column.id as Status);
+            const isPendingColumn = column.id === 'pending';
+            const allPendingSelected = isPendingColumn && columnRequests.length > 0 && 
+              columnRequests.every(r => selectedRequestIds.has(r.id));
+            const somePendingSelected = isPendingColumn && columnRequests.length > 0 &&
+              columnRequests.some(r => selectedRequestIds.has(r.id)) && !allPendingSelected;
+
+            const handleSelectAll = () => {
+              if (allPendingSelected) {
+                // Deselect all
+                columnRequests.forEach(r => {
+                  selectedRequestIds.delete(r.id);
+                });
+                setSelectedRequestIds(new Set(selectedRequestIds));
+              } else {
+                // Select all
+                const newSet = new Set(selectedRequestIds);
+                columnRequests.forEach(r => newSet.add(r.id));
+                setSelectedRequestIds(newSet);
+              }
+            };
+
+            return (
             <div 
               key={column.id}
               className="w-80 flex-shrink-0"
@@ -385,6 +409,16 @@ export function SupplierKanbanBoard({
                 style={{ backgroundColor: `${column.color}15` }}
               >
                 <div className="flex items-center gap-2">
+                  {isPendingColumn && columnRequests.length > 0 && (
+                    <Checkbox
+                      checked={allPendingSelected}
+                      onCheckedChange={handleSelectAll}
+                      className={cn(
+                        "h-4 w-4",
+                        somePendingSelected && "data-[state=unchecked]:bg-primary/30"
+                      )}
+                    />
+                  )}
                   <div 
                     className="w-3 h-3 rounded-full"
                     style={{ backgroundColor: column.color }}
@@ -395,7 +429,7 @@ export function SupplierKanbanBoard({
                   className="text-xs font-medium px-2 py-0.5 rounded-full"
                   style={{ backgroundColor: `${column.color}20`, color: column.color }}
                 >
-                  {getColumnRequests(column.id as Status).length}
+                  {columnRequests.length}
                 </span>
               </div>
 
@@ -431,7 +465,7 @@ export function SupplierKanbanBoard({
                 
                 <ScrollArea className="h-[calc(100vh-350px)]">
                   <div className="space-y-3 pr-2">
-                    {getColumnRequests(column.id as Status).map((request) => (
+                    {columnRequests.map((request) => (
                       <SelectableKanbanCard
                         key={request.id}
                         request={request}
@@ -445,7 +479,7 @@ export function SupplierKanbanBoard({
                         onDecline={column.id === 'pending' ? handleDecline : undefined}
                       />
                     ))}
-                    {getColumnRequests(column.id as Status).length === 0 && (
+                    {columnRequests.length === 0 && (
                       <div className="text-center py-8 text-muted-foreground text-sm">
                         No requests
                       </div>
@@ -454,7 +488,8 @@ export function SupplierKanbanBoard({
                 </ScrollArea>
               </div>
             </div>
-          ))}
+          );
+          })}
         </div>
       </div>
 
