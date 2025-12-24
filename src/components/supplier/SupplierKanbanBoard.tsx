@@ -339,10 +339,10 @@ export function SupplierKanbanBoard({
           {todayCount > 0}
         </div>
 
-        {/* Filters row */}
-        <div className="flex flex-wrap items-center gap-3 mb-4">
+        {/* Filters row - all in one line */}
+        <div className="flex flex-wrap items-center gap-3">
           {/* Search */}
-          <div className="relative min-w-[180px] max-w-[220px]">
+          <div className="relative min-w-[160px] max-w-[200px]">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <Input placeholder="Search..." value={searchQuery} onChange={e => setSearchQuery(e.target.value)} className="pl-10 h-9" />
           </div>
@@ -436,13 +436,12 @@ export function SupplierKanbanBoard({
               <CalendarComponent mode="single" selected={endDate} onSelect={setEndDate} initialFocus className="pointer-events-auto" />
             </PopoverContent>
           </Popover>
-        </div>
 
-        {/* Controls row */}
-        <div className="flex flex-wrap items-center gap-4">
+          {/* Separator */}
+          <div className="h-6 w-px bg-border" />
 
           {/* Priority Mode Toggle */}
-          <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-secondary/50">
+          <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-secondary/50">
             <Zap className={cn("h-4 w-4", priorityMode ? "text-status-critical" : "text-muted-foreground")} />
             <Label htmlFor="priority-mode" className="text-sm font-medium cursor-pointer">
               Priority Mode
@@ -450,16 +449,10 @@ export function SupplierKanbanBoard({
             <Switch id="priority-mode" checked={priorityMode} onCheckedChange={setPriorityMode} />
           </div>
 
-          {/* Show Declined */}
-          {declinedRequests.length > 0 && <Button variant="ghost" size="sm" onClick={() => setShowDeclined(!showDeclined)} className="text-muted-foreground">
-              <EyeOff className="h-4 w-4 mr-2" />
-              Declined ({declinedRequests.length})
-            </Button>}
-
           {/* Quick Bundle dropdown */}
           {bundleableTypes.length > 0 && <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="outline" size="sm" className="border-dashed border-primary/50 text-primary hover:bg-primary/10">
+                <Button variant="outline" size="sm" className="h-9 border-dashed border-primary/50 text-primary hover:bg-primary/10">
                   <Layers className="h-4 w-4 mr-2" />
                   Quick Bundle
                   <ChevronDown className="h-3 w-3 ml-1" />
@@ -479,10 +472,35 @@ export function SupplierKanbanBoard({
               </DropdownMenuContent>
             </DropdownMenu>}
 
+          {/* Show Declined */}
+          {declinedRequests.length > 0 && <Button variant="ghost" size="sm" onClick={() => setShowDeclined(!showDeclined)} className="h-9 text-muted-foreground">
+              <EyeOff className="h-4 w-4 mr-1" />
+              Declined ({declinedRequests.length})
+            </Button>}
+
+          {/* Clear All Filters */}
+          {(searchQuery || selectedBuildings.length > 0 || selectedCategories.length > 0 || startDate || endDate) && (
+            <Button 
+              variant="ghost" 
+              size="sm" 
+              className="h-9 text-destructive hover:text-destructive hover:bg-destructive/10"
+              onClick={() => {
+                setSearchQuery('');
+                setSelectedBuildings([]);
+                setSelectedCategories([]);
+                setStartDate(undefined);
+                setEndDate(undefined);
+              }}
+            >
+              <X className="h-4 w-4 mr-1" />
+              Clear All
+            </Button>
+          )}
+
           {/* Bulk selection actions */}
-          {selectedRequestIds.size > 0 && <Button size="sm" onClick={handleAddToPurchase} className="bg-status-selected hover:bg-status-selected/90">
-              <Package className="h-4 w-4 mr-2" />
-              Add {selectedRequestIds.size} to Purchase
+          {selectedRequestIds.size > 0 && <Button size="sm" onClick={handleAddToPurchase} className="h-9 bg-status-selected hover:bg-status-selected/90">
+              <Package className="h-4 w-4 mr-1" />
+              Add {selectedRequestIds.size}
             </Button>}
         </div>
       </div>
