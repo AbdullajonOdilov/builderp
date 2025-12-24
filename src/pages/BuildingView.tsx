@@ -97,6 +97,9 @@ const BuildingView = () => {
   };
 
   const leftMoney = building.totalPrice - building.usedMoney;
+  const completePercentage = building.totalPrice > 0 
+    ? (building.usedMoney / building.totalPrice) * 100 
+    : 0;
 
   return (
     <div className="min-h-screen bg-background">
@@ -106,26 +109,49 @@ const BuildingView = () => {
 
         {/* Header Info */}
         <Card className="p-6 mb-6">
-          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-            <div>
-              <h1 className="text-2xl font-bold mb-1">{building.objectName}</h1>
-              {building.contractNumber && (
-                <p className="text-muted-foreground">Contract: {building.contractNumber}</p>
-              )}
+          <div className="flex flex-col gap-4">
+            <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+              <div>
+                <h1 className="text-2xl font-bold mb-1">{building.objectName}</h1>
+                {building.contractNumber && (
+                  <p className="text-muted-foreground">Contract: {building.contractNumber}</p>
+                )}
+              </div>
+              <div className="flex gap-6 text-sm">
+                <div>
+                  <p className="text-muted-foreground">Total</p>
+                  <p className="font-semibold">${building.totalPrice.toLocaleString()}</p>
+                </div>
+                <div>
+                  <p className="text-muted-foreground">Used</p>
+                  <p className="font-semibold">${building.usedMoney.toLocaleString()}</p>
+                </div>
+                <div>
+                  <p className="text-muted-foreground">Left</p>
+                  <p className={`font-semibold ${leftMoney >= 0 ? 'text-green-600' : 'text-destructive'}`}>
+                    ${leftMoney.toLocaleString()}
+                  </p>
+                </div>
+              </div>
             </div>
-            <div className="flex gap-6 text-sm">
+            
+            <div className="flex flex-wrap gap-6 text-sm border-t pt-4">
               <div>
-                <p className="text-muted-foreground">Total</p>
-                <p className="font-semibold">${building.totalPrice.toLocaleString()}</p>
+                <p className="text-muted-foreground">Start Date</p>
+                <p className="font-semibold">
+                  {building.startDate ? format(new Date(building.startDate), "PP") : "—"}
+                </p>
               </div>
               <div>
-                <p className="text-muted-foreground">Used</p>
-                <p className="font-semibold">${building.usedMoney.toLocaleString()}</p>
+                <p className="text-muted-foreground">End Date</p>
+                <p className="font-semibold">
+                  {building.expectedEndDate ? format(new Date(building.expectedEndDate), "PP") : "—"}
+                </p>
               </div>
               <div>
-                <p className="text-muted-foreground">Left</p>
-                <p className={`font-semibold ${leftMoney >= 0 ? 'text-green-600' : 'text-destructive'}`}>
-                  ${leftMoney.toLocaleString()}
+                <p className="text-muted-foreground">Completion</p>
+                <p className={`font-semibold ${completePercentage >= 100 ? 'text-green-600' : ''}`}>
+                  {completePercentage.toFixed(0)}%
                 </p>
               </div>
             </div>
