@@ -106,230 +106,212 @@ export function SelectableKanbanCard({
         e.dataTransfer.effectAllowed = 'move';
       }}
     >
-      {/* Header with checkbox/icon and priority */}
-      <div className="flex items-start justify-between gap-2 mb-3">
-        <div className="flex items-center gap-2">
-          {request.status === 'pending' && onSelect ? (
-            <Checkbox
-              checked={isSelected}
-              onCheckedChange={(checked) => onSelect(request.id, !!checked)}
-              className="h-5 w-5"
-            />
-          ) : (
-            <div className="p-2 rounded-lg bg-secondary">
-              <ResourceIcon type={request.resourceType} className="h-4 w-4 text-muted-foreground" />
-            </div>
-          )}
-          <PriorityBadge priority={request.priority} size="sm" />
-        </div>
-        
-        <Button
-          variant="ghost"
-          size="sm"
-          className="h-7 w-7 p-0 text-muted-foreground hover:text-foreground"
-          onClick={() => onViewDetails(request.id)}
-        >
-          <Eye className="h-4 w-4" />
-        </Button>
-      </div>
-
-      {/* Resource name */}
-      <h3 className="font-semibold text-foreground leading-tight mb-1 line-clamp-2">
-        {request.resourceName}
-      </h3>
-
-      {/* Quantity - editable for selected */}
-      <div className="flex items-center gap-2 text-sm text-muted-foreground mb-3">
-        {request.status === 'selected' && isEditingQty ? (
-          <Input
-            type="number"
-            value={tempQty}
-            onChange={(e) => setTempQty(Number(e.target.value))}
-            onBlur={handleQuantityChange}
-            onKeyDown={(e) => e.key === 'Enter' && handleQuantityChange()}
-            className="h-7 w-20 text-sm"
-            autoFocus
-          />
-        ) : (
-          <span 
-            className={cn(
-              request.status === 'selected' && 'cursor-pointer hover:text-foreground underline decoration-dashed'
-            )}
-            onClick={() => request.status === 'selected' && setIsEditingQty(true)}
-          >
-            {request.quantity} {request.unit}
-          </span>
-        )}
-        {request.status === 'selected' && !isEditingQty && (
-          <span className="text-xs text-muted-foreground/60">(click to edit)</span>
-        )}
-      </div>
-
-      {/* Project and Manager */}
-      <div className="flex items-center justify-between text-xs text-muted-foreground mb-2">
-        <span className="truncate max-w-[120px] font-medium">{request.projectName || 'General'}</span>
-        <span className="truncate max-w-[80px]">{request.managerName}</span>
-      </div>
-
-      {/* Date */}
-      <div className="flex items-center justify-between text-xs text-muted-foreground mb-3">
-        <span className={cn(
-          'flex items-center gap-1 font-medium',
-          isSoon ? 'text-status-critical' : ''
-        )}>
-          <Calendar className="h-3 w-3" />
-          {formatDate(request.neededDate)}
-          {isSoon && daysUntil >= 0 && (
-            <span className="ml-0.5">
-              ({daysUntil === 0 ? 'Today!' : `${daysUntil}d`})
-            </span>
-          )}
-        </span>
-      </div>
-
-      {/* Purchase group indicator */}
-      {purchaseColor && request.purchaseId && (
-        <div 
-          className="flex items-center gap-2 text-xs rounded-lg px-2 py-1.5 mb-3"
-          style={{ backgroundColor: `${purchaseColor}20`, color: purchaseColor }}
-        >
-          <Package className="h-3 w-3" />
-          <span className="font-medium">Purchase #{request.purchaseId.slice(-4)}</span>
-        </div>
-      )}
-
-      {/* Delivery progress for in_delivery status */}
-      {(request.status === 'in_delivery' || request.status === 'ordered') && request.fulfilledQuantity !== undefined && (
-        <div className="mb-3">
-          <div className="flex items-center justify-between text-xs mb-1">
-            <span className="text-muted-foreground">Delivered</span>
-            <span className="font-medium">
-              {request.fulfilledQuantity} / {request.quantity} {request.unit}
-            </span>
-          </div>
-          <div className="h-2 bg-secondary rounded-full overflow-hidden">
-            <div 
-              className={cn(
-                'h-full rounded-full transition-all',
-                deliveryProgress === 100 ? 'bg-status-delivered' :
-                deliveryProgress > 0 ? 'bg-status-delivery' : 'bg-muted'
-              )}
-              style={{ width: `${deliveryProgress}%` }}
-            />
-          </div>
-          {onUpdateFulfilled && request.status === 'in_delivery' && (
-            <div className="flex items-center justify-center gap-2 mt-2">
-              <Button
-                variant="outline"
-                size="sm"
-                className="h-7 w-7 p-0"
-                onClick={() => handleFulfilledChange(-1)}
-              >
-                <Minus className="h-3 w-3" />
-              </Button>
-              <span className="text-xs font-medium w-16 text-center">
-                {request.fulfilledQuantity} received
-              </span>
-              <Button
-                variant="outline"
-                size="sm"
-                className="h-7 w-7 p-0"
-                onClick={() => handleFulfilledChange(1)}
-              >
-                <Plus className="h-3 w-3" />
-              </Button>
-            </div>
-          )}
-        </div>
-      )}
-
-      {/* Availability selector for pending */}
-      {request.status === 'pending' && onSetAvailability && showActions && (
-        <div className="mb-3">
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button
-                variant="outline"
-                size="sm"
-                className={cn(
-                  'w-full h-8 text-xs justify-between',
-                  request.availability && AVAILABILITY_CONFIG[request.availability].color
-                )}
-              >
-                {request.availability 
-                  ? AVAILABILITY_CONFIG[request.availability].label 
-                  : 'Set Availability'}
-                <ChevronDown className="h-3 w-3 ml-1" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="start" className="w-full">
-              {availabilityOptions.map((avail) => (
-                <DropdownMenuItem
-                  key={avail}
-                  onClick={() => onSetAvailability(request.id, avail)}
-                  className={cn(
-                    'text-xs cursor-pointer',
-                    request.availability === avail && 'bg-secondary'
-                  )}
-                >
-                  {AVAILABILITY_CONFIG[avail].label}
-                </DropdownMenuItem>
-              ))}
-            </DropdownMenuContent>
-          </DropdownMenu>
-        </div>
-      )}
-
-      {/* Quick actions */}
-      {showActions && (
-        <div className="flex gap-2">
-          {request.status === 'pending' && onSelect && (
+      {/* Simplified layout for pending/new requests */}
+      {request.status === 'pending' ? (
+        <>
+          {/* Header: Resource name and eye icon */}
+          <div className="flex items-start justify-between gap-2 mb-2">
+            <h3 className="font-semibold text-foreground leading-tight line-clamp-2 flex-1">
+              {request.resourceName}
+            </h3>
             <Button
-              size="sm"
-              className={cn(
-                "flex-1 h-9",
-                isSelected 
-                  ? "bg-primary hover:bg-primary/90" 
-                  : "bg-status-selected hover:bg-status-selected/90 text-white"
-              )}
-              onClick={() => onSelect(request.id, !isSelected)}
-            >
-              {isSelected ? 'Selected ✓' : 'Add to Purchase'}
-            </Button>
-          )}
-
-          {request.status === 'pending' && onDecline && (
-            <Button
-              size="sm"
               variant="ghost"
-              className="h-9 px-3 text-muted-foreground hover:text-destructive"
-              onClick={() => onDecline(request.id)}
+              size="sm"
+              className="h-7 w-7 p-0 text-muted-foreground hover:text-foreground shrink-0"
+              onClick={() => onViewDetails(request.id)}
             >
-              Decline
+              <Eye className="h-4 w-4" />
             </Button>
-          )}
+          </div>
 
-          {request.status === 'in_delivery' && (
-            <div className="flex-1 flex items-center justify-center gap-2 text-sm text-status-delivery font-medium py-2">
-              <Truck className="h-4 w-4" />
-              In Transit
+          {/* Quantity */}
+          <p className="text-sm text-muted-foreground mb-2">
+            {request.quantity} {request.unit}
+          </p>
+
+          {/* Needed by date */}
+          <div className={cn(
+            'flex items-center gap-1 text-xs mb-2',
+            isSoon ? 'text-status-critical font-medium' : 'text-muted-foreground'
+          )}>
+            <Calendar className="h-3 w-3" />
+            {formatDate(request.neededDate)}
+            {isSoon && daysUntil >= 0 && (
+              <span>({daysUntil === 0 ? 'Today!' : `${daysUntil}d`})</span>
+            )}
+          </div>
+
+          {/* Project name */}
+          <p className="text-xs text-muted-foreground font-medium truncate">
+            {request.projectName || 'General'}
+          </p>
+        </>
+      ) : (
+        <>
+          {/* Full layout for other statuses */}
+          <div className="flex items-start justify-between gap-2 mb-3">
+            <div className="flex items-center gap-2">
+              <div className="p-2 rounded-lg bg-secondary">
+                <ResourceIcon type={request.resourceType} className="h-4 w-4 text-muted-foreground" />
+              </div>
+              <PriorityBadge priority={request.priority} size="sm" />
+            </div>
+            
+            <Button
+              variant="ghost"
+              size="sm"
+              className="h-7 w-7 p-0 text-muted-foreground hover:text-foreground"
+              onClick={() => onViewDetails(request.id)}
+            >
+              <Eye className="h-4 w-4" />
+            </Button>
+          </div>
+
+          <h3 className="font-semibold text-foreground leading-tight mb-1 line-clamp-2">
+            {request.resourceName}
+          </h3>
+
+          {/* Quantity - editable for selected */}
+          <div className="flex items-center gap-2 text-sm text-muted-foreground mb-3">
+            {request.status === 'selected' && isEditingQty ? (
+              <Input
+                type="number"
+                value={tempQty}
+                onChange={(e) => setTempQty(Number(e.target.value))}
+                onBlur={handleQuantityChange}
+                onKeyDown={(e) => e.key === 'Enter' && handleQuantityChange()}
+                className="h-7 w-20 text-sm"
+                autoFocus
+              />
+            ) : (
+              <span 
+                className={cn(
+                  request.status === 'selected' && 'cursor-pointer hover:text-foreground underline decoration-dashed'
+                )}
+                onClick={() => request.status === 'selected' && setIsEditingQty(true)}
+              >
+                {request.quantity} {request.unit}
+              </span>
+            )}
+            {request.status === 'selected' && !isEditingQty && (
+              <span className="text-xs text-muted-foreground/60">(click to edit)</span>
+            )}
+          </div>
+
+          {/* Project and Manager */}
+          <div className="flex items-center justify-between text-xs text-muted-foreground mb-2">
+            <span className="truncate max-w-[120px] font-medium">{request.projectName || 'General'}</span>
+            <span className="truncate max-w-[80px]">{request.managerName}</span>
+          </div>
+
+          {/* Date */}
+          <div className="flex items-center justify-between text-xs text-muted-foreground mb-3">
+            <span className={cn(
+              'flex items-center gap-1 font-medium',
+              isSoon ? 'text-status-critical' : ''
+            )}>
+              <Calendar className="h-3 w-3" />
+              {formatDate(request.neededDate)}
+              {isSoon && daysUntil >= 0 && (
+                <span className="ml-0.5">
+                  ({daysUntil === 0 ? 'Today!' : `${daysUntil}d`})
+                </span>
+              )}
+            </span>
+          </div>
+
+          {/* Purchase group indicator */}
+          {purchaseColor && request.purchaseId && (
+            <div 
+              className="flex items-center gap-2 text-xs rounded-lg px-2 py-1.5 mb-3"
+              style={{ backgroundColor: `${purchaseColor}20`, color: purchaseColor }}
+            >
+              <Package className="h-3 w-3" />
+              <span className="font-medium">Purchase #{request.purchaseId.slice(-4)}</span>
             </div>
           )}
 
-          {request.status === 'delivered' && (
-            <div className="flex-1 flex items-center justify-center gap-2 text-sm text-status-delivered font-medium py-2">
-              <CircleCheck className="h-4 w-4" />
-              Completed
+          {/* Delivery progress for in_delivery status */}
+          {(request.status === 'in_delivery' || request.status === 'ordered') && request.fulfilledQuantity !== undefined && (
+            <div className="mb-3">
+              <div className="flex items-center justify-between text-xs mb-1">
+                <span className="text-muted-foreground">Delivered</span>
+                <span className="font-medium">
+                  {request.fulfilledQuantity} / {request.quantity} {request.unit}
+                </span>
+              </div>
+              <div className="h-2 bg-secondary rounded-full overflow-hidden">
+                <div 
+                  className={cn(
+                    'h-full rounded-full transition-all',
+                    deliveryProgress === 100 ? 'bg-status-delivered' :
+                    deliveryProgress > 0 ? 'bg-status-delivery' : 'bg-muted'
+                  )}
+                  style={{ width: `${deliveryProgress}%` }}
+                />
+              </div>
+              {onUpdateFulfilled && request.status === 'in_delivery' && (
+                <div className="flex items-center justify-center gap-2 mt-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="h-7 w-7 p-0"
+                    onClick={() => handleFulfilledChange(-1)}
+                  >
+                    <Minus className="h-3 w-3" />
+                  </Button>
+                  <span className="text-xs font-medium w-16 text-center">
+                    {request.fulfilledQuantity} received
+                  </span>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="h-7 w-7 p-0"
+                    onClick={() => handleFulfilledChange(1)}
+                  >
+                    <Plus className="h-3 w-3" />
+                  </Button>
+                </div>
+              )}
             </div>
           )}
-        </div>
-      )}
 
-      {/* Notes preview */}
-      {request.notes && (
-        <p className="text-xs text-muted-foreground mt-3 italic line-clamp-2 border-t pt-2">
-          "{request.notes}"
-        </p>
+          {/* Quick actions for non-pending */}
+          {showActions && (
+            <div className="flex gap-2">
+              {request.status === 'selected' && onSelect && (
+                <Button
+                  size="sm"
+                  className="flex-1 h-9 bg-primary hover:bg-primary/90"
+                  onClick={() => onSelect(request.id, false)}
+                >
+                  Selected ✓
+                </Button>
+              )}
+
+              {request.status === 'in_delivery' && (
+                <div className="flex-1 flex items-center justify-center gap-2 text-sm text-status-delivery font-medium py-2">
+                  <Truck className="h-4 w-4" />
+                  In Transit
+                </div>
+              )}
+
+              {request.status === 'delivered' && (
+                <div className="flex-1 flex items-center justify-center gap-2 text-sm text-status-delivered font-medium py-2">
+                  <CircleCheck className="h-4 w-4" />
+                  Completed
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* Notes preview */}
+          {request.notes && (
+            <p className="text-xs text-muted-foreground mt-3 italic line-clamp-2 border-t pt-2">
+              "{request.notes}"
+            </p>
+          )}
+        </>
       )}
     </div>
   );
