@@ -9,6 +9,7 @@ import { Label } from '@/components/ui/label';
 import { Calendar } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { FolderCard } from '@/components/buildings/FolderCard';
+import { Progress } from '@/components/ui/progress';
 import { DocumentCard } from '@/components/buildings/DocumentCard';
 import { DocumentUpload } from '@/components/buildings/DocumentUpload';
 import { BuildingBreadcrumbs } from '@/components/buildings/BuildingBreadcrumbs';
@@ -148,11 +149,26 @@ const BuildingView = () => {
                   {building.expectedEndDate ? format(new Date(building.expectedEndDate), "PP") : "—"}
                 </p>
               </div>
-              <div>
-                <p className="text-muted-foreground">Completion</p>
-                <p className={`font-semibold ${completePercentage >= 100 ? 'text-green-600' : ''}`}>
-                  {completePercentage.toFixed(0)}%
-                </p>
+              <div className="flex-1 min-w-[200px]">
+                <div className="flex items-center justify-between mb-1.5">
+                  <p className="text-muted-foreground">Completion</p>
+                  <p className={`font-semibold ${
+                    completePercentage >= 90 ? 'text-green-600' : 
+                    completePercentage >= 20 ? 'text-amber-600' : 
+                    'text-red-600'
+                  }`}>
+                    {completePercentage.toFixed(0)}%
+                  </p>
+                </div>
+                <Progress 
+                  value={Math.min(completePercentage, 100)} 
+                  className="h-2"
+                  indicatorClassName={
+                    completePercentage >= 90 ? 'bg-green-500' : 
+                    completePercentage >= 20 ? 'bg-amber-500' : 
+                    'bg-red-500'
+                  }
+                />
               </div>
             </div>
           </div>
