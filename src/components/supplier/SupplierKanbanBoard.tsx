@@ -418,6 +418,17 @@ export function SupplierKanbanBoard({
                   }
                 }}
               >
+                {/* Create for Purchase button in Selected column */}
+                {column.id === 'selected' && getColumnRequests('selected').length > 0 && (
+                  <Button
+                    className="w-full mb-3"
+                    onClick={() => setShowPurchasePanel(true)}
+                  >
+                    <ShoppingCart className="h-4 w-4 mr-2" />
+                    Create for Purchase
+                  </Button>
+                )}
+                
                 <ScrollArea className="h-[calc(100vh-350px)]">
                   <div className="space-y-3 pr-2">
                     {getColumnRequests(column.id as Status).map((request) => (
