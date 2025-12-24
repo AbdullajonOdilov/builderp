@@ -106,43 +106,35 @@ export function SelectableKanbanCard({
         e.dataTransfer.effectAllowed = 'move';
       }}
     >
-      {/* Simplified layout for pending and selected requests */}
+      {/* Simplified single-row layout for pending and selected requests */}
       {(request.status === 'pending' || request.status === 'selected') ? (
-        <>
-          {/* Row 1: Resource name, Quantity and eye icon */}
-          <div className="flex items-start gap-2 mb-2">
-            <div className="flex-1 min-w-0">
-              <div className="flex items-baseline gap-2">
-                <h3 className="font-semibold text-foreground leading-tight truncate">
-                  {request.resourceName}
-                </h3>
-                <span className="text-sm text-muted-foreground shrink-0">
-                  {request.quantity} {request.unit}
-                </span>
-              </div>
-            </div>
-            <Button
-              variant="ghost"
-              size="sm"
-              className="h-7 w-7 p-0 text-muted-foreground hover:text-foreground shrink-0"
-              onClick={() => onViewDetails(request.id)}
-            >
-              <Eye className="h-4 w-4" />
-            </Button>
-          </div>
-
-          {/* Row 2: Checkbox (only for pending) */}
+        <div className="flex items-center gap-3">
           {request.status === 'pending' && onSelect && (
-            <div className="flex items-center gap-2 text-xs text-muted-foreground">
-              <Checkbox
-                checked={isSelected}
-                onCheckedChange={(checked) => onSelect(request.id, !!checked)}
-                className="h-4 w-4 shrink-0"
-              />
-              <span className="text-muted-foreground">Select for purchase</span>
-            </div>
+            <Checkbox
+              checked={isSelected}
+              onCheckedChange={(checked) => onSelect(request.id, !!checked)}
+              className="h-4 w-4 shrink-0"
+            />
           )}
-        </>
+          <div className="flex-1 min-w-0">
+            <div className="flex items-baseline gap-2">
+              <h3 className="font-semibold text-foreground leading-tight truncate">
+                {request.resourceName}
+              </h3>
+              <span className="text-sm text-muted-foreground shrink-0">
+                {request.quantity} {request.unit}
+              </span>
+            </div>
+          </div>
+          <Button
+            variant="ghost"
+            size="sm"
+            className="h-7 w-7 p-0 text-muted-foreground hover:text-foreground shrink-0"
+            onClick={() => onViewDetails(request.id)}
+          >
+            <Eye className="h-4 w-4" />
+          </Button>
+        </div>
       ) : (
         <>
           {/* Full layout for other statuses */}
