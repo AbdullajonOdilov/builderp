@@ -288,6 +288,32 @@ export function SupplierKanbanBoard({
     toast.success(`Moved to ${KANBAN_COLUMNS.find(c => c.id === newStatus)?.label || newStatus}`);
   };
 
+  // Handle order card drop (moves entire purchase order)
+  const handleOrderDrop = (purchaseId: string, currentStatus: string, newStatus: Status) => {
+    const purchase = purchases.find((p) => p.id === purchaseId);
+    if (!purchase) return;
+
+    // Validate purchase status transitions
+    const validOrderTransitions: Record<string, Status[]> = {
+      ordered: ['in_delivery'],
+      in_delivery: ['delivered'],
+      delivered: [],
+    };
+
+    if (!validOrderTransitions[currentStatus]?.includes(newStatus)) {
+      toast.error('Invalid order status transition');
+      return;
+    }
+
+    // Update all requests in the purchase
+    purchase.requestIds.forEach((requestId) => {
+      onUpdateStatus(requestId, newStatus);
+    });
+
+    const columnLabel = KANBAN_COLUMNS.find(c => c.id === newStatus)?.label || newStatus;
+    toast.success(`Order moved to ${columnLabel}`);
+  };
+
   const handleViewDetails = (id: string) => {
     const request = requests.find((r) => r.id === id);
     if (request) {
@@ -508,6 +534,16 @@ export function SupplierKanbanBoard({
                 onDrop={(e) => {
                   e.preventDefault();
                   e.currentTarget.classList.remove('border-primary/50', 'bg-primary/5');
+                  
+                  // Check if it's a purchase order drop
+                  const purchaseId = e.dataTransfer.getData('purchaseId');
+                  const purchaseStatus = e.dataTransfer.getData('purchaseStatus');
+                  if (purchaseId && purchaseStatus) {
+                    handleOrderDrop(purchaseId, purchaseStatus, column.id as Status);
+                    return;
+                  }
+                  
+                  // Otherwise handle individual request drop
                   const requestId = e.dataTransfer.getData('requestId');
                   if (requestId) {
                     handleDrop(requestId, column.id as Status);
