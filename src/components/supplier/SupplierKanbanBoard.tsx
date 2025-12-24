@@ -1,6 +1,7 @@
 import { useState, useMemo } from 'react';
 import { ResourceRequest, Status, Availability, Purchase, KANBAN_COLUMNS, PRIORITY_CONFIG, PURCHASE_COLORS, VENDORS } from '@/types/request';
 import { SelectableKanbanCard } from './SelectableKanbanCard';
+import { BuildingGroup } from './BuildingGroup';
 import { PurchasePanel } from './PurchasePanel';
 import { OrderCard } from './OrderCard';
 import { OrderDetailsDialog } from './OrderDetailsDialog';
@@ -184,6 +185,20 @@ export function SupplierKanbanBoard({
     }));
   }, [pendingByResourceType]);
 
+  // Group requests by building for a column
+  const groupByBuilding = (reqs: ResourceRequest[]) => {
+    const grouped = new Map<string, ResourceRequest[]>();
+    reqs.forEach(req => {
+      const building = req.projectName || 'General';
+      if (!grouped.has(building)) {
+        grouped.set(building, []);
+      }
+      grouped.get(building)!.push(req);
+    });
+    // Sort buildings alphabetically
+    return Array.from(grouped.entries()).sort((a, b) => a[0].localeCompare(b[0]));
+  };
+
   // Selection handlers
   const handleSelect = (id: string, selected: boolean) => {
     const newSet = new Set(selectedRequestIds);
@@ -192,6 +207,18 @@ export function SupplierKanbanBoard({
     } else {
       newSet.delete(id);
     }
+    setSelectedRequestIds(newSet);
+  };
+
+  const handleSelectMultiple = (ids: string[], selected: boolean) => {
+    const newSet = new Set(selectedRequestIds);
+    ids.forEach(id => {
+      if (selected) {
+        newSet.add(id);
+      } else {
+        newSet.delete(id);
+      }
+    });
     setSelectedRequestIds(newSet);
   };
   const handleAddToPurchase = () => {
@@ -576,8 +603,30 @@ export function SupplierKanbanBoard({
                         {deliveredPurchases.length === 0 && <div className="text-center py-8 text-muted-foreground text-sm">
                             No completed orders
                           </div>}
+                      </> : (column.id === 'pending' || column.id === 'selected') ? <>
+                        {/* Group by Building for pending and selected columns */}
+                        {groupByBuilding(columnRequests).map(([building, buildingRequests]) => (
+                          <BuildingGroup
+                            key={building}
+                            buildingName={building}
+                            requests={buildingRequests}
+                            selectedRequestIds={selectedRequestIds}
+                            purchaseColorMap={purchaseColorMap}
+                            onSelect={handleSelect}
+                            onSelectAll={handleSelectMultiple}
+                            onSetAvailability={column.id === 'pending' ? onSetAvailability : undefined}
+                            onViewDetails={handleViewDetails}
+                            onUpdateQuantity={column.id === 'selected' ? onUpdateQuantity : undefined}
+                            onDecline={column.id === 'pending' ? handleDecline : undefined}
+                            columnId={column.id}
+                          />
+                        ))}
+                        {columnRequests.length === 0 && <div className="text-center py-8 text-muted-foreground text-sm">
+                            No requests
+                          </div>}
                       </> : <>
-                        {columnRequests.map(request => <SelectableKanbanCard key={request.id} request={request} isSelected={selectedRequestIds.has(request.id)} purchaseColorIndex={purchaseColorMap.get(request.id)} onSelect={column.id === 'pending' ? handleSelect : undefined} onSetAvailability={column.id === 'pending' ? onSetAvailability : undefined} onViewDetails={handleViewDetails} onUpdateQuantity={column.id === 'selected' ? onUpdateQuantity : undefined} onDecline={column.id === 'pending' ? handleDecline : undefined} />)}
+                        {/* Flat list for other columns */}
+                        {columnRequests.map(request => <SelectableKanbanCard key={request.id} request={request} isSelected={selectedRequestIds.has(request.id)} purchaseColorIndex={purchaseColorMap.get(request.id)} onViewDetails={handleViewDetails} />)}
                         {columnRequests.length === 0 && <div className="text-center py-8 text-muted-foreground text-sm">
                             No requests
                           </div>}
