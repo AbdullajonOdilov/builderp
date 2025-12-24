@@ -48,6 +48,31 @@ interface RequestLineItem {
   givenAmount: number;
 }
 
+// Vendor pricing history stored in localStorage
+interface PricingHistory {
+  [vendorId: string]: {
+    [resourceName: string]: {
+      unitPrice: number;
+      lastUsed: string;
+    };
+  };
+}
+
+const PRICING_HISTORY_KEY = 'vendor-pricing-history';
+
+const getPricingHistory = (): PricingHistory => {
+  try {
+    const stored = localStorage.getItem(PRICING_HISTORY_KEY);
+    return stored ? JSON.parse(stored) : {};
+  } catch {
+    return {};
+  }
+};
+
+const savePricingHistory = (history: PricingHistory) => {
+  localStorage.setItem(PRICING_HISTORY_KEY, JSON.stringify(history));
+};
+
 export function PurchasePanel({
   selectedRequests,
   onRemoveRequest,
@@ -62,7 +87,6 @@ export function PurchasePanel({
   const [newVendor, setNewVendor] = useState({
     name: '',
     contact: '',
-    email: '',
     phone: '',
   });
   
@@ -78,6 +102,32 @@ export function PurchasePanel({
     });
     return items;
   });
+
+  // Auto-suggest prices when vendor changes
+  const applyPricingSuggestions = (vendorId: string) => {
+    const history = getPricingHistory();
+    const vendorPricing = history[vendorId] || {};
+    
+    setLineItems((prev) => {
+      const updated = { ...prev };
+      selectedRequests.forEach((req) => {
+        const savedPrice = vendorPricing[req.resourceName];
+        if (savedPrice && updated[req.id]) {
+          updated[req.id] = {
+            ...updated[req.id],
+            unitPrice: savedPrice.unitPrice,
+          };
+        }
+      });
+      return updated;
+    });
+  };
+
+  // Handle vendor selection with price suggestions
+  const handleVendorChange = (vendorId: string) => {
+    setSelectedVendorId(vendorId);
+    applyPricingSuggestions(vendorId);
+  };
 
   // Update line items when requests change
   useMemo(() => {
@@ -110,6 +160,24 @@ export function PurchasePanel({
 
   const handleCreatePurchase = () => {
     if (!selectedVendorId || !deliveryDate) return;
+    
+    // Save pricing history before creating purchase
+    const history = getPricingHistory();
+    if (!history[selectedVendorId]) {
+      history[selectedVendorId] = {};
+    }
+    
+    selectedRequests.forEach((req) => {
+      const item = lineItems[req.id];
+      if (item && item.unitPrice > 0) {
+        history[selectedVendorId][req.resourceName] = {
+          unitPrice: item.unitPrice,
+          lastUsed: new Date().toISOString(),
+        };
+      }
+    });
+    
+    savePricingHistory(history);
     onCreatePurchase(selectedVendorId, deliveryDate, notes);
   };
 
@@ -120,7 +188,7 @@ export function PurchasePanel({
       id: `v-${Date.now()}`,
       name: newVendor.name,
       contact: newVendor.contact || newVendor.name,
-      email: newVendor.email || '',
+      email: '',
       phone: newVendor.phone || '',
       deliveryDays: 3,
       rating: 0,
@@ -129,9 +197,10 @@ export function PurchasePanel({
     };
     
     setVendors((prev) => [...prev, vendor]);
-    setSelectedVendorId(vendor.id);
+    const newVendorId = vendor.id;
+    setSelectedVendorId(newVendorId);
     setShowAddVendor(false);
-    setNewVendor({ name: '', contact: '', email: '', phone: '' });
+    setNewVendor({ name: '', contact: '', phone: '' });
   };
 
   const updateLineItem = (id: string, field: 'unitPrice' | 'givenAmount', value: number) => {
@@ -281,7 +350,7 @@ export function PurchasePanel({
                     <div className="flex gap-2">
                       <Select
                         value={selectedVendorId || ''}
-                        onValueChange={(value) => setSelectedVendorId(value)}
+                        onValueChange={handleVendorChange}
                       >
                         <SelectTrigger className="flex-1">
                           <SelectValue placeholder="Choose a vendor..." />
@@ -383,16 +452,6 @@ export function PurchasePanel({
                 placeholder="Contact name"
                 value={newVendor.contact}
                 onChange={(e) => setNewVendor((prev) => ({ ...prev, contact: e.target.value }))}
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="vendor-email">Email</Label>
-              <Input
-                id="vendor-email"
-                type="email"
-                placeholder="vendor@example.com"
-                value={newVendor.email}
-                onChange={(e) => setNewVendor((prev) => ({ ...prev, email: e.target.value }))}
               />
             </div>
             <div className="space-y-2">
