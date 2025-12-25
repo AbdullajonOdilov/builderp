@@ -97,14 +97,8 @@ export function SelectableKanbanCard({
         isSoon && request.status !== 'delivered' && 'border-l-4 border-l-status-critical',
         isSelected && 'ring-2 ring-primary bg-primary/5',
         purchaseColor && `border-l-4`,
-        (request.status === 'pending' || request.status === 'selected') && 'cursor-grab active:cursor-grabbing'
       )}
       style={purchaseColor ? { borderLeftColor: purchaseColor } : undefined}
-      draggable={request.status === 'pending' || request.status === 'selected'}
-      onDragStart={(e) => {
-        e.dataTransfer.setData('requestId', request.id);
-        e.dataTransfer.effectAllowed = 'move';
-      }}
     >
       {/* Simplified single-row layout for pending and selected requests */}
       {(request.status === 'pending' || request.status === 'selected') ? (

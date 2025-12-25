@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useCallback } from 'react';
 import { ResourceRequest, Status, Availability, Purchase, KANBAN_COLUMNS, PRIORITY_CONFIG, PURCHASE_COLORS, VENDORS } from '@/types/request';
 import { SelectableKanbanCard } from './SelectableKanbanCard';
 import { BuildingGroup } from './BuildingGroup';
@@ -23,6 +23,14 @@ import { PriorityBadge } from '../PriorityBadge';
 import { ResourceIcon } from '../ResourceIcon';
 import { cn } from '@/lib/utils';
 import { ScrollArea } from '@/components/ui/scroll-area';
+
+// Drag overlay state type
+interface DragOverlayState {
+  visible: boolean;
+  count: number;
+  type: 'building' | 'selected' | 'single';
+  buildingName?: string;
+}
 interface SupplierKanbanBoardProps {
   requests: ResourceRequest[];
   purchases: Purchase[];
@@ -54,6 +62,14 @@ export function SupplierKanbanBoard({
   const [selectedRequestIds, setSelectedRequestIds] = useState<Set<string>>(new Set());
   const [selectedOrderId, setSelectedOrderId] = useState<string | null>(null);
   const [receiptPurchaseId, setReceiptPurchaseId] = useState<string | null>(null);
+  
+  // Drag overlay state
+  const [dragOverlay, setDragOverlay] = useState<DragOverlayState>({
+    visible: false,
+    count: 0,
+    type: 'single',
+  });
+  
   // Filter states
   const [selectedBuildings, setSelectedBuildings] = useState<string[]>([]);
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
@@ -267,9 +283,14 @@ export function SupplierKanbanBoard({
   const handlePrintReceipt = (purchaseId: string) => {
     setReceiptPurchaseId(purchaseId);
   };
-  const handleDrop = (requestId: string, newStatus: Status) => {
-    const request = requests.find(r => r.id === requestId);
-    if (!request) return;
+
+  // Handle multiple requests drop
+  const handleMultipleDrop = useCallback((requestIds: string[], newStatus: Status) => {
+    const validRequests = requestIds
+      .map(id => requests.find(r => r.id === id))
+      .filter(Boolean) as ResourceRequest[];
+    
+    if (validRequests.length === 0) return;
 
     // Validate status transitions
     const validTransitions: Record<Status, Status[]> = {
@@ -280,18 +301,34 @@ export function SupplierKanbanBoard({
       delivered: [],
       declined: ['pending']
     };
-    if (!validTransitions[request.status].includes(newStatus)) {
-      toast.error('Invalid status transition');
+
+    // Check if all requests can transition
+    const canTransition = validRequests.every(
+      r => validTransitions[r.status].includes(newStatus)
+    );
+
+    if (!canTransition) {
+      toast.error('Invalid status transition for some requests');
       return;
     }
+
     if (newStatus === 'selected') {
-      onSelectForPurchase([requestId]);
-    } else if (request.status === 'selected' && newStatus === 'pending') {
-      onDeselectFromPurchase([requestId]);
+      onSelectForPurchase(requestIds);
+    } else if (validRequests[0].status === 'selected' && newStatus === 'pending') {
+      onDeselectFromPurchase(requestIds);
     } else {
-      onUpdateStatus(requestId, newStatus);
+      requestIds.forEach(id => onUpdateStatus(id, newStatus));
     }
-    toast.success(`Moved to ${KANBAN_COLUMNS.find(c => c.id === newStatus)?.label || newStatus}`);
+    
+    // Clear selection after drop
+    setSelectedRequestIds(new Set());
+    
+    const columnLabel = KANBAN_COLUMNS.find(c => c.id === newStatus)?.label || newStatus;
+    toast.success(`Moved ${requestIds.length} request${requestIds.length > 1 ? 's' : ''} to ${columnLabel}`);
+  }, [requests, onSelectForPurchase, onDeselectFromPurchase, onUpdateStatus]);
+
+  const handleDrop = (requestId: string, newStatus: Status) => {
+    handleMultipleDrop([requestId], newStatus);
   };
 
   // Handle order card drop (moves entire purchase order)
@@ -329,7 +366,33 @@ export function SupplierKanbanBoard({
 
   // Selected requests for purchase panel
   const selectedForPurchase = requests.filter(r => r.status === 'selected');
-  return <div className="h-full flex flex-col">
+  
+  // Global drag event handlers for overlay
+  const handleGlobalDragStart = useCallback((e: React.DragEvent) => {
+    const count = parseInt(e.dataTransfer.getData('requestCount') || '1');
+    const dragType = e.dataTransfer.getData('dragType') as 'building' | 'selected' | 'single';
+    const buildingName = e.dataTransfer.getData('buildingName');
+    
+    setDragOverlay({
+      visible: true,
+      count,
+      type: dragType || 'single',
+      buildingName,
+    });
+  }, []);
+
+  const handleGlobalDragEnd = useCallback(() => {
+    setDragOverlay({ visible: false, count: 0, type: 'single' });
+  }, []);
+
+  return <div 
+    className="h-full flex flex-col"
+    onDragOver={(e) => {
+      // Read drag info for overlay
+      const count = e.dataTransfer.types.length;
+    }}
+    onDragEnd={handleGlobalDragEnd}
+  >
       {/* Header with stats and controls */}
       <div className="px-6 py-4 border-b bg-background/95 backdrop-blur-sm sticky top-0 z-10">
         {/* Stats row */}
@@ -553,29 +616,51 @@ export function SupplierKanbanBoard({
               </div>
 
               {/* Column content */}
-              <div className="min-h-[400px] p-2 rounded-xl bg-muted/30 border-2 border-dashed border-transparent transition-colors" onDragOver={e => {
-              e.preventDefault();
-              e.currentTarget.classList.add('border-primary/50', 'bg-primary/5');
-            }} onDragLeave={e => {
-              e.currentTarget.classList.remove('border-primary/50', 'bg-primary/5');
-            }} onDrop={e => {
-              e.preventDefault();
-              e.currentTarget.classList.remove('border-primary/50', 'bg-primary/5');
+              <div 
+                className="min-h-[400px] p-2 rounded-xl bg-muted/30 border-2 border-dashed border-transparent transition-colors" 
+                onDragOver={e => {
+                  e.preventDefault();
+                  e.currentTarget.classList.add('border-primary/50', 'bg-primary/5');
+                  
+                  // Update drag overlay with count info
+                  const count = parseInt(e.dataTransfer.types.includes('text/plain') ? '1' : '1');
+                  const dragType = e.dataTransfer.getData('dragType');
+                }} 
+                onDragLeave={e => {
+                  e.currentTarget.classList.remove('border-primary/50', 'bg-primary/5');
+                }} 
+                onDrop={e => {
+                  e.preventDefault();
+                  e.currentTarget.classList.remove('border-primary/50', 'bg-primary/5');
+                  setDragOverlay({ visible: false, count: 0, type: 'single' });
 
-              // Check if it's a purchase order drop
-              const purchaseId = e.dataTransfer.getData('purchaseId');
-              const purchaseStatus = e.dataTransfer.getData('purchaseStatus');
-              if (purchaseId && purchaseStatus) {
-                handleOrderDrop(purchaseId, purchaseStatus, column.id as Status);
-                return;
-              }
+                  // Check if it's a purchase order drop
+                  const purchaseId = e.dataTransfer.getData('purchaseId');
+                  const purchaseStatus = e.dataTransfer.getData('purchaseStatus');
+                  if (purchaseId && purchaseStatus) {
+                    handleOrderDrop(purchaseId, purchaseStatus, column.id as Status);
+                    return;
+                  }
 
-              // Otherwise handle individual request drop
-              const requestId = e.dataTransfer.getData('requestId');
-              if (requestId) {
-                handleDrop(requestId, column.id as Status);
-              }
-            }}>
+                  // Check for multiple requests (building or selected drag)
+                  const requestIdsJson = e.dataTransfer.getData('requestIds');
+                  if (requestIdsJson) {
+                    try {
+                      const requestIds = JSON.parse(requestIdsJson) as string[];
+                      if (requestIds.length > 0) {
+                        handleMultipleDrop(requestIds, column.id as Status);
+                        return;
+                      }
+                    } catch {}
+                  }
+
+                  // Fallback: handle individual request drop (legacy)
+                  const requestId = e.dataTransfer.getData('requestId');
+                  if (requestId) {
+                    handleDrop(requestId, column.id as Status);
+                  }
+                }}
+              >
                 {/* Create for Purchase button in Selected column */}
                 {column.id === 'selected' && getColumnRequests('selected').length > 0 && <Button className="w-full mb-3" onClick={() => setShowPurchasePanel(true)}>
                     <ShoppingCart className="h-4 w-4 mr-2" />
@@ -619,6 +704,8 @@ export function SupplierKanbanBoard({
                             onUpdateQuantity={column.id === 'selected' ? onUpdateQuantity : undefined}
                             onDecline={column.id === 'pending' ? handleDecline : undefined}
                             columnId={column.id}
+                            onDragStart={(count, type, name) => setDragOverlay({ visible: true, count, type, buildingName: name })}
+                            onDragEnd={() => setDragOverlay({ visible: false, count: 0, type: 'single' })}
                           />
                         ))}
                         {columnRequests.length === 0 && <div className="text-center py-8 text-muted-foreground text-sm">
@@ -656,6 +743,22 @@ export function SupplierKanbanBoard({
               </div>)}
           </div>
         </div>}
+
+      {/* Drag Overlay - Shows what's being dragged */}
+      {dragOverlay.visible && (
+        <div className="fixed top-4 left-1/2 -translate-x-1/2 z-50 pointer-events-none animate-fade-in">
+          <div className="px-4 py-2 bg-primary text-primary-foreground rounded-lg shadow-2xl flex items-center gap-2 font-medium">
+            <Package className="h-4 w-4" />
+            {dragOverlay.type === 'building' ? (
+              <span>Move all {dragOverlay.count} requests from {dragOverlay.buildingName}</span>
+            ) : dragOverlay.type === 'selected' ? (
+              <span>Move {dragOverlay.count} selected request{dragOverlay.count > 1 ? 's' : ''}</span>
+            ) : (
+              <span>Move 1 request</span>
+            )}
+          </div>
+        </div>
+      )}
 
       {/* Floating Create Purchase button */}
       {selectedForPurchase.length > 0 && <div className="fixed bottom-6 right-6 z-40">
