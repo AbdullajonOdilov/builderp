@@ -611,7 +611,7 @@ export function SupplierKanbanBoard({
               setSelectedRequestIds(newSet);
             }
           };
-          return <div key={column.id} className="w-80 flex-shrink-0">
+          return <div key={column.id} className="w-96 flex-shrink-0">
               {/* Column header */}
               <div className="flex items-center justify-between mb-4 px-3 py-2 rounded-lg" style={{
               backgroundColor: `${column.color}15`
