@@ -86,54 +86,76 @@ function RequestCard({ request, columnId, onAccept, onDecline }: RequestCardProp
   );
 }
 
-interface BuildingGroupProps {
+interface BuildingRowProps {
   buildingName: string;
-  requests: ResourceRequest[];
-  columnId: ManagerColumnId;
+  allRequests: ResourceRequest[];
   onAccept?: (id: string) => void;
   onDecline?: (id: string) => void;
+  getColumnRequests: (columnId: ManagerColumnId, requests: ResourceRequest[]) => ResourceRequest[];
 }
 
-function BuildingGroup({ buildingName, requests, columnId, onAccept, onDecline }: BuildingGroupProps) {
+function BuildingRow({ buildingName, allRequests, onAccept, onDecline, getColumnRequests }: BuildingRowProps) {
   const [isOpen, setIsOpen] = useState(true);
 
-  // Get the earliest needed date from requests in this group
-  const earliestDate = useMemo(() => {
-    if (requests.length === 0) return null;
-    const dates = requests.map(r => new Date(r.neededDate));
-    return dates.reduce((min, date) => date < min ? date : min, dates[0]);
-  }, [requests]);
+  const totalCount = allRequests.length;
+  const pendingRequests = getColumnRequests('pending', allRequests);
+  const selectedRequests = getColumnRequests('selected', allRequests);
+  const deliveredRequests = getColumnRequests('delivered', allRequests);
 
   return (
-    <Collapsible open={isOpen} onOpenChange={setIsOpen} className="mb-3">
+    <Collapsible open={isOpen} onOpenChange={setIsOpen} className="mb-4">
       <CollapsibleTrigger className="w-full">
-        <div className="flex items-center gap-2 px-2 py-1.5 rounded-md bg-muted/50 hover:bg-muted transition-colors">
+        <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-muted/50 hover:bg-muted transition-colors">
           {isOpen ? (
             <ChevronDown className="h-4 w-4 text-muted-foreground" />
           ) : (
             <ChevronRight className="h-4 w-4 text-muted-foreground" />
           )}
-          <span className="font-medium text-sm">{buildingName}</span>
-          {earliestDate && (
-            <span className="text-xs text-muted-foreground">
-              {format(earliestDate, 'MMM d')}
-            </span>
-          )}
-          <Badge variant="secondary" className="ml-auto text-xs">
-            {requests.length}
+          <span className="font-medium">{buildingName}</span>
+          <Badge variant="secondary" className="text-xs">
+            {totalCount} requests
           </Badge>
         </div>
       </CollapsibleTrigger>
-      <CollapsibleContent className="mt-2 pl-2">
-        {requests.map(request => (
-          <RequestCard 
-            key={request.id} 
-            request={request} 
-            columnId={columnId}
-            onAccept={onAccept}
-            onDecline={onDecline}
-          />
-        ))}
+      <CollapsibleContent className="mt-2">
+        <div className="grid grid-cols-3 gap-6">
+          {/* Requests Column */}
+          <div className="min-h-[60px]">
+            {pendingRequests.map(request => (
+              <RequestCard 
+                key={request.id} 
+                request={request} 
+                columnId="pending"
+                onAccept={onAccept}
+                onDecline={onDecline}
+              />
+            ))}
+          </div>
+          {/* Pending Column */}
+          <div className="min-h-[60px]">
+            {selectedRequests.map(request => (
+              <RequestCard 
+                key={request.id} 
+                request={request} 
+                columnId="selected"
+                onAccept={onAccept}
+                onDecline={onDecline}
+              />
+            ))}
+          </div>
+          {/* Done Column */}
+          <div className="min-h-[60px]">
+            {deliveredRequests.map(request => (
+              <RequestCard 
+                key={request.id} 
+                request={request} 
+                columnId="delivered"
+                onAccept={onAccept}
+                onDecline={onDecline}
+              />
+            ))}
+          </div>
+        </div>
       </CollapsibleContent>
     </Collapsible>
   );
@@ -181,10 +203,10 @@ export function ManagerKanbanBoard({
     });
   };
 
-  // Group requests by building
-  const groupByBuilding = (reqs: ResourceRequest[]) => {
+  // Group all requests by building (across all statuses)
+  const allBuildings = useMemo(() => {
     const grouped = new Map<string, ResourceRequest[]>();
-    reqs.forEach(req => {
+    filteredRequests.forEach(req => {
       const building = req.projectName || 'General';
       if (!grouped.has(building)) {
         grouped.set(building, []);
@@ -192,6 +214,22 @@ export function ManagerKanbanBoard({
       grouped.get(building)!.push(req);
     });
     return Array.from(grouped.entries()).sort((a, b) => a[0].localeCompare(b[0]));
+  }, [filteredRequests]);
+
+  // Get requests for a specific column from a building's requests
+  const getColumnRequestsForBuilding = (columnId: ManagerColumnId, reqs: ResourceRequest[]): ResourceRequest[] => {
+    return reqs.filter(r => {
+      if (columnId === 'pending') {
+        return r.status === 'pending';
+      }
+      if (columnId === 'selected') {
+        return r.status === 'selected' || r.status === 'ordered' || r.status === 'in_delivery';
+      }
+      if (columnId === 'delivered') {
+        return r.status === 'delivered';
+      }
+      return false;
+    });
   };
 
   // Stats
@@ -270,55 +308,47 @@ export function ManagerKanbanBoard({
       </div>
 
       {/* Kanban Board */}
-      <div className="flex-1 overflow-x-auto p-6">
-        <div className="flex gap-6 h-full min-w-max">
-          {MANAGER_COLUMNS.map(column => {
-            const columnRequests = getColumnRequests(column.id);
-            const groupedRequests = groupByBuilding(columnRequests);
-
-            return (
-              <div 
-                key={column.id} 
-                className="w-80 flex-shrink-0"
-                onDragOver={(e) => e.preventDefault()}
-              >
-                {/* Column Header */}
+      <div className="flex-1 overflow-auto p-6">
+        {/* Column Headers */}
+        <div className="grid grid-cols-3 gap-6 mb-4 sticky top-0 bg-background z-10 pb-2">
+          {MANAGER_COLUMNS.map(column => (
+            <div 
+              key={column.id}
+              className="flex items-center justify-between px-3 py-2 rounded-lg"
+              style={{ backgroundColor: `${column.color}15` }}
+            >
+              <div className="flex items-center gap-2">
                 <div 
-                  className="flex items-center justify-between mb-4 px-3 py-2 rounded-lg"
-                  style={{ backgroundColor: `${column.color}15` }}
-                >
-                  <div className="flex items-center gap-2">
-                    <div 
-                      className="w-3 h-3 rounded-full"
-                      style={{ backgroundColor: column.color }}
-                    />
-                    <span className="font-semibold">{column.label}</span>
-                  </div>
-                  <Badge variant="secondary">{columnRequests.length}</Badge>
-                </div>
-
-                {/* Column Content */}
-                <div className="space-y-2 max-h-[calc(100vh-280px)] overflow-y-auto pr-2">
-                  {groupedRequests.length === 0 ? (
-                    <div className="text-center py-8 text-muted-foreground text-sm">
-                      No requests
-                    </div>
-                  ) : (
-                    groupedRequests.map(([building, reqs]) => (
-                      <BuildingGroup
-                        key={building}
-                        buildingName={building}
-                        requests={reqs}
-                        columnId={column.id}
-                        onAccept={handleAccept}
-                        onDecline={handleDecline}
-                      />
-                    ))
-                  )}
-                </div>
+                  className="w-3 h-3 rounded-full"
+                  style={{ backgroundColor: column.color }}
+                />
+                <span className="font-semibold">{column.label}</span>
               </div>
-            );
-          })}
+              <Badge variant="secondary">
+                {getColumnRequests(column.id).length}
+              </Badge>
+            </div>
+          ))}
+        </div>
+
+        {/* Building Rows */}
+        <div className="space-y-2">
+          {allBuildings.length === 0 ? (
+            <div className="text-center py-8 text-muted-foreground">
+              No requests
+            </div>
+          ) : (
+            allBuildings.map(([building, reqs]) => (
+              <BuildingRow
+                key={building}
+                buildingName={building}
+                allRequests={reqs}
+                onAccept={handleAccept}
+                onDecline={handleDecline}
+                getColumnRequests={getColumnRequestsForBuilding}
+              />
+            ))
+          )}
         </div>
       </div>
     </div>
