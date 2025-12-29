@@ -143,7 +143,7 @@ function BuildingRow({ buildingName, allRequests, onAccept, onDecline, getColumn
       <CollapsibleContent className="mt-2">
         <div className="grid grid-cols-3">
           {/* Requests Column */}
-          <div className="min-h-[60px] px-3 border-r-2 border-muted-foreground/30">
+          <div className="min-h-[60px] px-3 border-r-2 border-status-pending/50">
             {pendingRequests.map(request => (
               <RequestCard 
                 key={request.id} 
@@ -155,7 +155,7 @@ function BuildingRow({ buildingName, allRequests, onAccept, onDecline, getColumn
             ))}
           </div>
           {/* Pending Column */}
-          <div className="min-h-[60px] px-3 border-r-2 border-muted-foreground/30">
+          <div className="min-h-[60px] px-3 border-r-2 border-status-selected/50">
             {selectedRequests.map(request => (
               <RequestCard 
                 key={request.id} 
