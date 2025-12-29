@@ -97,10 +97,10 @@ interface BuildingRowProps {
 function BuildingRow({ buildingName, allRequests, onAccept, onDecline, getColumnRequests }: BuildingRowProps) {
   const [isOpen, setIsOpen] = useState(true);
 
+  const totalCount = allRequests.length;
   const pendingRequests = getColumnRequests('pending', allRequests);
   const selectedRequests = getColumnRequests('selected', allRequests);
   const deliveredRequests = getColumnRequests('delivered', allRequests);
-  const rejectedRequests = allRequests.filter(r => r.status === 'declined');
 
   return (
     <Collapsible open={isOpen} onOpenChange={setIsOpen} className="mb-4">
@@ -112,20 +112,9 @@ function BuildingRow({ buildingName, allRequests, onAccept, onDecline, getColumn
             <ChevronRight className="h-4 w-4 text-muted-foreground" />
           )}
           <span className="font-medium">{buildingName}</span>
-          <div className="flex items-center gap-1.5 ml-auto">
-            <Badge variant="outline" className="text-xs bg-status-pending/10 text-status-pending border-status-pending/30">
-              {pendingRequests.length} Pending
-            </Badge>
-            <Badge variant="outline" className="text-xs bg-status-selected/10 text-status-selected border-status-selected/30">
-              {selectedRequests.length} Send
-            </Badge>
-            <Badge variant="outline" className="text-xs bg-status-delivered/10 text-status-delivered border-status-delivered/30">
-              {deliveredRequests.length} Accepted
-            </Badge>
-            <Badge variant="outline" className="text-xs bg-destructive/10 text-destructive border-destructive/30">
-              {rejectedRequests.length} Rejected
-            </Badge>
-          </div>
+          <Badge variant="secondary" className="text-xs">
+            {totalCount} requests
+          </Badge>
         </div>
       </CollapsibleTrigger>
       <CollapsibleContent className="mt-2">
