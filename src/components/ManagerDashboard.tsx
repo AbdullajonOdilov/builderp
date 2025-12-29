@@ -6,9 +6,10 @@ import { ManagerKanbanBoard } from './manager/ManagerKanbanBoard';
 interface ManagerDashboardProps {
   requests: ResourceRequest[];
   onAddRequest: (request: Omit<ResourceRequest, 'id' | 'createdAt' | 'status'>) => void;
+  onUpdateStatus?: (id: string, status: 'pending' | 'delivered' | 'declined') => void;
 }
 
-export function ManagerDashboard({ requests, onAddRequest }: ManagerDashboardProps) {
+export function ManagerDashboard({ requests, onAddRequest, onUpdateStatus }: ManagerDashboardProps) {
   const [showForm, setShowForm] = useState(false);
 
   const handleSubmit = (request: Omit<ResourceRequest, 'id' | 'createdAt' | 'status'>) => {
@@ -27,6 +28,7 @@ export function ManagerDashboard({ requests, onAddRequest }: ManagerDashboardPro
       <ManagerKanbanBoard 
         requests={requests}
         onAddRequest={onAddRequest}
+        onUpdateStatus={onUpdateStatus}
         showForm={showForm}
         setShowForm={setShowForm}
         managerName="John Smith"

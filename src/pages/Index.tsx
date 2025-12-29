@@ -28,7 +28,7 @@ const Index = () => {
     <div className="min-h-screen bg-background">
       
       {role === 'manager' ? (
-        <ManagerDashboard requests={requests} onAddRequest={addRequest} />
+        <ManagerDashboard requests={requests} onAddRequest={addRequest} onUpdateStatus={updateStatus} />
       ) : (
         <SupplierDashboard 
           requests={requests}

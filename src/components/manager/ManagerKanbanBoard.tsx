@@ -4,8 +4,7 @@ import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
-import { Search, Plus, X, ChevronDown, ChevronRight, GripVertical } from 'lucide-react';
-import { PriorityBadge } from '../PriorityBadge';
+import { Search, Plus, X, ChevronDown, ChevronRight, Check } from 'lucide-react';
 import { ResourceIcon } from '../ResourceIcon';
 import { cn } from '@/lib/utils';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
@@ -23,6 +22,7 @@ type ManagerColumnId = 'pending' | 'selected' | 'delivered';
 interface ManagerKanbanBoardProps {
   requests: ResourceRequest[];
   onAddRequest: (request: Omit<ResourceRequest, 'id' | 'createdAt' | 'status'>) => void;
+  onUpdateStatus?: (id: string, status: 'pending' | 'delivered' | 'declined') => void;
   showForm: boolean;
   setShowForm: (show: boolean) => void;
   managerName: string;
@@ -31,9 +31,13 @@ interface ManagerKanbanBoardProps {
 interface RequestCardProps {
   request: ResourceRequest;
   columnId: ManagerColumnId;
+  onAccept?: (id: string) => void;
+  onDecline?: (id: string) => void;
 }
 
-function RequestCard({ request, columnId }: RequestCardProps) {
+function RequestCard({ request, columnId, onAccept, onDecline }: RequestCardProps) {
+  const showActions = columnId === 'selected';
+
   return (
     <Card
       className="p-2.5 mb-2 cursor-pointer hover:shadow-md transition-shadow bg-card"
@@ -48,7 +52,35 @@ function RequestCard({ request, columnId }: RequestCardProps) {
           <ResourceIcon type={request.resourceType} className="h-4 w-4 text-muted-foreground flex-shrink-0" />
           <span className="font-medium text-sm truncate">{request.resourceName}</span>
         </div>
-        <span className="text-xs text-muted-foreground flex-shrink-0">{request.quantity} {request.unit}</span>
+        <div className="flex items-center gap-1 flex-shrink-0">
+          <span className="text-xs text-muted-foreground">{request.quantity} {request.unit}</span>
+          {showActions && (
+            <>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-6 w-6 text-green-600 hover:text-green-700 hover:bg-green-100"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onAccept?.(request.id);
+                }}
+              >
+                <Check className="h-3.5 w-3.5" />
+              </Button>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-6 w-6 text-red-600 hover:text-red-700 hover:bg-red-100"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onDecline?.(request.id);
+                }}
+              >
+                <X className="h-3.5 w-3.5" />
+              </Button>
+            </>
+          )}
+        </div>
       </div>
     </Card>
   );
@@ -58,9 +90,11 @@ interface BuildingGroupProps {
   buildingName: string;
   requests: ResourceRequest[];
   columnId: ManagerColumnId;
+  onAccept?: (id: string) => void;
+  onDecline?: (id: string) => void;
 }
 
-function BuildingGroup({ buildingName, requests, columnId }: BuildingGroupProps) {
+function BuildingGroup({ buildingName, requests, columnId, onAccept, onDecline }: BuildingGroupProps) {
   const [isOpen, setIsOpen] = useState(true);
 
   // Get the earliest needed date from requests in this group
@@ -92,7 +126,13 @@ function BuildingGroup({ buildingName, requests, columnId }: BuildingGroupProps)
       </CollapsibleTrigger>
       <CollapsibleContent className="mt-2 pl-2">
         {requests.map(request => (
-          <RequestCard key={request.id} request={request} columnId={columnId} />
+          <RequestCard 
+            key={request.id} 
+            request={request} 
+            columnId={columnId}
+            onAccept={onAccept}
+            onDecline={onDecline}
+          />
         ))}
       </CollapsibleContent>
     </Collapsible>
@@ -102,6 +142,7 @@ function BuildingGroup({ buildingName, requests, columnId }: BuildingGroupProps)
 export function ManagerKanbanBoard({ 
   requests, 
   onAddRequest, 
+  onUpdateStatus,
   showForm, 
   setShowForm,
   managerName 
@@ -159,6 +200,16 @@ export function ManagerKanbanBoard({
     r.status === 'selected' || r.status === 'ordered' || r.status === 'in_delivery'
   ).length;
   const doneCount = requests.filter(r => r.status === 'delivered').length;
+
+  // Handle accept (move to Done)
+  const handleAccept = (id: string) => {
+    onUpdateStatus?.(id, 'delivered');
+  };
+
+  // Handle decline
+  const handleDecline = (id: string) => {
+    onUpdateStatus?.(id, 'declined');
+  };
 
   return (
     <div className="h-full flex flex-col">
@@ -259,6 +310,8 @@ export function ManagerKanbanBoard({
                         buildingName={building}
                         requests={reqs}
                         columnId={column.id}
+                        onAccept={handleAccept}
+                        onDecline={handleDecline}
                       />
                     ))
                   )}
