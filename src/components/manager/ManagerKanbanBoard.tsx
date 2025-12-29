@@ -4,8 +4,9 @@ import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
-import { Search, Plus, X, ChevronDown, ChevronRight, Check, Filter } from 'lucide-react';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Search, Plus, X, ChevronDown, ChevronRight, Check, Filter, Building2 } from 'lucide-react';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Checkbox } from '@/components/ui/checkbox';
 import { ResourceIcon } from '../ResourceIcon';
 import { cn } from '@/lib/utils';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
@@ -194,8 +195,15 @@ export function ManagerKanbanBoard({
   managerName 
 }: ManagerKanbanBoardProps) {
   const [searchQuery, setSearchQuery] = useState('');
-  const [statusFilter, setStatusFilter] = useState<string>('all');
-  const [buildingFilter, setBuildingFilter] = useState<string>('all');
+  const [statusFilters, setStatusFilters] = useState<string[]>([]);
+  const [buildingFilters, setBuildingFilters] = useState<string[]>([]);
+
+  const statusOptions = [
+    { value: 'pending', label: 'Pending' },
+    { value: 'send', label: 'Send' },
+    { value: 'accepted', label: 'Accepted' },
+    { value: 'rejected', label: 'Rejected' },
+  ];
 
   // Get unique buildings for filter
   const uniqueBuildings = useMemo(() => {
@@ -203,6 +211,18 @@ export function ManagerKanbanBoard({
     requests.forEach(r => buildings.add(r.projectName || 'General'));
     return Array.from(buildings).sort();
   }, [requests]);
+
+  const toggleStatusFilter = (value: string) => {
+    setStatusFilters(prev => 
+      prev.includes(value) ? prev.filter(v => v !== value) : [...prev, value]
+    );
+  };
+
+  const toggleBuildingFilter = (value: string) => {
+    setBuildingFilters(prev => 
+      prev.includes(value) ? prev.filter(v => v !== value) : [...prev, value]
+    );
+  };
 
   // Filter requests
   const filteredRequests = useMemo(() => {
@@ -218,23 +238,27 @@ export function ManagerKanbanBoard({
         if (!matchesSearch) return false;
       }
       
-      // Building filter
-      if (buildingFilter !== 'all') {
+      // Building filter (multi-select)
+      if (buildingFilters.length > 0) {
         const building = r.projectName || 'General';
-        if (building !== buildingFilter) return false;
+        if (!buildingFilters.includes(building)) return false;
       }
       
-      // Status filter
-      if (statusFilter !== 'all') {
-        if (statusFilter === 'pending' && r.status !== 'pending') return false;
-        if (statusFilter === 'send' && !['selected', 'ordered', 'in_delivery'].includes(r.status)) return false;
-        if (statusFilter === 'accepted' && r.status !== 'delivered') return false;
-        if (statusFilter === 'rejected' && r.status !== 'declined') return false;
+      // Status filter (multi-select)
+      if (statusFilters.length > 0) {
+        const matchesStatus = statusFilters.some(filter => {
+          if (filter === 'pending') return r.status === 'pending';
+          if (filter === 'send') return ['selected', 'ordered', 'in_delivery'].includes(r.status);
+          if (filter === 'accepted') return r.status === 'delivered';
+          if (filter === 'rejected') return r.status === 'declined';
+          return false;
+        });
+        if (!matchesStatus) return false;
       }
       
       return true;
     });
-  }, [requests, searchQuery, statusFilter, buildingFilter]);
+  }, [requests, searchQuery, statusFilters, buildingFilters]);
 
   // Get requests for each column - map statuses to manager columns
   const getColumnRequests = (columnId: ManagerColumnId): ResourceRequest[] => {
@@ -351,31 +375,65 @@ export function ManagerKanbanBoard({
           </div>
           
           <div className="flex items-center gap-2 ml-auto">
-            <Select value={statusFilter} onValueChange={setStatusFilter}>
-              <SelectTrigger className="w-[130px] h-9">
-                <Filter className="h-4 w-4 mr-2" />
-                <SelectValue placeholder="Status" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Status</SelectItem>
-                <SelectItem value="pending">Pending</SelectItem>
-                <SelectItem value="send">Send</SelectItem>
-                <SelectItem value="accepted">Accepted</SelectItem>
-                <SelectItem value="rejected">Rejected</SelectItem>
-              </SelectContent>
-            </Select>
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button variant="outline" size="sm" className="h-9">
+                  <Filter className="h-4 w-4 mr-2" />
+                  Status
+                  {statusFilters.length > 0 && (
+                    <Badge variant="secondary" className="ml-2 h-5 px-1.5">
+                      {statusFilters.length}
+                    </Badge>
+                  )}
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-48 p-2" align="start">
+                <div className="space-y-2">
+                  {statusOptions.map(option => (
+                    <label
+                      key={option.value}
+                      className="flex items-center gap-2 px-2 py-1.5 rounded hover:bg-muted cursor-pointer"
+                    >
+                      <Checkbox
+                        checked={statusFilters.includes(option.value)}
+                        onCheckedChange={() => toggleStatusFilter(option.value)}
+                      />
+                      <span className="text-sm">{option.label}</span>
+                    </label>
+                  ))}
+                </div>
+              </PopoverContent>
+            </Popover>
             
-            <Select value={buildingFilter} onValueChange={setBuildingFilter}>
-              <SelectTrigger className="w-[150px] h-9">
-                <SelectValue placeholder="Building" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Buildings</SelectItem>
-                {uniqueBuildings.map(building => (
-                  <SelectItem key={building} value={building}>{building}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button variant="outline" size="sm" className="h-9">
+                  <Building2 className="h-4 w-4 mr-2" />
+                  Building
+                  {buildingFilters.length > 0 && (
+                    <Badge variant="secondary" className="ml-2 h-5 px-1.5">
+                      {buildingFilters.length}
+                    </Badge>
+                  )}
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-56 p-2" align="start">
+                <div className="space-y-2 max-h-60 overflow-auto">
+                  {uniqueBuildings.map(building => (
+                    <label
+                      key={building}
+                      className="flex items-center gap-2 px-2 py-1.5 rounded hover:bg-muted cursor-pointer"
+                    >
+                      <Checkbox
+                        checked={buildingFilters.includes(building)}
+                        onCheckedChange={() => toggleBuildingFilter(building)}
+                      />
+                      <span className="text-sm truncate">{building}</span>
+                    </label>
+                  ))}
+                </div>
+              </PopoverContent>
+            </Popover>
             
             <div className="relative flex-1 max-w-xs">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
