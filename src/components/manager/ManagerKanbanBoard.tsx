@@ -48,10 +48,7 @@ function RequestCard({ request, columnId }: RequestCardProps) {
           <ResourceIcon type={request.resourceType} className="h-4 w-4 text-muted-foreground flex-shrink-0" />
           <span className="font-medium text-sm truncate">{request.resourceName}</span>
         </div>
-        <div className="flex items-center gap-2 flex-shrink-0">
-          <span className="text-xs text-muted-foreground">{request.quantity} {request.unit}</span>
-          <PriorityBadge priority={request.priority} size="sm" />
-        </div>
+        <span className="text-xs text-muted-foreground flex-shrink-0">{request.quantity} {request.unit}</span>
       </div>
     </Card>
   );
