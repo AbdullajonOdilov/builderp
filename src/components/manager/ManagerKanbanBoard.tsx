@@ -4,7 +4,8 @@ import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
-import { Search, Plus, X, ChevronDown, ChevronRight, Check } from 'lucide-react';
+import { Search, Plus, X, ChevronDown, ChevronRight, Check, Filter } from 'lucide-react';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { ResourceIcon } from '../ResourceIcon';
 import { cn } from '@/lib/utils';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
@@ -193,21 +194,47 @@ export function ManagerKanbanBoard({
   managerName 
 }: ManagerKanbanBoardProps) {
   const [searchQuery, setSearchQuery] = useState('');
+  const [statusFilter, setStatusFilter] = useState<string>('all');
+  const [buildingFilter, setBuildingFilter] = useState<string>('all');
+
+  // Get unique buildings for filter
+  const uniqueBuildings = useMemo(() => {
+    const buildings = new Set<string>();
+    requests.forEach(r => buildings.add(r.projectName || 'General'));
+    return Array.from(buildings).sort();
+  }, [requests]);
 
   // Filter requests
   const filteredRequests = useMemo(() => {
     return requests.filter(r => {
+      // Search filter
       if (searchQuery) {
         const query = searchQuery.toLowerCase();
-        return (
+        const matchesSearch = (
           r.resourceName.toLowerCase().includes(query) ||
           r.projectName?.toLowerCase().includes(query) ||
           r.resourceType.toLowerCase().includes(query)
         );
+        if (!matchesSearch) return false;
       }
+      
+      // Building filter
+      if (buildingFilter !== 'all') {
+        const building = r.projectName || 'General';
+        if (building !== buildingFilter) return false;
+      }
+      
+      // Status filter
+      if (statusFilter !== 'all') {
+        if (statusFilter === 'pending' && r.status !== 'pending') return false;
+        if (statusFilter === 'send' && !['selected', 'ordered', 'in_delivery'].includes(r.status)) return false;
+        if (statusFilter === 'accepted' && r.status !== 'delivered') return false;
+        if (statusFilter === 'rejected' && r.status !== 'declined') return false;
+      }
+      
       return true;
     });
-  }, [requests, searchQuery]);
+  }, [requests, searchQuery, statusFilter, buildingFilter]);
 
   // Get requests for each column - map statuses to manager columns
   const getColumnRequests = (columnId: ManagerColumnId): ResourceRequest[] => {
@@ -323,14 +350,42 @@ export function ManagerKanbanBoard({
             </div>
           </div>
           
-          <div className="relative flex-1 max-w-xs ml-auto">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-            <Input 
-              placeholder="Search requests..." 
-              value={searchQuery} 
-              onChange={e => setSearchQuery(e.target.value)} 
-              className="pl-10 h-9" 
-            />
+          <div className="flex items-center gap-2 ml-auto">
+            <Select value={statusFilter} onValueChange={setStatusFilter}>
+              <SelectTrigger className="w-[130px] h-9">
+                <Filter className="h-4 w-4 mr-2" />
+                <SelectValue placeholder="Status" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Status</SelectItem>
+                <SelectItem value="pending">Pending</SelectItem>
+                <SelectItem value="send">Send</SelectItem>
+                <SelectItem value="accepted">Accepted</SelectItem>
+                <SelectItem value="rejected">Rejected</SelectItem>
+              </SelectContent>
+            </Select>
+            
+            <Select value={buildingFilter} onValueChange={setBuildingFilter}>
+              <SelectTrigger className="w-[150px] h-9">
+                <SelectValue placeholder="Building" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Buildings</SelectItem>
+                {uniqueBuildings.map(building => (
+                  <SelectItem key={building} value={building}>{building}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            
+            <div className="relative flex-1 max-w-xs">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <Input 
+                placeholder="Search requests..." 
+                value={searchQuery} 
+                onChange={e => setSearchQuery(e.target.value)} 
+                className="pl-10 h-9" 
+              />
+            </div>
           </div>
         </div>
       </div>
