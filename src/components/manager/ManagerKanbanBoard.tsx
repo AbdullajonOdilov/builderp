@@ -101,6 +101,26 @@ function BuildingRow({ buildingName, allRequests, onAccept, onDecline, getColumn
   const pendingRequests = getColumnRequests('pending', allRequests);
   const selectedRequests = getColumnRequests('selected', allRequests);
   const deliveredRequests = getColumnRequests('delivered', allRequests);
+  const rejectedRequests = allRequests.filter(r => r.status === 'declined');
+
+  // Determine overall status
+  const getOverallStatus = () => {
+    if (rejectedRequests.length > 0) return 'Rejected';
+    if (totalCount > 0 && deliveredRequests.length === totalCount) return 'Accepted';
+    if (selectedRequests.length > 0) return 'Send';
+    return 'Pending';
+  };
+
+  const overallStatus = getOverallStatus();
+
+  const statusConfig = {
+    Pending: { bg: 'bg-status-pending/20', text: 'text-status-pending', border: 'border-status-pending/30' },
+    Send: { bg: 'bg-status-selected/20', text: 'text-status-selected', border: 'border-status-selected/30' },
+    Accepted: { bg: 'bg-status-delivered/20', text: 'text-status-delivered', border: 'border-status-delivered/30' },
+    Rejected: { bg: 'bg-destructive/20', text: 'text-destructive', border: 'border-destructive/30' },
+  };
+
+  const config = statusConfig[overallStatus];
 
   return (
     <Collapsible open={isOpen} onOpenChange={setIsOpen} className="mb-4">
@@ -114,6 +134,9 @@ function BuildingRow({ buildingName, allRequests, onAccept, onDecline, getColumn
           <span className="font-medium">{buildingName}</span>
           <Badge variant="secondary" className="text-xs">
             {totalCount} requests
+          </Badge>
+          <Badge className={cn('text-xs ml-auto', config.bg, config.text, config.border, 'border')}>
+            {overallStatus}
           </Badge>
         </div>
       </CollapsibleTrigger>
