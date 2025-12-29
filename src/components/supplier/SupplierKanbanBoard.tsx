@@ -264,6 +264,22 @@ export function SupplierKanbanBoard({
     onUpdateStatus(id, 'declined');
     toast.info('Request declined');
   };
+
+  const handleAccept = (id: string) => {
+    onSelectForPurchase([id]);
+    toast.success('Request added to purchase');
+  };
+
+  const handleAcceptAll = (ids: string[]) => {
+    onSelectForPurchase(ids);
+    toast.success(`${ids.length} request(s) added to purchase`);
+  };
+
+  const handleDeclineAll = (ids: string[]) => {
+    ids.forEach(id => onUpdateStatus(id, 'declined'));
+    toast.info(`${ids.length} request(s) declined`);
+  };
+
   const handleComplete = (id: string) => {
     onUpdateStatus(id, 'delivered');
     toast.success('Marked as completed!');
@@ -702,7 +718,10 @@ export function SupplierKanbanBoard({
                             onSetAvailability={column.id === 'pending' ? onSetAvailability : undefined}
                             onViewDetails={handleViewDetails}
                             onUpdateQuantity={column.id === 'selected' ? onUpdateQuantity : undefined}
+                            onAccept={column.id === 'pending' ? handleAccept : undefined}
                             onDecline={column.id === 'pending' ? handleDecline : undefined}
+                            onAcceptAll={column.id === 'pending' ? handleAcceptAll : undefined}
+                            onDeclineAll={column.id === 'pending' ? handleDeclineAll : undefined}
                             columnId={column.id}
                             onDragStart={(count, type, name) => setDragOverlay({ visible: true, count, type, buildingName: name })}
                             onDragEnd={() => setDragOverlay({ visible: false, count: 0, type: 'single' })}

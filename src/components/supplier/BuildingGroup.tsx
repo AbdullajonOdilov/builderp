@@ -3,7 +3,8 @@ import { ResourceRequest, Availability } from '@/types/request';
 import { SelectableKanbanCard } from './SelectableKanbanCard';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
-import { Building2, ChevronDown, Calendar, GripVertical } from 'lucide-react';
+import { Building2, ChevronDown, Calendar, GripVertical, Check, X } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 
 interface BuildingGroupProps {
@@ -16,7 +17,10 @@ interface BuildingGroupProps {
   onSetAvailability?: (id: string, availability: Availability) => void;
   onViewDetails: (id: string) => void;
   onUpdateQuantity?: (id: string, quantity: number) => void;
+  onAccept?: (id: string) => void;
   onDecline?: (id: string) => void;
+  onAcceptAll?: (ids: string[]) => void;
+  onDeclineAll?: (ids: string[]) => void;
   columnId: string;
   onDragStart?: (count: number, type: 'building' | 'selected' | 'single', buildingName: string) => void;
   onDragEnd?: () => void;
@@ -32,7 +36,10 @@ export function BuildingGroup({
   onSetAvailability,
   onViewDetails,
   onUpdateQuantity,
+  onAccept,
   onDecline,
+  onAcceptAll,
+  onDeclineAll,
   columnId,
   onDragStart,
   onDragEnd,
@@ -170,6 +177,34 @@ export function BuildingGroup({
                 {formatDate(earliestDate)}
               </span>
             )}
+            {isPending && onAcceptAll && (
+              <Button
+                variant="ghost"
+                size="sm"
+                className="h-6 w-6 p-0 text-muted-foreground hover:text-green-600 hover:bg-green-50"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onAcceptAll(requests.map(r => r.id));
+                }}
+                title="Accept all"
+              >
+                <Check className="h-3.5 w-3.5" />
+              </Button>
+            )}
+            {isPending && onDeclineAll && (
+              <Button
+                variant="ghost"
+                size="sm"
+                className="h-6 w-6 p-0 text-muted-foreground hover:text-red-600 hover:bg-red-50"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onDeclineAll(requests.map(r => r.id));
+                }}
+                title="Decline all"
+              >
+                <X className="h-3.5 w-3.5" />
+              </Button>
+            )}
             <CollapsibleTrigger asChild>
               <button onClick={(e) => e.stopPropagation()} className="p-0.5 hover:bg-secondary/50 rounded">
                 <ChevronDown
@@ -208,6 +243,7 @@ export function BuildingGroup({
                   onSetAvailability={isPending ? onSetAvailability : undefined}
                   onViewDetails={onViewDetails}
                   onUpdateQuantity={columnId === 'selected' ? onUpdateQuantity : undefined}
+                  onAccept={isPending ? onAccept : undefined}
                   onDecline={isPending ? onDecline : undefined}
                 />
               </div>

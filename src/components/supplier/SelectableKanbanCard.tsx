@@ -3,7 +3,7 @@ import { PriorityBadge } from '../PriorityBadge';
 import { ResourceIcon } from '../ResourceIcon';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
-import { Calendar, Eye, ChevronDown, Package, Truck, CircleCheck, Minus, Plus } from 'lucide-react';
+import { Calendar, Eye, ChevronDown, Package, Truck, CircleCheck, Minus, Plus, Check, X } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import {
   DropdownMenu,
@@ -19,6 +19,7 @@ interface SelectableKanbanCardProps {
   isSelected?: boolean;
   purchaseColorIndex?: number;
   onSelect?: (id: string, selected: boolean) => void;
+  onAccept?: (id: string) => void;
   onSetAvailability?: (id: string, availability: Availability) => void;
   onViewDetails: (id: string) => void;
   onUpdateQuantity?: (id: string, quantity: number) => void;
@@ -33,6 +34,7 @@ export function SelectableKanbanCard({
   isSelected = false,
   purchaseColorIndex,
   onSelect,
+  onAccept,
   onSetAvailability,
   onViewDetails,
   onUpdateQuantity,
@@ -120,14 +122,38 @@ export function SelectableKanbanCard({
               </span>
             </div>
           </div>
-          <Button
-            variant="ghost"
-            size="sm"
-            className="h-7 w-7 p-0 text-muted-foreground hover:text-foreground shrink-0"
-            onClick={() => onViewDetails(request.id)}
-          >
-            <Eye className="h-4 w-4" />
-          </Button>
+          <div className="flex items-center gap-1 shrink-0">
+            {request.status === 'pending' && onAccept && (
+              <Button
+                variant="ghost"
+                size="sm"
+                className="h-7 w-7 p-0 text-muted-foreground hover:text-green-600 hover:bg-green-50"
+                onClick={() => onAccept(request.id)}
+                title="Accept"
+              >
+                <Check className="h-4 w-4" />
+              </Button>
+            )}
+            {request.status === 'pending' && onDecline && (
+              <Button
+                variant="ghost"
+                size="sm"
+                className="h-7 w-7 p-0 text-muted-foreground hover:text-red-600 hover:bg-red-50"
+                onClick={() => onDecline(request.id)}
+                title="Decline"
+              >
+                <X className="h-4 w-4" />
+              </Button>
+            )}
+            <Button
+              variant="ghost"
+              size="sm"
+              className="h-7 w-7 p-0 text-muted-foreground hover:text-foreground"
+              onClick={() => onViewDetails(request.id)}
+            >
+              <Eye className="h-4 w-4" />
+            </Button>
+          </div>
         </div>
       ) : (
         <>
