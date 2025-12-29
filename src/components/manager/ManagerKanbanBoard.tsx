@@ -75,6 +75,13 @@ interface BuildingGroupProps {
 function BuildingGroup({ buildingName, requests, columnId }: BuildingGroupProps) {
   const [isOpen, setIsOpen] = useState(true);
 
+  // Get the earliest needed date from requests in this group
+  const earliestDate = useMemo(() => {
+    if (requests.length === 0) return null;
+    const dates = requests.map(r => new Date(r.neededDate));
+    return dates.reduce((min, date) => date < min ? date : min, dates[0]);
+  }, [requests]);
+
   return (
     <Collapsible open={isOpen} onOpenChange={setIsOpen} className="mb-3">
       <CollapsibleTrigger className="w-full">
@@ -85,6 +92,11 @@ function BuildingGroup({ buildingName, requests, columnId }: BuildingGroupProps)
             <ChevronRight className="h-4 w-4 text-muted-foreground" />
           )}
           <span className="font-medium text-sm">{buildingName}</span>
+          {earliestDate && (
+            <span className="text-xs text-muted-foreground">
+              {format(earliestDate, 'MMM d')}
+            </span>
+          )}
           <Badge variant="secondary" className="ml-auto text-xs">
             {requests.length}
           </Badge>
