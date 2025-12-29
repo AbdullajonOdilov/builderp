@@ -328,31 +328,6 @@ export function ManagerKanbanBoard({
     <div className="h-full flex flex-col">
       {/* Header */}
       <div className="px-6 py-4 border-b bg-background/95 backdrop-blur-sm sticky top-0 z-10">
-        <div className="flex items-center justify-between mb-4">
-          <div>
-            <h1 className="text-2xl font-bold">My Requests</h1>
-            <p className="text-muted-foreground">Track your resource requests</p>
-          </div>
-          <Button
-            onClick={() => setShowForm(!showForm)}
-            className={cn(
-              showForm && 'bg-muted text-muted-foreground hover:bg-muted/80'
-            )}
-          >
-            {showForm ? (
-              <>
-                <X className="h-4 w-4 mr-2" />
-                Cancel
-              </>
-            ) : (
-              <>
-                <Plus className="h-4 w-4 mr-2" />
-                New Request
-              </>
-            )}
-          </Button>
-        </div>
-
         {/* Stats and Search */}
         <div className="flex items-center gap-4">
           <div className="flex gap-3">
