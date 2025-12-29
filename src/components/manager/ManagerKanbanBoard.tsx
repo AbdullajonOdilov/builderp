@@ -234,10 +234,11 @@ export function ManagerKanbanBoard({
 
   // Stats
   const pendingCount = requests.filter(r => r.status === 'pending').length;
-  const inProgressCount = requests.filter(r => 
+  const sendCount = requests.filter(r => 
     r.status === 'selected' || r.status === 'ordered' || r.status === 'in_delivery'
   ).length;
-  const doneCount = requests.filter(r => r.status === 'delivered').length;
+  const acceptedCount = requests.filter(r => r.status === 'delivered').length;
+  const rejectedCount = requests.filter(r => r.status === 'declined').length;
 
   // Handle accept (move to Done)
   const handleAccept = (id: string) => {
@@ -283,15 +284,19 @@ export function ManagerKanbanBoard({
           <div className="flex gap-3">
             <div className="px-3 py-1.5 rounded-lg bg-status-pending/10 border border-status-pending/20">
               <span className="font-bold text-status-pending">{pendingCount}</span>
-              <span className="text-xs text-muted-foreground ml-1">New</span>
+              <span className="text-xs text-muted-foreground ml-1">Pending</span>
             </div>
             <div className="px-3 py-1.5 rounded-lg bg-status-selected/10 border border-status-selected/20">
-              <span className="font-bold text-status-selected">{inProgressCount}</span>
-              <span className="text-xs text-muted-foreground ml-1">In Progress</span>
+              <span className="font-bold text-status-selected">{sendCount}</span>
+              <span className="text-xs text-muted-foreground ml-1">Send</span>
             </div>
             <div className="px-3 py-1.5 rounded-lg bg-status-delivered/10 border border-status-delivered/20">
-              <span className="font-bold text-status-delivered">{doneCount}</span>
-              <span className="text-xs text-muted-foreground ml-1">Done</span>
+              <span className="font-bold text-status-delivered">{acceptedCount}</span>
+              <span className="text-xs text-muted-foreground ml-1">Accepted</span>
+            </div>
+            <div className="px-3 py-1.5 rounded-lg bg-destructive/10 border border-destructive/20">
+              <span className="font-bold text-destructive">{rejectedCount}</span>
+              <span className="text-xs text-muted-foreground ml-1">Rejected</span>
             </div>
           </div>
           
