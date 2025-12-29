@@ -118,9 +118,9 @@ function BuildingRow({ buildingName, allRequests, onAccept, onDecline, getColumn
         </div>
       </CollapsibleTrigger>
       <CollapsibleContent className="mt-2">
-        <div className="grid grid-cols-3 gap-6">
+        <div className="grid grid-cols-3">
           {/* Requests Column */}
-          <div className="min-h-[60px]">
+          <div className="min-h-[60px] px-3 border-r border-border">
             {pendingRequests.map(request => (
               <RequestCard 
                 key={request.id} 
@@ -132,7 +132,7 @@ function BuildingRow({ buildingName, allRequests, onAccept, onDecline, getColumn
             ))}
           </div>
           {/* Pending Column */}
-          <div className="min-h-[60px]">
+          <div className="min-h-[60px] px-3 border-r border-border">
             {selectedRequests.map(request => (
               <RequestCard 
                 key={request.id} 
@@ -144,7 +144,7 @@ function BuildingRow({ buildingName, allRequests, onAccept, onDecline, getColumn
             ))}
           </div>
           {/* Done Column */}
-          <div className="min-h-[60px]">
+          <div className="min-h-[60px] px-3">
             {deliveredRequests.map(request => (
               <RequestCard 
                 key={request.id} 
