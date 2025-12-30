@@ -40,6 +40,8 @@ interface RequestCardProps {
 function RequestCard({ request, columnId, onAccept, onDecline }: RequestCardProps) {
   const showActions = columnId === 'selected';
   const isDone = columnId === 'delivered';
+  const isSelected = columnId === 'selected';
+  const showQuantities = isDone || isSelected;
 
   return (
     <Card
@@ -56,7 +58,7 @@ function RequestCard({ request, columnId, onAccept, onDecline }: RequestCardProp
           <span className="font-medium text-sm truncate">{request.resourceName}</span>
         </div>
         <div className="flex items-center gap-1 flex-shrink-0">
-          {isDone ? (
+          {showQuantities ? (
             <span className="text-xs text-muted-foreground">
               {request.fulfilledQuantity ?? request.quantity}/{request.quantity}
             </span>
