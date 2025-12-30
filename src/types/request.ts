@@ -1,7 +1,7 @@
 export type Priority = 'critical' | 'high' | 'medium' | 'low';
 export type Status = 'pending' | 'selected' | 'ordered' | 'in_delivery' | 'delivered' | 'declined';
 export type ResourceType = 'materials' | 'equipment' | 'services';
-export type UserRole = 'manager' | 'supplier';
+export type UserRole = 'manager' | 'supplier' | 'little_supplier';
 export type Availability = 'available' | 'limited' | 'not_available';
 export type DeliveryStatus = 'pending' | 'partial' | 'complete';
 

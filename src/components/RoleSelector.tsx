@@ -1,6 +1,6 @@
 import { UserRole } from '@/types/request';
 import { Card } from '@/components/ui/card';
-import { HardHat, Truck, ArrowRight } from 'lucide-react';
+import { HardHat, Truck, ArrowRight, Package } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 interface RoleSelectorProps {
@@ -15,6 +15,13 @@ export function RoleSelector({ onSelectRole }: RoleSelectorProps) {
       description: 'Create and track resource requests',
       icon: HardHat,
       color: 'bg-primary',
+    },
+    {
+      value: 'little_supplier' as UserRole,
+      title: 'Little Supplier',
+      description: 'Assign vendors to requests',
+      icon: Package,
+      color: 'bg-emerald-500',
     },
     {
       value: 'supplier' as UserRole,
@@ -35,7 +42,7 @@ export function RoleSelector({ onSelectRole }: RoleSelectorProps) {
         <p className="text-muted-foreground">Construction Resource Management</p>
       </div>
       
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 w-full max-w-lg">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 w-full max-w-2xl">
         {roles.map((role, index) => (
           <Card
             key={role.value}
