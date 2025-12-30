@@ -4,7 +4,7 @@ import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
-import { Search, Filter, Building2, X, Check } from 'lucide-react';
+import { Search, Filter, Building2, X, Check, Plus } from 'lucide-react';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Checkbox } from '@/components/ui/checkbox';
 import { ResourceIcon } from './ResourceIcon';
@@ -181,11 +181,29 @@ export function LittleSupplierDashboard({ requests, onUpdateStatus }: LittleSupp
   const [statusFilters, setStatusFilters] = useState<string[]>([]);
   const [buildingFilters, setBuildingFilters] = useState<string[]>([]);
   const [vendorAssignments, setVendorAssignments] = useState<Record<string, string>>({});
+  const [vendors, setVendors] = useState<Vendor[]>(VENDORS);
   
   // Vendor selection dialog state
   const [showVendorDialog, setShowVendorDialog] = useState(false);
   const [pendingRequest, setPendingRequest] = useState<{ id: string; sourceColumn: string } | null>(null);
   const [selectedVendor, setSelectedVendor] = useState<string>('');
+  const [givenQuantity, setGivenQuantity] = useState<number>(0);
+  const [unitPrice, setUnitPrice] = useState<number>(0);
+  
+  // Add vendor dialog state
+  const [showAddVendorDialog, setShowAddVendorDialog] = useState(false);
+  const [newVendorName, setNewVendorName] = useState('');
+
+  // Get the current request being assigned
+  const currentRequest = useMemo(() => {
+    if (!pendingRequest) return null;
+    return requests.find(r => r.id === pendingRequest.id);
+  }, [pendingRequest, requests]);
+
+  // Calculate total price
+  const totalPrice = useMemo(() => {
+    return givenQuantity * unitPrice;
+  }, [givenQuantity, unitPrice]);
 
   const statusOptions = [
     { value: 'pending', label: 'Pending' },
@@ -289,8 +307,11 @@ export function LittleSupplierDashboard({ requests, onUpdateStatus }: LittleSupp
     
     // If moving from pending to selected, show vendor dialog
     if (sourceColumn === 'pending' && targetColumn === 'selected') {
+      const request = requests.find(r => r.id === requestId);
       setPendingRequest({ id: requestId, sourceColumn });
       setSelectedVendor('');
+      setGivenQuantity(request?.quantity || 0);
+      setUnitPrice(100); // Default price
       setShowVendorDialog(true);
       return;
     }
@@ -314,12 +335,36 @@ export function LittleSupplierDashboard({ requests, onUpdateStatus }: LittleSupp
     setShowVendorDialog(false);
     setPendingRequest(null);
     setSelectedVendor('');
+    setGivenQuantity(0);
+    setUnitPrice(0);
   };
 
   const handleVendorCancel = () => {
     setShowVendorDialog(false);
     setPendingRequest(null);
     setSelectedVendor('');
+    setGivenQuantity(0);
+    setUnitPrice(0);
+  };
+
+  const handleAddVendor = () => {
+    if (!newVendorName.trim()) return;
+    
+    const newVendor: Vendor = {
+      id: `v${Date.now()}`,
+      name: newVendorName.trim(),
+      contact: '',
+      email: '',
+      phone: '',
+      deliveryDays: 3,
+      rating: 0,
+      priceLevel: 'medium',
+      specialties: ['materials'],
+    };
+    
+    setVendors(prev => [...prev, newVendor]);
+    setSelectedVendor(newVendor.id);
+    setNewVendorName('');
   };
 
   return (
@@ -480,33 +525,120 @@ export function LittleSupplierDashboard({ requests, onUpdateStatus }: LittleSupp
 
       {/* Vendor Selection Dialog */}
       <Dialog open={showVendorDialog} onOpenChange={setShowVendorDialog}>
-        <DialogContent className="sm:max-w-md">
+        <DialogContent className="sm:max-w-lg">
           <DialogHeader>
-            <DialogTitle>Select Vendor</DialogTitle>
+            <DialogTitle>Assign to Vendor</DialogTitle>
           </DialogHeader>
-          <div className="py-4">
-            <Select value={selectedVendor} onValueChange={setSelectedVendor}>
-              <SelectTrigger>
-                <SelectValue placeholder="Choose a vendor" />
-              </SelectTrigger>
-              <SelectContent>
-                {VENDORS.map(vendor => (
-                  <SelectItem key={vendor.id} value={vendor.id}>
-                    <div className="flex items-center gap-2">
-                      <span>{vendor.name}</span>
-                      <span className="text-xs text-muted-foreground">({vendor.deliveryDays}d delivery)</span>
-                    </div>
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
+          
+          {currentRequest && (
+            <div className="space-y-4 py-2">
+              {/* Resource Info */}
+              <div className="p-3 rounded-lg bg-muted/50">
+                <div className="flex items-center gap-2 mb-2">
+                  <ResourceIcon type={currentRequest.resourceType} className="h-4 w-4 text-muted-foreground" />
+                  <span className="font-medium">{currentRequest.resourceName}</span>
+                </div>
+                <div className="text-sm text-muted-foreground">
+                  Needed: {currentRequest.quantity} {currentRequest.unit}
+                </div>
+              </div>
+
+              {/* Vendor Selection */}
+              <div className="space-y-2">
+                <label className="text-sm font-medium">Vendor</label>
+                <div className="flex gap-2">
+                  <Select value={selectedVendor} onValueChange={setSelectedVendor}>
+                    <SelectTrigger className="flex-1">
+                      <SelectValue placeholder="Choose a vendor" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {vendors.map(vendor => (
+                        <SelectItem key={vendor.id} value={vendor.id}>
+                          <div className="flex items-center gap-2">
+                            <span>{vendor.name}</span>
+                            <span className="text-xs text-muted-foreground">({vendor.deliveryDays}d)</span>
+                          </div>
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <Button 
+                    variant="outline" 
+                    size="icon"
+                    onClick={() => setShowAddVendorDialog(true)}
+                    title="Add new vendor"
+                  >
+                    <Plus className="h-4 w-4" />
+                  </Button>
+                </div>
+              </div>
+
+              {/* Quantity and Price */}
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <label className="text-sm font-medium">Given Quantity</label>
+                  <Input
+                    type="number"
+                    value={givenQuantity}
+                    onChange={(e) => setGivenQuantity(Number(e.target.value))}
+                    min={0}
+                    max={currentRequest.quantity}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <label className="text-sm font-medium">Unit Price</label>
+                  <Input
+                    type="number"
+                    value={unitPrice}
+                    onChange={(e) => setUnitPrice(Number(e.target.value))}
+                    min={0}
+                    step={0.01}
+                  />
+                </div>
+              </div>
+
+              {/* Total */}
+              <div className="flex items-center justify-between p-3 rounded-lg bg-primary/5 border border-primary/20">
+                <span className="text-sm font-medium">Total Price</span>
+                <span className="text-lg font-bold text-primary">
+                  ${totalPrice.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                </span>
+              </div>
+            </div>
+          )}
+
           <DialogFooter>
             <Button variant="outline" onClick={handleVendorCancel}>
               Cancel
             </Button>
             <Button onClick={handleVendorConfirm} disabled={!selectedVendor}>
               Confirm
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Add Vendor Dialog */}
+      <Dialog open={showAddVendorDialog} onOpenChange={setShowAddVendorDialog}>
+        <DialogContent className="sm:max-w-sm">
+          <DialogHeader>
+            <DialogTitle>Add New Vendor</DialogTitle>
+          </DialogHeader>
+          <div className="py-4">
+            <label className="text-sm font-medium">Vendor Name</label>
+            <Input
+              value={newVendorName}
+              onChange={(e) => setNewVendorName(e.target.value)}
+              placeholder="Enter vendor name"
+              className="mt-2"
+            />
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setShowAddVendorDialog(false)}>
+              Cancel
+            </Button>
+            <Button onClick={handleAddVendor} disabled={!newVendorName.trim()}>
+              Add Vendor
             </Button>
           </DialogFooter>
         </DialogContent>
