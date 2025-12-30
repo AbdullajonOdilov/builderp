@@ -52,7 +52,6 @@ function RequestCard({ request, columnId, vendorName, totalPrice, onAccept, onDe
   const isDone = columnId === 'delivered';
   const isAssigned = columnId === 'selected';
   const showQuantities = isDone || isAssigned;
-  const showActions = isAssigned;
 
   return (
     <Card
@@ -76,32 +75,6 @@ function RequestCard({ request, columnId, vendorName, totalPrice, onAccept, onDe
           ) : (
             <span className="text-xs text-muted-foreground">{request.quantity} {request.unit}</span>
           )}
-          {showActions && (
-            <>
-              <Button
-                variant="ghost"
-                size="icon"
-                className="h-6 w-6 text-green-600 hover:text-green-700 hover:bg-green-100"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onAccept?.(request.id);
-                }}
-              >
-                <Check className="h-3.5 w-3.5" />
-              </Button>
-              <Button
-                variant="ghost"
-                size="icon"
-                className="h-6 w-6 text-red-600 hover:text-red-700 hover:bg-red-100"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onDecline?.(request.id);
-                }}
-              >
-                <X className="h-3.5 w-3.5" />
-              </Button>
-            </>
-          )}
         </div>
       </div>
       {(isAssigned || isDone) && (
@@ -112,6 +85,35 @@ function RequestCard({ request, columnId, vendorName, totalPrice, onAccept, onDe
               ${totalPrice.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
             </span>
           )}
+        </div>
+      )}
+      {/* Status change buttons for main request */}
+      {isAssigned && (
+        <div className="mt-2 flex gap-2">
+          <Button
+            variant="outline"
+            size="sm"
+            className="flex-1 h-7 text-xs bg-status-delivered/10 border-status-delivered/30 text-status-delivered hover:bg-status-delivered/20"
+            onClick={(e) => {
+              e.stopPropagation();
+              onAccept?.(request.id);
+            }}
+          >
+            <Check className="h-3 w-3 mr-1" />
+            Done
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            className="flex-1 h-7 text-xs bg-destructive/10 border-destructive/30 text-destructive hover:bg-destructive/20"
+            onClick={(e) => {
+              e.stopPropagation();
+              onDecline?.(request.id);
+            }}
+          >
+            <X className="h-3 w-3 mr-1" />
+            Reject
+          </Button>
         </div>
       )}
     </Card>
