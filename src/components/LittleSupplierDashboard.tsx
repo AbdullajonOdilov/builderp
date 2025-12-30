@@ -96,10 +96,12 @@ interface BuildingRowProps {
   vendorAssignments: Record<string, string>;
   priceAssignments: Record<string, number>;
   vendors: Vendor[];
+  onChangeAllStatus: (requestIds: string[], newStatus: 'pending' | 'selected' | 'delivered') => void;
 }
 
-function BuildingRow({ buildingName, allRequests, getColumnRequests, vendorAssignments, priceAssignments, vendors }: BuildingRowProps) {
+function BuildingRow({ buildingName, allRequests, getColumnRequests, vendorAssignments, priceAssignments, vendors, onChangeAllStatus }: BuildingRowProps) {
   const [isOpen, setIsOpen] = useState(true);
+  const [showStatusMenu, setShowStatusMenu] = useState(false);
 
   const totalCount = allRequests.length;
   const pendingRequests = getColumnRequests('pending', allRequests);
@@ -135,10 +137,16 @@ function BuildingRow({ buildingName, allRequests, getColumnRequests, vendorAssig
     return priceAssignments[requestId];
   };
 
+  const handleStatusChange = (newStatus: 'pending' | 'selected' | 'delivered') => {
+    const requestIds = allRequests.map(r => r.id);
+    onChangeAllStatus(requestIds, newStatus);
+    setShowStatusMenu(false);
+  };
+
   return (
     <Collapsible open={isOpen} onOpenChange={setIsOpen} className="mb-4">
-      <CollapsibleTrigger className="w-full">
-        <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-muted/50 hover:bg-muted transition-colors">
+      <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-muted/50 hover:bg-muted transition-colors">
+        <CollapsibleTrigger className="flex items-center gap-2 flex-1">
           {isOpen ? (
             <ChevronDown className="h-4 w-4 text-muted-foreground" />
           ) : (
@@ -148,11 +156,49 @@ function BuildingRow({ buildingName, allRequests, getColumnRequests, vendorAssig
           <Badge variant="secondary" className="text-xs">
             {totalCount} requests
           </Badge>
-          <Badge className={cn('text-xs ml-auto', config.bg, config.text, config.border, 'border')}>
-            {overallStatus}
-          </Badge>
-        </div>
-      </CollapsibleTrigger>
+        </CollapsibleTrigger>
+        <Popover open={showStatusMenu} onOpenChange={setShowStatusMenu}>
+          <PopoverTrigger asChild>
+            <Badge 
+              className={cn('text-xs cursor-pointer hover:opacity-80 transition-opacity', config.bg, config.text, config.border, 'border')}
+              onClick={(e) => {
+                e.stopPropagation();
+                setShowStatusMenu(true);
+              }}
+            >
+              {overallStatus}
+            </Badge>
+          </PopoverTrigger>
+          <PopoverContent className="w-32 p-1" align="end">
+            <div className="flex flex-col gap-1">
+              <Button
+                variant="ghost"
+                size="sm"
+                className="justify-start text-status-pending hover:text-status-pending"
+                onClick={() => handleStatusChange('pending')}
+              >
+                Pending
+              </Button>
+              <Button
+                variant="ghost"
+                size="sm"
+                className="justify-start text-status-selected hover:text-status-selected"
+                onClick={() => handleStatusChange('selected')}
+              >
+                Assigned
+              </Button>
+              <Button
+                variant="ghost"
+                size="sm"
+                className="justify-start text-status-delivered hover:text-status-delivered"
+                onClick={() => handleStatusChange('delivered')}
+              >
+                Done
+              </Button>
+            </div>
+          </PopoverContent>
+        </Popover>
+      </div>
       <CollapsibleContent className="mt-2">
         <div className="grid grid-cols-3">
           <div className="min-h-[60px] px-3 border-r-2 border-status-pending/50">
@@ -539,6 +585,9 @@ export function LittleSupplierDashboard({ requests, onUpdateStatus }: LittleSupp
                 vendorAssignments={vendorAssignments}
                 priceAssignments={priceAssignments}
                 vendors={vendors}
+                onChangeAllStatus={(requestIds, newStatus) => {
+                  requestIds.forEach(id => onUpdateStatus(id, newStatus));
+                }}
               />
             </div>
           ))}
