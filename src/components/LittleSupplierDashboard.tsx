@@ -1,5 +1,6 @@
 import { useState, useMemo } from 'react';
 import { ResourceRequest, VENDORS, Vendor, PRIORITY_CONFIG } from '@/types/request';
+import { format } from 'date-fns';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -143,6 +144,13 @@ function BuildingRow({ buildingName, allRequests, getColumnRequests, vendorAssig
     setShowStatusMenu(false);
   };
 
+  // Get the earliest needed date from all requests
+  const earliestDate = useMemo(() => {
+    const dates = allRequests.map(r => new Date(r.neededDate).getTime());
+    if (dates.length === 0) return null;
+    return new Date(Math.min(...dates));
+  }, [allRequests]);
+
   return (
     <Collapsible open={isOpen} onOpenChange={setIsOpen} className="mb-4">
       <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-muted/50 hover:bg-muted transition-colors">
@@ -153,6 +161,11 @@ function BuildingRow({ buildingName, allRequests, getColumnRequests, vendorAssig
             <ChevronRight className="h-4 w-4 text-muted-foreground" />
           )}
           <span className="font-medium">{buildingName}</span>
+          {earliestDate && (
+            <span className="text-xs text-muted-foreground">
+              {format(earliestDate, 'MMM d, yyyy')}
+            </span>
+          )}
           <Badge variant="secondary" className="text-xs">
             {totalCount} requests
           </Badge>

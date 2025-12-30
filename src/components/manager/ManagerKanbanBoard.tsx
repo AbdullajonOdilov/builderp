@@ -133,6 +133,13 @@ function BuildingRow({ buildingName, allRequests, onAccept, onDecline, getColumn
 
   const config = statusConfig[overallStatus];
 
+  // Get the earliest needed date from all requests
+  const earliestDate = useMemo(() => {
+    const dates = allRequests.map(r => new Date(r.neededDate).getTime());
+    if (dates.length === 0) return null;
+    return new Date(Math.min(...dates));
+  }, [allRequests]);
+
   return (
     <Collapsible open={isOpen} onOpenChange={setIsOpen} className="mb-4">
       <CollapsibleTrigger className="w-full">
@@ -143,6 +150,11 @@ function BuildingRow({ buildingName, allRequests, onAccept, onDecline, getColumn
             <ChevronRight className="h-4 w-4 text-muted-foreground" />
           )}
           <span className="font-medium">{buildingName}</span>
+          {earliestDate && (
+            <span className="text-xs text-muted-foreground">
+              {format(earliestDate, 'MMM d, yyyy')}
+            </span>
+          )}
           <Badge variant="secondary" className="text-xs">
             {totalCount} requests
           </Badge>
