@@ -43,12 +43,16 @@ interface RequestCardProps {
   request: ResourceRequest;
   columnId: ColumnId;
   vendorName?: string;
+  totalPrice?: number;
+  onAccept?: (id: string) => void;
+  onDecline?: (id: string) => void;
 }
 
-function RequestCard({ request, columnId, vendorName }: RequestCardProps) {
+function RequestCard({ request, columnId, vendorName, totalPrice, onAccept, onDecline }: RequestCardProps) {
   const isDone = columnId === 'delivered';
   const isAssigned = columnId === 'selected';
   const showQuantities = isDone || isAssigned;
+  const showActions = isAssigned;
 
   return (
     <Card
@@ -72,11 +76,42 @@ function RequestCard({ request, columnId, vendorName }: RequestCardProps) {
           ) : (
             <span className="text-xs text-muted-foreground">{request.quantity} {request.unit}</span>
           )}
+          {showActions && (
+            <>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-6 w-6 text-green-600 hover:text-green-700 hover:bg-green-100"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onAccept?.(request.id);
+                }}
+              >
+                <Check className="h-3.5 w-3.5" />
+              </Button>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-6 w-6 text-red-600 hover:text-red-700 hover:bg-red-100"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onDecline?.(request.id);
+                }}
+              >
+                <X className="h-3.5 w-3.5" />
+              </Button>
+            </>
+          )}
         </div>
       </div>
-      {isAssigned && vendorName && (
-        <div className="mt-1.5 text-xs text-muted-foreground truncate">
-          Vendor: {vendorName}
+      {(isAssigned || isDone) && (
+        <div className="mt-1.5 flex items-center justify-between text-xs text-muted-foreground">
+          {vendorName && <span className="truncate">Vendor: {vendorName}</span>}
+          {totalPrice !== undefined && totalPrice > 0 && (
+            <span className="font-medium text-primary">
+              ${totalPrice.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+            </span>
+          )}
         </div>
       )}
     </Card>
@@ -88,9 +123,13 @@ interface BuildingRowProps {
   allRequests: ResourceRequest[];
   getColumnRequests: (columnId: ColumnId, requests: ResourceRequest[]) => ResourceRequest[];
   vendorAssignments: Record<string, string>;
+  priceAssignments: Record<string, number>;
+  vendors: Vendor[];
+  onAccept?: (id: string) => void;
+  onDecline?: (id: string) => void;
 }
 
-function BuildingRow({ buildingName, allRequests, getColumnRequests, vendorAssignments }: BuildingRowProps) {
+function BuildingRow({ buildingName, allRequests, getColumnRequests, vendorAssignments, priceAssignments, vendors, onAccept, onDecline }: BuildingRowProps) {
   const [isOpen, setIsOpen] = useState(true);
 
   const totalCount = allRequests.length;
@@ -120,7 +159,11 @@ function BuildingRow({ buildingName, allRequests, getColumnRequests, vendorAssig
   const getVendorName = (requestId: string) => {
     const vendorId = vendorAssignments[requestId];
     if (!vendorId) return undefined;
-    return VENDORS.find(v => v.id === vendorId)?.name;
+    return vendors.find(v => v.id === vendorId)?.name;
+  };
+
+  const getTotalPrice = (requestId: string) => {
+    return priceAssignments[requestId];
   };
 
   return (
@@ -159,6 +202,9 @@ function BuildingRow({ buildingName, allRequests, getColumnRequests, vendorAssig
                 request={request} 
                 columnId="selected"
                 vendorName={getVendorName(request.id)}
+                totalPrice={getTotalPrice(request.id)}
+                onAccept={onAccept}
+                onDecline={onDecline}
               />
             ))}
           </div>
@@ -168,6 +214,8 @@ function BuildingRow({ buildingName, allRequests, getColumnRequests, vendorAssig
                 key={request.id} 
                 request={request} 
                 columnId="delivered"
+                vendorName={getVendorName(request.id)}
+                totalPrice={getTotalPrice(request.id)}
               />
             ))}
           </div>
@@ -182,6 +230,7 @@ export function LittleSupplierDashboard({ requests, onUpdateStatus }: LittleSupp
   const [statusFilters, setStatusFilters] = useState<string[]>([]);
   const [buildingFilters, setBuildingFilters] = useState<string[]>([]);
   const [vendorAssignments, setVendorAssignments] = useState<Record<string, string>>({});
+  const [priceAssignments, setPriceAssignments] = useState<Record<string, number>>({});
   const [vendors, setVendors] = useState<Vendor[]>(VENDORS);
   
   // Vendor selection dialog state
@@ -194,6 +243,8 @@ export function LittleSupplierDashboard({ requests, onUpdateStatus }: LittleSupp
   // Add vendor dialog state
   const [showAddVendorDialog, setShowAddVendorDialog] = useState(false);
   const [newVendorName, setNewVendorName] = useState('');
+  const [newVendorContact, setNewVendorContact] = useState('');
+  const [newVendorPhone, setNewVendorPhone] = useState('');
 
   // Get the current request being assigned
   const currentRequest = useMemo(() => {
@@ -332,6 +383,10 @@ export function LittleSupplierDashboard({ requests, onUpdateStatus }: LittleSupp
       ...prev,
       [pendingRequest.id]: selectedVendor,
     }));
+    setPriceAssignments(prev => ({
+      ...prev,
+      [pendingRequest.id]: totalPrice,
+    }));
     onUpdateStatus(pendingRequest.id, 'selected');
     setShowVendorDialog(false);
     setPendingRequest(null);
@@ -354,9 +409,9 @@ export function LittleSupplierDashboard({ requests, onUpdateStatus }: LittleSupp
     const newVendor: Vendor = {
       id: `v${Date.now()}`,
       name: newVendorName.trim(),
-      contact: '',
+      contact: newVendorContact.trim(),
       email: '',
-      phone: '',
+      phone: newVendorPhone.trim(),
       deliveryDays: 3,
       rating: 0,
       priceLevel: 'medium',
@@ -366,6 +421,19 @@ export function LittleSupplierDashboard({ requests, onUpdateStatus }: LittleSupp
     setVendors(prev => [...prev, newVendor]);
     setSelectedVendor(newVendor.id);
     setNewVendorName('');
+    setNewVendorContact('');
+    setNewVendorPhone('');
+    setShowAddVendorDialog(false);
+  };
+
+  // Handle accept (move to Done)
+  const handleAccept = (id: string) => {
+    onUpdateStatus(id, 'delivered');
+  };
+
+  // Handle decline
+  const handleDecline = (id: string) => {
+    onUpdateStatus(id, 'declined');
   };
 
   return (
@@ -512,6 +580,10 @@ export function LittleSupplierDashboard({ requests, onUpdateStatus }: LittleSupp
                 allRequests={buildingRequests}
                 getColumnRequests={getColumnRequestsForBuilding}
                 vendorAssignments={vendorAssignments}
+                priceAssignments={priceAssignments}
+                vendors={vendors}
+                onAccept={handleAccept}
+                onDecline={handleDecline}
               />
             </div>
           ))}
@@ -621,21 +693,44 @@ export function LittleSupplierDashboard({ requests, onUpdateStatus }: LittleSupp
 
       {/* Add Vendor Dialog */}
       <Dialog open={showAddVendorDialog} onOpenChange={setShowAddVendorDialog}>
-        <DialogContent className="sm:max-w-sm">
+        <DialogContent className="sm:max-w-md">
           <DialogHeader>
             <DialogTitle>Add New Vendor</DialogTitle>
           </DialogHeader>
-          <div className="py-4">
-            <label className="text-sm font-medium">Vendor Name</label>
-            <Input
-              value={newVendorName}
-              onChange={(e) => setNewVendorName(e.target.value)}
-              placeholder="Enter vendor name"
-              className="mt-2"
-            />
+          <div className="space-y-4 py-4">
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Vendor Name <span className="text-destructive">*</span></label>
+              <Input
+                value={newVendorName}
+                onChange={(e) => setNewVendorName(e.target.value)}
+                placeholder="Enter vendor name"
+              />
+            </div>
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Contact Person</label>
+              <Input
+                value={newVendorContact}
+                onChange={(e) => setNewVendorContact(e.target.value)}
+                placeholder="Enter contact person name"
+              />
+            </div>
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Phone Number</label>
+              <Input
+                value={newVendorPhone}
+                onChange={(e) => setNewVendorPhone(e.target.value)}
+                placeholder="Enter phone number"
+                type="tel"
+              />
+            </div>
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setShowAddVendorDialog(false)}>
+            <Button variant="outline" onClick={() => {
+              setShowAddVendorDialog(false);
+              setNewVendorName('');
+              setNewVendorContact('');
+              setNewVendorPhone('');
+            }}>
               Cancel
             </Button>
             <Button onClick={handleAddVendor} disabled={!newVendorName.trim()}>
