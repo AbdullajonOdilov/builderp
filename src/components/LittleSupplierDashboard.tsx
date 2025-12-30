@@ -44,15 +44,12 @@ interface RequestCardProps {
   columnId: ColumnId;
   vendorName?: string;
   totalPrice?: number;
-  onAccept?: (id: string) => void;
-  onDecline?: (id: string) => void;
 }
 
-function RequestCard({ request, columnId, vendorName, totalPrice, onAccept, onDecline }: RequestCardProps) {
+function RequestCard({ request, columnId, vendorName, totalPrice }: RequestCardProps) {
   const isDone = columnId === 'delivered';
   const isAssigned = columnId === 'selected';
   const showQuantities = isDone || isAssigned;
-  const showActions = isAssigned;
 
   return (
     <Card
@@ -75,32 +72,6 @@ function RequestCard({ request, columnId, vendorName, totalPrice, onAccept, onDe
             </span>
           ) : (
             <span className="text-xs text-muted-foreground">{request.quantity} {request.unit}</span>
-          )}
-          {showActions && (
-            <>
-              <Button
-                variant="ghost"
-                size="icon"
-                className="h-6 w-6 text-green-600 hover:text-green-700 hover:bg-green-100"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onAccept?.(request.id);
-                }}
-              >
-                <Check className="h-3.5 w-3.5" />
-              </Button>
-              <Button
-                variant="ghost"
-                size="icon"
-                className="h-6 w-6 text-red-600 hover:text-red-700 hover:bg-red-100"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onDecline?.(request.id);
-                }}
-              >
-                <X className="h-3.5 w-3.5" />
-              </Button>
-            </>
           )}
         </div>
       </div>
@@ -125,11 +96,9 @@ interface BuildingRowProps {
   vendorAssignments: Record<string, string>;
   priceAssignments: Record<string, number>;
   vendors: Vendor[];
-  onAccept?: (id: string) => void;
-  onDecline?: (id: string) => void;
 }
 
-function BuildingRow({ buildingName, allRequests, getColumnRequests, vendorAssignments, priceAssignments, vendors, onAccept, onDecline }: BuildingRowProps) {
+function BuildingRow({ buildingName, allRequests, getColumnRequests, vendorAssignments, priceAssignments, vendors }: BuildingRowProps) {
   const [isOpen, setIsOpen] = useState(true);
 
   const totalCount = allRequests.length;
@@ -203,8 +172,6 @@ function BuildingRow({ buildingName, allRequests, getColumnRequests, vendorAssig
                 columnId="selected"
                 vendorName={getVendorName(request.id)}
                 totalPrice={getTotalPrice(request.id)}
-                onAccept={onAccept}
-                onDecline={onDecline}
               />
             ))}
           </div>
@@ -426,16 +393,6 @@ export function LittleSupplierDashboard({ requests, onUpdateStatus }: LittleSupp
     setShowAddVendorDialog(false);
   };
 
-  // Handle accept (move to Done)
-  const handleAccept = (id: string) => {
-    onUpdateStatus(id, 'delivered');
-  };
-
-  // Handle decline
-  const handleDecline = (id: string) => {
-    onUpdateStatus(id, 'declined');
-  };
-
   return (
     <div className="h-full flex flex-col">
       {/* Header */}
@@ -582,8 +539,6 @@ export function LittleSupplierDashboard({ requests, onUpdateStatus }: LittleSupp
                 vendorAssignments={vendorAssignments}
                 priceAssignments={priceAssignments}
                 vendors={vendors}
-                onAccept={handleAccept}
-                onDecline={handleDecline}
               />
             </div>
           ))}
