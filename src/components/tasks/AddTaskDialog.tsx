@@ -97,8 +97,26 @@ export function AddTaskDialog({ open, onOpenChange, buildings, onAddTask }: AddT
         </DialogHeader>
 
         <div className="grid gap-4 py-2">
-          {/* Row 1: Category & Resource Code */}
-          <div className="grid grid-cols-2 gap-3">
+          {/* Row 1: Building & Category & Resource Code */}
+          <div className="grid grid-cols-3 gap-3">
+            <div className="space-y-1.5">
+              <Label>Building</Label>
+              <Select value={buildingId} onValueChange={setBuildingId}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select building" />
+                </SelectTrigger>
+                <SelectContent>
+                  {buildings.map(b => (
+                    <SelectItem key={b.id} value={b.id}>
+                      <span className="flex items-center gap-2">
+                        <span className="w-2.5 h-2.5 rounded-full inline-block" style={{ backgroundColor: b.color }} />
+                        {b.objectName}
+                      </span>
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
             <div className="space-y-1.5">
               <Label>Category</Label>
               <Select value={categoryName} onValueChange={(v) => setCategoryName(v as TaskCategory)}>
@@ -128,26 +146,6 @@ export function AddTaskDialog({ open, onOpenChange, buildings, onAddTask }: AddT
               <Label>Amount</Label>
               <Input type="number" min={0} value={taskAmount || ''} onChange={e => setTaskAmount(Number(e.target.value))} placeholder="0" />
             </div>
-          </div>
-
-          {/* Row 3: Building */}
-          <div className="space-y-1.5">
-            <Label>Building</Label>
-            <Select value={buildingId} onValueChange={setBuildingId}>
-              <SelectTrigger>
-                <SelectValue placeholder="Select building" />
-              </SelectTrigger>
-              <SelectContent>
-                {buildings.map(b => (
-                  <SelectItem key={b.id} value={b.id}>
-                    <span className="flex items-center gap-2">
-                      <span className="w-2.5 h-2.5 rounded-full inline-block" style={{ backgroundColor: b.color }} />
-                      {b.objectName}
-                    </span>
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
           </div>
 
           {/* Sub Resources Table */}
