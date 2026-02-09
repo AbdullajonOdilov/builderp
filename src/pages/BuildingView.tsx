@@ -148,8 +148,8 @@ const BuildingView = () => {
               </div>
             </div>
             
-            <div className="border-t pt-4">
-              <div className="flex items-center justify-between mb-1.5 text-sm">
+            <div className="space-y-1">
+              <div className="flex items-center justify-between text-sm">
                 <p className="text-muted-foreground">Completion</p>
                 <p className={`font-semibold ${
                   completePercentage >= 90 ? 'text-green-600' : 
@@ -161,7 +161,7 @@ const BuildingView = () => {
               </div>
               <Progress 
                 value={Math.min(completePercentage, 100)} 
-                className="h-2"
+                className="h-1.5"
                 indicatorClassName={
                   completePercentage >= 90 ? 'bg-green-500' : 
                   completePercentage >= 20 ? 'bg-amber-500' : 
