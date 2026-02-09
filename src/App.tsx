@@ -9,6 +9,7 @@ import CreateBuilding from "./pages/CreateBuilding";
 import EditBuilding from "./pages/EditBuilding";
 import BuildingView from "./pages/BuildingView";
 import SectionView from "./pages/SectionView";
+import Tasks from "./pages/Tasks";
 import Index from "./pages/Index";
 import { AppNavigation } from "./components/AppNavigation";
 
@@ -29,6 +30,7 @@ const App = () => (
             <Route path="/buildings/:buildingId" element={<BuildingView />} />
             <Route path="/buildings/:buildingId/edit" element={<EditBuilding />} />
             <Route path="/buildings/:buildingId/sections/:sectionId" element={<SectionView />} />
+            <Route path="/tasks" element={<Tasks />} />
             <Route path="/requests" element={<Index />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
