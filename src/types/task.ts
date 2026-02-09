@@ -17,6 +17,12 @@ export const TASK_CATEGORIES = [
 
 export type TaskCategory = (typeof TASK_CATEGORIES)[number];
 
+export const UNIT_TYPES = [
+  'pcs', 'kg', 'ton', 'm', 'm²', 'm³', 'L', 'set', 'lot', 'hr', 'day', 'month',
+] as const;
+
+export type UnitType = (typeof UNIT_TYPES)[number];
+
 export const SUB_RESOURCE_CATEGORIES = [
   'Salary',
   'Material',
@@ -32,6 +38,7 @@ export interface SubResource {
   categoryName: SubResourceCategory;
   resourceCode: string;
   resourceName: string;
+  unit: UnitType;
   resourceAmount: number;
   unitPrice: number;
   totalPrice: number;
@@ -42,6 +49,7 @@ export interface Task {
   categoryName: TaskCategory;
   resourceCode: string;
   taskName: string;
+  unit: UnitType;
   taskAmount: number;
   buildingId: string;
   subResources: SubResource[];
