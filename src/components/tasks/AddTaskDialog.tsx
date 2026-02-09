@@ -5,8 +5,9 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Building } from '@/types/building';
-import { Task, SubResource, TASK_CATEGORIES, TaskCategory } from '@/types/task';
+import { Task, SubResource, TASK_CATEGORIES, TaskCategory, SUB_RESOURCE_CATEGORIES, SubResourceCategory } from '@/types/task';
 import { toast } from 'sonner';
 
 interface AddTaskDialogProps {
@@ -16,9 +17,9 @@ interface AddTaskDialogProps {
   onAddTask: (task: Omit<Task, 'id' | 'createdAt'>) => void;
 }
 
-const emptySubResource = (): Omit<SubResource, 'id'> & { id: string } => ({
+const emptySubResource = (): SubResource => ({
   id: crypto.randomUUID(),
-  categoryName: 'General',
+  categoryName: 'Material',
   resourceCode: '',
   resourceName: '',
   resourceAmount: 0,
@@ -90,7 +91,7 @@ export function AddTaskDialog({ open, onOpenChange, buildings, onAddTask }: AddT
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-2xl max-h-[85vh] overflow-y-auto">
+      <DialogContent className="max-w-3xl max-h-[85vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>Add New Task</DialogTitle>
         </DialogHeader>
@@ -149,72 +150,82 @@ export function AddTaskDialog({ open, onOpenChange, buildings, onAddTask }: AddT
             </Select>
           </div>
 
-          {/* Sub Resources */}
+          {/* Sub Resources Table */}
           <div className="border-t pt-3 mt-1">
             <div className="flex items-center justify-between mb-3">
               <Label className="text-base font-semibold">Sub Resources</Label>
               <Button type="button" variant="outline" size="sm" onClick={addSubResource}>
-                <Plus className="h-3.5 w-3.5 mr-1" /> Add
+                <Plus className="h-3.5 w-3.5 mr-1" /> Add Row
               </Button>
             </div>
 
-            {subResources.length === 0 && (
-              <p className="text-sm text-muted-foreground text-center py-4">No sub resources added yet</p>
-            )}
-
-            <div className="space-y-3">
-              {subResources.map((sr, idx) => (
-                <div key={sr.id} className="border rounded-lg p-3 space-y-2 bg-muted/30">
-                  <div className="flex items-center justify-between">
-                    <span className="text-xs font-medium text-muted-foreground">Sub Resource #{idx + 1}</span>
-                    <Button type="button" variant="ghost" size="icon" className="h-6 w-6" onClick={() => removeSubResource(sr.id)}>
-                      <Trash2 className="h-3.5 w-3.5 text-destructive" />
-                    </Button>
-                  </div>
-
-                  <div className="grid grid-cols-2 gap-2">
-                    <div className="space-y-1">
-                      <Label className="text-xs">Category</Label>
-                      <Select value={sr.categoryName} onValueChange={v => updateSubResource(sr.id, 'categoryName', v)}>
-                        <SelectTrigger className="h-8 text-xs">
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {TASK_CATEGORIES.map(cat => (
-                            <SelectItem key={cat} value={cat}>{cat}</SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </div>
-                    <div className="space-y-1">
-                      <Label className="text-xs">Resource Code</Label>
-                      <Input className="h-8 text-xs" value={sr.resourceCode} onChange={e => updateSubResource(sr.id, 'resourceCode', e.target.value)} placeholder="Code" />
-                    </div>
-                  </div>
-
-                  <div className="grid grid-cols-3 gap-2">
-                    <div className="space-y-1">
-                      <Label className="text-xs">Resource Name</Label>
-                      <Input className="h-8 text-xs" value={sr.resourceName} onChange={e => updateSubResource(sr.id, 'resourceName', e.target.value)} placeholder="Name" />
-                    </div>
-                    <div className="space-y-1">
-                      <Label className="text-xs">Amount</Label>
-                      <Input className="h-8 text-xs" type="number" min={0} value={sr.resourceAmount || ''} onChange={e => updateSubResource(sr.id, 'resourceAmount', Number(e.target.value))} />
-                    </div>
-                    <div className="space-y-1">
-                      <Label className="text-xs">Unit Price</Label>
-                      <Input className="h-8 text-xs" type="number" min={0} value={sr.unitPrice || ''} onChange={e => updateSubResource(sr.id, 'unitPrice', Number(e.target.value))} />
-                    </div>
-                  </div>
-
-                  <div className="flex justify-end">
-                    <span className="text-xs font-medium">
-                      Total: <span className="text-primary">{sr.totalPrice.toLocaleString()}</span>
-                    </span>
-                  </div>
-                </div>
-              ))}
+            <div className="border rounded-lg overflow-hidden">
+              <Table>
+                <TableHeader>
+                  <TableRow className="bg-muted/50">
+                    <TableHead className="w-[120px]">Category</TableHead>
+                    <TableHead className="w-[90px]">Code</TableHead>
+                    <TableHead>Name</TableHead>
+                    <TableHead className="w-[80px] text-right">Amount</TableHead>
+                    <TableHead className="w-[90px] text-right">Unit Price</TableHead>
+                    <TableHead className="w-[90px] text-right">Total</TableHead>
+                    <TableHead className="w-[40px]"></TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {subResources.length === 0 ? (
+                    <TableRow>
+                      <TableCell colSpan={7} className="text-center text-muted-foreground py-6">
+                        No sub resources yet
+                      </TableCell>
+                    </TableRow>
+                  ) : (
+                    subResources.map(sr => (
+                      <TableRow key={sr.id}>
+                        <TableCell className="p-1.5">
+                          <Select value={sr.categoryName} onValueChange={v => updateSubResource(sr.id, 'categoryName', v)}>
+                            <SelectTrigger className="h-8 text-xs">
+                              <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {SUB_RESOURCE_CATEGORIES.map(cat => (
+                                <SelectItem key={cat} value={cat}>{cat}</SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        </TableCell>
+                        <TableCell className="p-1.5">
+                          <Input className="h-8 text-xs" value={sr.resourceCode} onChange={e => updateSubResource(sr.id, 'resourceCode', e.target.value)} placeholder="Code" />
+                        </TableCell>
+                        <TableCell className="p-1.5">
+                          <Input className="h-8 text-xs" value={sr.resourceName} onChange={e => updateSubResource(sr.id, 'resourceName', e.target.value)} placeholder="Name" />
+                        </TableCell>
+                        <TableCell className="p-1.5">
+                          <Input className="h-8 text-xs text-right" type="number" min={0} value={sr.resourceAmount || ''} onChange={e => updateSubResource(sr.id, 'resourceAmount', Number(e.target.value))} />
+                        </TableCell>
+                        <TableCell className="p-1.5">
+                          <Input className="h-8 text-xs text-right" type="number" min={0} value={sr.unitPrice || ''} onChange={e => updateSubResource(sr.id, 'unitPrice', Number(e.target.value))} />
+                        </TableCell>
+                        <TableCell className="p-1.5 text-right text-xs font-medium text-primary">
+                          {sr.totalPrice.toLocaleString()}
+                        </TableCell>
+                        <TableCell className="p-1.5">
+                          <Button type="button" variant="ghost" size="icon" className="h-6 w-6" onClick={() => removeSubResource(sr.id)}>
+                            <Trash2 className="h-3.5 w-3.5 text-destructive" />
+                          </Button>
+                        </TableCell>
+                      </TableRow>
+                    ))
+                  )}
+                </TableBody>
+              </Table>
             </div>
+
+            {subResources.length > 0 && (
+              <div className="flex justify-end mt-2 text-sm font-semibold">
+                Grand Total: <span className="text-primary ml-1">{subResources.reduce((sum, sr) => sum + sr.totalPrice, 0).toLocaleString()}</span>
+              </div>
+            )}
           </div>
         </div>
 
