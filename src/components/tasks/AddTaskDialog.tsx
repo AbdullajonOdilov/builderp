@@ -7,7 +7,7 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Building } from '@/types/building';
-import { Task, SubResource, TASK_CATEGORIES, TaskCategory, SUB_RESOURCE_CATEGORIES, SubResourceCategory } from '@/types/task';
+import { Task, SubResource, TASK_CATEGORIES, TaskCategory, SUB_RESOURCE_CATEGORIES, SubResourceCategory, UNIT_TYPES, UnitType } from '@/types/task';
 import { toast } from 'sonner';
 
 interface AddTaskDialogProps {
@@ -22,6 +22,7 @@ const emptySubResource = (): SubResource => ({
   categoryName: 'Material',
   resourceCode: '',
   resourceName: '',
+  unit: 'pcs',
   resourceAmount: 0,
   unitPrice: 0,
   totalPrice: 0,
@@ -31,6 +32,7 @@ export function AddTaskDialog({ open, onOpenChange, buildings, onAddTask }: AddT
   const [categoryName, setCategoryName] = useState<TaskCategory>('General');
   const [resourceCode, setResourceCode] = useState('');
   const [taskName, setTaskName] = useState('');
+  const [unit, setUnit] = useState<UnitType>('pcs');
   const [taskAmount, setTaskAmount] = useState<number>(0);
   const [buildingId, setBuildingId] = useState('');
   const [subResources, setSubResources] = useState<SubResource[]>([]);
@@ -39,6 +41,7 @@ export function AddTaskDialog({ open, onOpenChange, buildings, onAddTask }: AddT
     setCategoryName('General');
     setResourceCode('');
     setTaskName('');
+    setUnit('pcs');
     setTaskAmount(0);
     setBuildingId('');
     setSubResources([]);
@@ -79,6 +82,7 @@ export function AddTaskDialog({ open, onOpenChange, buildings, onAddTask }: AddT
       categoryName,
       resourceCode,
       taskName: taskName.trim(),
+      unit,
       taskAmount,
       buildingId,
       subResources,
@@ -137,10 +141,23 @@ export function AddTaskDialog({ open, onOpenChange, buildings, onAddTask }: AddT
           </div>
 
           {/* Row 2: Task Name & Amount */}
-          <div className="grid grid-cols-[1fr_140px] gap-3">
+          <div className="grid grid-cols-[1fr_120px_140px] gap-3">
             <div className="space-y-1.5">
               <Label>Task Name</Label>
               <Input value={taskName} onChange={e => setTaskName(e.target.value)} placeholder="Enter task name" />
+            </div>
+            <div className="space-y-1.5">
+              <Label>Unit</Label>
+              <Select value={unit} onValueChange={(v) => setUnit(v as UnitType)}>
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {UNIT_TYPES.map(u => (
+                    <SelectItem key={u} value={u}>{u}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
             <div className="space-y-1.5">
               <Label>Amount</Label>
@@ -163,20 +180,21 @@ export function AddTaskDialog({ open, onOpenChange, buildings, onAddTask }: AddT
             <div className="border rounded-lg overflow-hidden">
               <Table>
                 <TableHeader>
-                  <TableRow className="bg-muted/50">
-                    <TableHead className="w-[120px]">Category</TableHead>
-                    <TableHead className="w-[90px]">Code</TableHead>
-                    <TableHead>Name</TableHead>
-                    <TableHead className="w-[80px] text-right">Amount</TableHead>
-                    <TableHead className="w-[90px] text-right">Unit Price</TableHead>
-                    <TableHead className="w-[90px] text-right">Total</TableHead>
-                    <TableHead className="w-[40px]"></TableHead>
-                  </TableRow>
+                    <TableRow className="bg-muted/50">
+                     <TableHead className="w-[120px]">Category</TableHead>
+                     <TableHead className="w-[90px]">Code</TableHead>
+                     <TableHead>Name</TableHead>
+                     <TableHead className="w-[80px]">Unit</TableHead>
+                     <TableHead className="w-[80px] text-right">Amount</TableHead>
+                     <TableHead className="w-[90px] text-right">Unit Price</TableHead>
+                     <TableHead className="w-[90px] text-right">Total</TableHead>
+                     <TableHead className="w-[40px]"></TableHead>
+                    </TableRow>
                 </TableHeader>
                 <TableBody>
                   {subResources.length === 0 ? (
                     <TableRow>
-                      <TableCell colSpan={7} className="text-center text-muted-foreground py-6">
+                      <TableCell colSpan={8} className="text-center text-muted-foreground py-6">
                         No sub resources yet
                       </TableCell>
                     </TableRow>
@@ -200,6 +218,18 @@ export function AddTaskDialog({ open, onOpenChange, buildings, onAddTask }: AddT
                         </TableCell>
                         <TableCell className="p-1.5">
                           <Input className="h-8 text-xs" value={sr.resourceName} onChange={e => updateSubResource(sr.id, 'resourceName', e.target.value)} placeholder="Name" />
+                        </TableCell>
+                        <TableCell className="p-1.5">
+                          <Select value={sr.unit} onValueChange={v => updateSubResource(sr.id, 'unit', v)}>
+                            <SelectTrigger className="h-8 text-xs">
+                              <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {UNIT_TYPES.map(u => (
+                                <SelectItem key={u} value={u}>{u}</SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
                         </TableCell>
                         <TableCell className="p-1.5">
                           <Input className="h-8 text-xs text-right" type="number" min={0} value={sr.resourceAmount || ''} onChange={e => updateSubResource(sr.id, 'resourceAmount', Number(e.target.value))} />
