@@ -18,7 +18,7 @@ export const useBuildings = () => {
     setBuildings(newBuildings);
   };
 
-  const addBuilding = (building: Omit<Building, 'id' | 'sections' | 'createdAt'>) => {
+  const addBuilding = (building: Omit<Building, 'id' | 'sections' | 'createdAt'> & { color: string }) => {
     const newBuilding: Building = {
       ...building,
       id: crypto.randomUUID(),

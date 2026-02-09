@@ -8,7 +8,7 @@ import { Card } from '@/components/ui/card';
 import { DocumentUpload } from '@/components/buildings/DocumentUpload';
 import { DocumentCard } from '@/components/buildings/DocumentCard';
 import { useBuildings } from '@/hooks/useBuildings';
-import { BuildingDocument } from '@/types/building';
+import { BuildingDocument, BUILDING_COLORS } from '@/types/building';
 import { toast } from 'sonner';
 
 const EditBuilding = () => {
@@ -19,6 +19,7 @@ const EditBuilding = () => {
   const building = getBuilding(buildingId || '');
   
   const [objectName, setObjectName] = useState('');
+  const [selectedColor, setSelectedColor] = useState<string>(BUILDING_COLORS[0].value);
   const [contractNumber, setContractNumber] = useState('');
   const [startDate, setStartDate] = useState('');
   const [expectedEndDate, setExpectedEndDate] = useState('');
@@ -29,6 +30,7 @@ const EditBuilding = () => {
   useEffect(() => {
     if (building) {
       setObjectName(building.objectName);
+      setSelectedColor(building.color || BUILDING_COLORS[0].value);
       setContractNumber(building.contractNumber || '');
       setStartDate(building.startDate ? new Date(building.startDate).toISOString().split('T')[0] : '');
       setExpectedEndDate(building.expectedEndDate ? new Date(building.expectedEndDate).toISOString().split('T')[0] : '');
@@ -61,6 +63,7 @@ const EditBuilding = () => {
 
     updateBuilding(building.id, {
       objectName: objectName.trim(),
+      color: selectedColor,
       contractNumber: contractNumber.trim() || undefined,
       startDate: startDate ? new Date(startDate) : new Date(),
       expectedEndDate: expectedEndDate ? new Date(expectedEndDate) : new Date(),
@@ -110,6 +113,25 @@ const EditBuilding = () => {
                 onChange={(e) => setObjectName(e.target.value)}
                 required
               />
+            </div>
+
+            {/* Color */}
+            <div className="space-y-2">
+              <Label>Building Color</Label>
+              <div className="flex flex-wrap gap-2">
+                {BUILDING_COLORS.map((c) => (
+                  <button
+                    key={c.value}
+                    type="button"
+                    className={`w-9 h-9 rounded-full border-2 transition-all ${
+                      selectedColor === c.value ? 'border-foreground scale-110 shadow-md' : 'border-transparent hover:scale-105'
+                    }`}
+                    style={{ backgroundColor: c.value }}
+                    onClick={() => setSelectedColor(c.value)}
+                    title={c.name}
+                  />
+                ))}
+              </div>
             </div>
 
             {/* Contract Number */}

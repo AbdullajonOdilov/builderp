@@ -8,7 +8,7 @@ import { Card } from '@/components/ui/card';
 import { DocumentUpload } from '@/components/buildings/DocumentUpload';
 import { DocumentCard } from '@/components/buildings/DocumentCard';
 import { useBuildings } from '@/hooks/useBuildings';
-import { BuildingDocument } from '@/types/building';
+import { BuildingDocument, BUILDING_COLORS } from '@/types/building';
 import { toast } from 'sonner';
 
 const CreateBuilding = () => {
@@ -16,6 +16,7 @@ const CreateBuilding = () => {
   const { addBuilding } = useBuildings();
   
   const [objectName, setObjectName] = useState('');
+  const [selectedColor, setSelectedColor] = useState<string>(BUILDING_COLORS[0].value);
   const [contractNumber, setContractNumber] = useState('');
   const [startDate, setStartDate] = useState('');
   const [expectedEndDate, setExpectedEndDate] = useState('');
@@ -35,6 +36,7 @@ const CreateBuilding = () => {
 
     addBuilding({
       objectName: objectName.trim(),
+      color: selectedColor,
       contractNumber: contractNumber.trim() || undefined,
       startDate: startDate ? new Date(startDate) : new Date(),
       expectedEndDate: expectedEndDate ? new Date(expectedEndDate) : new Date(),
@@ -84,6 +86,25 @@ const CreateBuilding = () => {
                 onChange={(e) => setObjectName(e.target.value)}
                 required
               />
+            </div>
+
+            {/* Color */}
+            <div className="space-y-2">
+              <Label>Building Color</Label>
+              <div className="flex flex-wrap gap-2">
+                {BUILDING_COLORS.map((c) => (
+                  <button
+                    key={c.value}
+                    type="button"
+                    className={`w-9 h-9 rounded-full border-2 transition-all ${
+                      selectedColor === c.value ? 'border-foreground scale-110 shadow-md' : 'border-transparent hover:scale-105'
+                    }`}
+                    style={{ backgroundColor: c.value }}
+                    onClick={() => setSelectedColor(c.value)}
+                    title={c.name}
+                  />
+                ))}
+              </div>
             </div>
 
             {/* Contract Number */}

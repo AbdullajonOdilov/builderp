@@ -82,6 +82,7 @@ const Buildings = () => {
                   name={building.objectName}
                   subtitle={`${building.sections.length} sections • ${formatCurrency(building.totalPrice - building.usedMoney)} left`}
                   completionPercentage={completionPercentage}
+                  color={building.color}
                   onClick={() => navigate(`/buildings/${building.id}`)}
                   onDelete={() => setDeleteId(building.id)}
                   onEdit={() => navigate(`/buildings/${building.id}/edit`)}
