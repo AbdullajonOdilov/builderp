@@ -17,9 +17,19 @@ export const TASK_CATEGORIES = [
 
 export type TaskCategory = (typeof TASK_CATEGORIES)[number];
 
+export const SUB_RESOURCE_CATEGORIES = [
+  'Salary',
+  'Material',
+  'Instrument',
+  'Techniques',
+  'Other',
+] as const;
+
+export type SubResourceCategory = (typeof SUB_RESOURCE_CATEGORIES)[number];
+
 export interface SubResource {
   id: string;
-  categoryName: TaskCategory;
+  categoryName: SubResourceCategory;
   resourceCode: string;
   resourceName: string;
   resourceAmount: number;
