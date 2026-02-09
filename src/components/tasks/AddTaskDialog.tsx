@@ -137,14 +137,17 @@ export function AddTaskDialog({ open, onOpenChange, buildings, onAddTask }: AddT
           </div>
 
           {/* Row 2: Task Name & Amount */}
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-[1fr_140px] gap-3">
             <div className="space-y-1.5">
               <Label>Task Name</Label>
               <Input value={taskName} onChange={e => setTaskName(e.target.value)} placeholder="Enter task name" />
             </div>
             <div className="space-y-1.5">
               <Label>Amount</Label>
-              <Input type="number" min={0} value={taskAmount || ''} onChange={e => setTaskAmount(Number(e.target.value))} placeholder="0" />
+              <Input type="number" min={0} max={999999999999} value={taskAmount || ''} onChange={e => {
+                const val = e.target.value.slice(0, 12);
+                setTaskAmount(Number(val));
+              }} placeholder="0" />
             </div>
           </div>
 
