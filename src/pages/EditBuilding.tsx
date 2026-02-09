@@ -118,7 +118,7 @@ const EditBuilding = () => {
             {/* Color */}
             <div className="space-y-2">
               <Label>Building Color</Label>
-              <div className="flex flex-wrap gap-2">
+              <div className="flex flex-wrap gap-2 items-center">
                 {BUILDING_COLORS.map((c) => (
                   <button
                     key={c.value}
@@ -131,6 +131,21 @@ const EditBuilding = () => {
                     title={c.name}
                   />
                 ))}
+                <label
+                  className={`w-9 h-9 rounded-full border-2 border-dashed border-muted-foreground cursor-pointer flex items-center justify-center transition-all hover:scale-105 overflow-hidden ${
+                    !BUILDING_COLORS.some(c => c.value === selectedColor) ? 'border-foreground scale-110 shadow-md' : ''
+                  }`}
+                  title="Custom color"
+                  style={!BUILDING_COLORS.some(c => c.value === selectedColor) ? { backgroundColor: selectedColor } : undefined}
+                >
+                  <span className={`text-xs text-muted-foreground ${!BUILDING_COLORS.some(c => c.value === selectedColor) ? 'hidden' : ''}`}>+</span>
+                  <input
+                    type="color"
+                    className="sr-only"
+                    value={selectedColor}
+                    onChange={(e) => setSelectedColor(e.target.value)}
+                  />
+                </label>
               </div>
             </div>
 
