@@ -1,4 +1,4 @@
-import { Building2, ClipboardList, HardHat, ListTodo } from 'lucide-react';
+import { Building2, ClipboardList, DollarSign, HardHat, ListTodo } from 'lucide-react';
 import { NavLink } from './NavLink';
 
 export function AppNavigation() {
