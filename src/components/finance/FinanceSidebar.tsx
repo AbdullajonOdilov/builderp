@@ -1,7 +1,7 @@
 import { DollarSign, TrendingUp, Package, Building2, Users, FileText } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
-export type FinanceReportType = 'vendor-expenses' | 'project-overview' | 'inventory' | 'vendor-comparison' | 'foremen';
+export type FinanceReportType = 'vendor-expenses' | 'project-overview' | 'foremen';
 
 interface FinanceSidebarProps {
   activeReport: FinanceReportType;
