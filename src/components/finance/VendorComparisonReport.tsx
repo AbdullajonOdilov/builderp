@@ -2,6 +2,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
 import { ProjectVendorExpense } from '@/types/finance';
+import { ProjectFilterRow } from './ProjectFilterRow';
 
 function formatCurrency(amount: number) {
   return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(amount);
@@ -18,9 +19,13 @@ interface AggregatedVendor {
   projectCount: number;
 }
 
-interface Props { data: ProjectVendorExpense[]; }
+interface Props {
+  data: ProjectVendorExpense[];
+  selectedProject: string;
+  onSelectProject: (value: string) => void;
+}
 
-export function VendorComparisonReport({ data }: Props) {
+export function VendorComparisonReport({ data, selectedProject, onSelectProject }: Props) {
   const vendorMap = new Map<string, AggregatedVendor>();
   data.forEach(project => {
     project.vendors.forEach(v => {
@@ -40,6 +45,7 @@ export function VendorComparisonReport({ data }: Props) {
 
   return (
     <div className="space-y-4">
+      <ProjectFilterRow selectedProject={selectedProject} onSelectProject={onSelectProject} />
       <h2 className="text-lg font-semibold">Vendor Comparison</h2>
       <Card>
         <CardContent className="p-0">

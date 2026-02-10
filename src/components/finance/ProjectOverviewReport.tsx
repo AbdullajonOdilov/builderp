@@ -1,16 +1,22 @@
 import { Card, CardContent } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { ProjectVendorExpense } from '@/types/finance';
+import { ProjectFilterRow } from './ProjectFilterRow';
 
 function formatCurrency(amount: number) {
   return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(amount);
 }
 
-interface Props { data: ProjectVendorExpense[]; }
+interface Props {
+  data: ProjectVendorExpense[];
+  selectedProject: string;
+  onSelectProject: (value: string) => void;
+}
 
-export function ProjectOverviewReport({ data }: Props) {
+export function ProjectOverviewReport({ data, selectedProject, onSelectProject }: Props) {
   return (
     <div className="space-y-4">
+      <ProjectFilterRow selectedProject={selectedProject} onSelectProject={onSelectProject} />
       <h2 className="text-lg font-semibold">Project Budget Overview</h2>
       <div className="grid gap-4">
         {data.map(project => {

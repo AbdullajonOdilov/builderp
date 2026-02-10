@@ -6,14 +6,19 @@ import { Progress } from '@/components/ui/progress';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { Badge } from '@/components/ui/badge';
 import { ProjectVendorExpense } from '@/types/finance';
+import { ProjectFilterRow } from './ProjectFilterRow';
 
 function formatCurrency(amount: number) {
   return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(amount);
 }
 
-interface Props { data: ProjectVendorExpense[]; }
+interface Props {
+  data: ProjectVendorExpense[];
+  selectedProject: string;
+  onSelectProject: (value: string) => void;
+}
 
-export function VendorExpensesReport({ data }: Props) {
+export function VendorExpensesReport({ data, selectedProject, onSelectProject }: Props) {
   const [openProjects, setOpenProjects] = useState<Set<string>>(new Set([data[0]?.projectId]));
 
   const toggle = (id: string) => {
@@ -30,6 +35,7 @@ export function VendorExpensesReport({ data }: Props) {
 
   return (
     <div className="space-y-6">
+      <ProjectFilterRow selectedProject={selectedProject} onSelectProject={onSelectProject} />
       {/* Summary Cards */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         <Card><CardContent className="p-4"><p className="text-xs text-muted-foreground">Total Budget</p><p className="text-2xl font-bold mt-1">{formatCurrency(grandTotalBudget)}</p></CardContent></Card>
