@@ -2,17 +2,10 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { MOCK_INVENTORY } from '@/types/finance';
-import { ProjectFilterRow } from './ProjectFilterRow';
 
-interface Props {
-  selectedProject: string;
-  onSelectProject: (value: string) => void;
-}
-
-export function InventoryReport({ selectedProject, onSelectProject }: Props) {
+export function InventoryReport() {
   return (
     <div className="space-y-4">
-      <ProjectFilterRow selectedProject={selectedProject} onSelectProject={onSelectProject} />
       <h2 className="text-lg font-semibold">Inventory Status</h2>
       <Card>
         <CardContent className="p-0">
