@@ -45,6 +45,7 @@ export function VendorComparisonReport({ data, selectedProject, onSelectProject 
 
   return (
     <div className="space-y-4">
+      <ProjectFilterRow selectedProject={selectedProject} onSelectProject={onSelectProject} />
       <h2 className="text-lg font-semibold">Vendor Comparison</h2>
       <Card>
         <CardContent className="p-0">

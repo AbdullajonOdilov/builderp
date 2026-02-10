@@ -35,6 +35,7 @@ export function VendorExpensesReport({ data, selectedProject, onSelectProject }:
 
   return (
     <div className="space-y-6">
+      <ProjectFilterRow selectedProject={selectedProject} onSelectProject={onSelectProject} />
       {/* Summary Cards */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         <Card><CardContent className="p-4"><p className="text-xs text-muted-foreground">Total Budget</p><p className="text-2xl font-bold mt-1">{formatCurrency(grandTotalBudget)}</p></CardContent></Card>

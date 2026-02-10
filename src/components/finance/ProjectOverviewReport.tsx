@@ -16,6 +16,7 @@ interface Props {
 export function ProjectOverviewReport({ data, selectedProject, onSelectProject }: Props) {
   return (
     <div className="space-y-4">
+      <ProjectFilterRow selectedProject={selectedProject} onSelectProject={onSelectProject} />
       <h2 className="text-lg font-semibold">Project Budget Overview</h2>
       <div className="grid gap-4">
         {data.map(project => {
