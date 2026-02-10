@@ -1,10 +1,11 @@
-import { useState } from 'react';
-import { ChevronDown, ChevronRight, Phone, User, FileText, TrendingUp } from 'lucide-react';
+import { useState, useMemo } from 'react';
+import { ChevronDown, ChevronRight, Phone, User, FileText, Filter } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Progress } from '@/components/ui/progress';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { Badge } from '@/components/ui/badge';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { MOCK_PROJECT_VENDOR_EXPENSES } from '@/types/finance';
 
 function formatCurrency(amount: number) {
@@ -12,8 +13,14 @@ function formatCurrency(amount: number) {
 }
 
 export function VendorExpensesReport() {
-  const data = MOCK_PROJECT_VENDOR_EXPENSES;
-  const [openProjects, setOpenProjects] = useState<Set<string>>(new Set([data[0]?.projectId]));
+  const allData = MOCK_PROJECT_VENDOR_EXPENSES;
+  const [selectedProject, setSelectedProject] = useState<string>('all');
+  
+  const data = useMemo(() => 
+    selectedProject === 'all' ? allData : allData.filter(p => p.projectId === selectedProject),
+    [selectedProject, allData]
+  );
+  const [openProjects, setOpenProjects] = useState<Set<string>>(new Set([allData[0]?.projectId]));
 
   const toggle = (id: string) => {
     setOpenProjects(prev => {
