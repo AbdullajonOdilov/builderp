@@ -75,6 +75,7 @@ const Tasks = () => {
         onOpenChange={setDialogOpen}
         buildings={buildings}
         onAddTask={addTask}
+        allTasks={tasks}
       />
     </div>
   );

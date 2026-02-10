@@ -8,6 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Building } from '@/types/building';
 import { Task, SubResource, TASK_CATEGORIES, TaskCategory, SUB_RESOURCE_CATEGORIES, SubResourceCategory, UNIT_TYPES, UnitType } from '@/types/task';
+import { SubResourceAutocomplete } from './SubResourceAutocomplete';
 import { toast } from 'sonner';
 
 interface AddTaskDialogProps {
@@ -15,6 +16,7 @@ interface AddTaskDialogProps {
   onOpenChange: (open: boolean) => void;
   buildings: Building[];
   onAddTask: (task: Omit<Task, 'id' | 'createdAt'>) => void;
+  allTasks?: Task[];
 }
 
 const emptySubResource = (): SubResource => ({
@@ -28,7 +30,8 @@ const emptySubResource = (): SubResource => ({
   totalPrice: 0,
 });
 
-export function AddTaskDialog({ open, onOpenChange, buildings, onAddTask }: AddTaskDialogProps) {
+export function AddTaskDialog({ open, onOpenChange, buildings, onAddTask, allTasks = [] }: AddTaskDialogProps) {
+  const allSubResources = allTasks.flatMap(t => t.subResources);
   const [categoryName, setCategoryName] = useState<TaskCategory>('General');
   const [resourceCode, setResourceCode] = useState('');
   const [taskName, setTaskName] = useState('');
@@ -217,7 +220,23 @@ export function AddTaskDialog({ open, onOpenChange, buildings, onAddTask }: AddT
                           <Input className="h-8 text-xs" value={sr.resourceCode} onChange={e => updateSubResource(sr.id, 'resourceCode', e.target.value)} placeholder="Code" />
                         </TableCell>
                         <TableCell className="p-1.5">
-                          <Input className="h-8 text-xs" value={sr.resourceName} onChange={e => updateSubResource(sr.id, 'resourceName', e.target.value)} placeholder="Name" />
+                          <SubResourceAutocomplete
+                            className="h-8 text-xs"
+                            value={sr.resourceName}
+                            category={sr.categoryName}
+                            existingSubResources={allSubResources}
+                            onChange={v => updateSubResource(sr.id, 'resourceName', v)}
+                            onSelect={selected => {
+                              setSubResources(prev => prev.map(s => s.id !== sr.id ? s : {
+                                ...s,
+                                resourceName: selected.resourceName,
+                                resourceCode: selected.resourceCode,
+                                unit: selected.unit,
+                                unitPrice: selected.unitPrice,
+                                totalPrice: Number(s.resourceAmount) * selected.unitPrice,
+                              }));
+                            }}
+                          />
                         </TableCell>
                         <TableCell className="p-1.5">
                           <Select value={sr.unit} onValueChange={v => updateSubResource(sr.id, 'unit', v)}>
