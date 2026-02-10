@@ -10,6 +10,7 @@ import EditBuilding from "./pages/EditBuilding";
 import BuildingView from "./pages/BuildingView";
 import SectionView from "./pages/SectionView";
 import Tasks from "./pages/Tasks";
+import Finance from "./pages/Finance";
 import Index from "./pages/Index";
 import { AppNavigation } from "./components/AppNavigation";
 
