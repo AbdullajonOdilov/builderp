@@ -8,6 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Building } from '@/types/building';
 import { Task, SubResource, TASK_CATEGORIES, TaskCategory, SUB_RESOURCE_CATEGORIES, SubResourceCategory, UNIT_TYPES, UnitType } from '@/types/task';
+import { SubResourceAutocomplete } from './SubResourceAutocomplete';
 import { toast } from 'sonner';
 
 interface AddTaskDialogProps {
