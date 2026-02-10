@@ -2,8 +2,6 @@ import { useState, useMemo } from 'react';
 import { FinanceSidebar, FinanceReportType } from '@/components/finance/FinanceSidebar';
 import { VendorExpensesReport } from '@/components/finance/VendorExpensesReport';
 import { ProjectOverviewReport } from '@/components/finance/ProjectOverviewReport';
-import { InventoryReport } from '@/components/finance/InventoryReport';
-import { VendorComparisonReport } from '@/components/finance/VendorComparisonReport';
 import { ForemenReport } from '@/components/finance/ForemenReport';
 import { MOCK_PROJECT_VENDOR_EXPENSES } from '@/types/finance';
 
@@ -21,9 +19,7 @@ export default function Finance() {
   const renderReport = () => {
     switch (activeReport) {
       case 'vendor-expenses': return <VendorExpensesReport data={filteredProjects} selectedProject={selectedProject} onSelectProject={setSelectedProject} />;
-      case 'project-overview': return <ProjectOverviewReport data={filteredProjects} selectedProject={selectedProject} onSelectProject={setSelectedProject} />;
-      case 'inventory': return <InventoryReport />;
-      case 'vendor-comparison': return <VendorComparisonReport data={filteredProjects} selectedProject={selectedProject} onSelectProject={setSelectedProject} />;
+      case 'project-overview': return <ProjectOverviewReport data={filteredProjects} />;
       case 'foremen': return <ForemenReport data={filteredProjects} selectedProject={selectedProject} onSelectProject={setSelectedProject} />;
     }
   };
