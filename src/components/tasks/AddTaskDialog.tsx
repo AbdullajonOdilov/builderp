@@ -30,7 +30,8 @@ const emptySubResource = (): SubResource => ({
   totalPrice: 0,
 });
 
-export function AddTaskDialog({ open, onOpenChange, buildings, onAddTask }: AddTaskDialogProps) {
+export function AddTaskDialog({ open, onOpenChange, buildings, onAddTask, allTasks = [] }: AddTaskDialogProps) {
+  const allSubResources = allTasks.flatMap(t => t.subResources);
   const [categoryName, setCategoryName] = useState<TaskCategory>('General');
   const [resourceCode, setResourceCode] = useState('');
   const [taskName, setTaskName] = useState('');
