@@ -22,7 +22,7 @@ export default function Finance() {
     switch (activeReport) {
       case 'vendor-expenses': return <VendorExpensesReport data={filteredProjects} selectedProject={selectedProject} onSelectProject={setSelectedProject} />;
       case 'project-overview': return <ProjectOverviewReport data={filteredProjects} selectedProject={selectedProject} onSelectProject={setSelectedProject} />;
-      case 'inventory': return <InventoryReport selectedProject={selectedProject} onSelectProject={setSelectedProject} />;
+      case 'inventory': return <InventoryReport />;
       case 'vendor-comparison': return <VendorComparisonReport data={filteredProjects} selectedProject={selectedProject} onSelectProject={setSelectedProject} />;
       case 'foremen': return <ForemenReport data={filteredProjects} selectedProject={selectedProject} onSelectProject={setSelectedProject} />;
     }
