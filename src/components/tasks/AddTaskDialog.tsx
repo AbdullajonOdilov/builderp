@@ -220,7 +220,23 @@ export function AddTaskDialog({ open, onOpenChange, buildings, onAddTask, allTas
                           <Input className="h-8 text-xs" value={sr.resourceCode} onChange={e => updateSubResource(sr.id, 'resourceCode', e.target.value)} placeholder="Code" />
                         </TableCell>
                         <TableCell className="p-1.5">
-                          <Input className="h-8 text-xs" value={sr.resourceName} onChange={e => updateSubResource(sr.id, 'resourceName', e.target.value)} placeholder="Name" />
+                          <SubResourceAutocomplete
+                            className="h-8 text-xs"
+                            value={sr.resourceName}
+                            category={sr.categoryName}
+                            existingSubResources={allSubResources}
+                            onChange={v => updateSubResource(sr.id, 'resourceName', v)}
+                            onSelect={selected => {
+                              setSubResources(prev => prev.map(s => s.id !== sr.id ? s : {
+                                ...s,
+                                resourceName: selected.resourceName,
+                                resourceCode: selected.resourceCode,
+                                unit: selected.unit,
+                                unitPrice: selected.unitPrice,
+                                totalPrice: Number(s.resourceAmount) * selected.unitPrice,
+                              }));
+                            }}
+                          />
                         </TableCell>
                         <TableCell className="p-1.5">
                           <Select value={sr.unit} onValueChange={v => updateSubResource(sr.id, 'unit', v)}>
