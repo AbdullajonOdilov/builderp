@@ -11,9 +11,13 @@ function formatCurrency(amount: number) {
   return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(amount);
 }
 
-interface Props { data: ProjectVendorExpense[]; }
+interface Props {
+  data: ProjectVendorExpense[];
+  selectedProject: string;
+  onSelectProject: (value: string) => void;
+}
 
-export function VendorExpensesReport({ data }: Props) {
+export function VendorExpensesReport({ data, selectedProject, onSelectProject }: Props) {
   const [openProjects, setOpenProjects] = useState<Set<string>>(new Set([data[0]?.projectId]));
 
   const toggle = (id: string) => {

@@ -18,9 +18,13 @@ interface AggregatedVendor {
   projectCount: number;
 }
 
-interface Props { data: ProjectVendorExpense[]; }
+interface Props {
+  data: ProjectVendorExpense[];
+  selectedProject: string;
+  onSelectProject: (value: string) => void;
+}
 
-export function VendorComparisonReport({ data }: Props) {
+export function VendorComparisonReport({ data, selectedProject, onSelectProject }: Props) {
   const vendorMap = new Map<string, AggregatedVendor>();
   data.forEach(project => {
     project.vendors.forEach(v => {

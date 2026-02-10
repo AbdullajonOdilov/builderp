@@ -3,7 +3,12 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { MOCK_INVENTORY } from '@/types/finance';
 
-export function InventoryReport() {
+interface Props {
+  selectedProject: string;
+  onSelectProject: (value: string) => void;
+}
+
+export function InventoryReport({ selectedProject, onSelectProject }: Props) {
   return (
     <div className="space-y-4">
       <h2 className="text-lg font-semibold">Inventory Status</h2>
