@@ -16,6 +16,7 @@ interface AddTaskDialogProps {
   onOpenChange: (open: boolean) => void;
   buildings: Building[];
   onAddTask: (task: Omit<Task, 'id' | 'createdAt'>) => void;
+  allTasks?: Task[];
 }
 
 const emptySubResource = (): SubResource => ({
