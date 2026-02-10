@@ -1,26 +1,20 @@
-import { useState, useMemo } from 'react';
-import { ChevronDown, ChevronRight, Phone, User, FileText, Filter } from 'lucide-react';
+import { useState } from 'react';
+import { ChevronDown, ChevronRight, Phone, User, FileText } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Progress } from '@/components/ui/progress';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { Badge } from '@/components/ui/badge';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { MOCK_PROJECT_VENDOR_EXPENSES } from '@/types/finance';
+import { ProjectVendorExpense } from '@/types/finance';
 
 function formatCurrency(amount: number) {
   return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(amount);
 }
 
-export function VendorExpensesReport() {
-  const allData = MOCK_PROJECT_VENDOR_EXPENSES;
-  const [selectedProject, setSelectedProject] = useState<string>('all');
-  
-  const data = useMemo(() => 
-    selectedProject === 'all' ? allData : allData.filter(p => p.projectId === selectedProject),
-    [selectedProject, allData]
-  );
-  const [openProjects, setOpenProjects] = useState<Set<string>>(new Set([allData[0]?.projectId]));
+interface Props { data: ProjectVendorExpense[]; }
+
+export function VendorExpensesReport({ data }: Props) {
+  const [openProjects, setOpenProjects] = useState<Set<string>>(new Set([data[0]?.projectId]));
 
   const toggle = (id: string) => {
     setOpenProjects(prev => {
@@ -36,54 +30,12 @@ export function VendorExpensesReport() {
 
   return (
     <div className="space-y-6">
-      {/* Filter Bar */}
-      <div className="flex items-center gap-3">
-        <Filter className="h-4 w-4 text-muted-foreground" />
-        <Select value={selectedProject} onValueChange={setSelectedProject}>
-          <SelectTrigger className="w-[260px]">
-            <SelectValue placeholder="Filter by project" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">All Projects</SelectItem>
-            {allData.map(p => (
-              <SelectItem key={p.projectId} value={p.projectId}>
-                <span className="flex items-center gap-2">
-                  <span className="w-2 h-2 rounded-full inline-block" style={{ backgroundColor: p.projectColor }} />
-                  {p.projectName}
-                </span>
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-      </div>
-
       {/* Summary Cards */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <Card>
-          <CardContent className="p-4">
-            <p className="text-xs text-muted-foreground">Total Budget</p>
-            <p className="text-2xl font-bold mt-1">{formatCurrency(grandTotalBudget)}</p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="p-4">
-            <p className="text-xs text-muted-foreground">Total Spent</p>
-            <p className="text-2xl font-bold mt-1 text-primary">{formatCurrency(grandTotalSpent)}</p>
-            <p className="text-xs text-muted-foreground mt-1">{((grandTotalSpent / grandTotalBudget) * 100).toFixed(1)}% of budget</p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="p-4">
-            <p className="text-xs text-muted-foreground">Pending Payments</p>
-            <p className="text-2xl font-bold mt-1 text-[hsl(var(--status-pending))]">{formatCurrency(grandTotalPending)}</p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="p-4">
-            <p className="text-xs text-muted-foreground">Remaining Budget</p>
-            <p className="text-2xl font-bold mt-1 text-[hsl(var(--status-delivered))]">{formatCurrency(grandTotalBudget - grandTotalSpent)}</p>
-          </CardContent>
-        </Card>
+        <Card><CardContent className="p-4"><p className="text-xs text-muted-foreground">Total Budget</p><p className="text-2xl font-bold mt-1">{formatCurrency(grandTotalBudget)}</p></CardContent></Card>
+        <Card><CardContent className="p-4"><p className="text-xs text-muted-foreground">Total Spent</p><p className="text-2xl font-bold mt-1 text-primary">{formatCurrency(grandTotalSpent)}</p><p className="text-xs text-muted-foreground mt-1">{grandTotalBudget > 0 ? ((grandTotalSpent / grandTotalBudget) * 100).toFixed(1) : 0}% of budget</p></CardContent></Card>
+        <Card><CardContent className="p-4"><p className="text-xs text-muted-foreground">Pending Payments</p><p className="text-2xl font-bold mt-1 text-[hsl(var(--status-pending))]">{formatCurrency(grandTotalPending)}</p></CardContent></Card>
+        <Card><CardContent className="p-4"><p className="text-xs text-muted-foreground">Remaining Budget</p><p className="text-2xl font-bold mt-1 text-[hsl(var(--status-delivered))]">{formatCurrency(grandTotalBudget - grandTotalSpent)}</p></CardContent></Card>
       </div>
 
       {/* Per-Project Breakdown */}
@@ -120,7 +72,6 @@ export function VendorExpensesReport() {
                     </CardHeader>
                   </button>
                 </CollapsibleTrigger>
-
                 <CollapsibleContent>
                   <CardContent className="p-0 pb-2">
                     <Table>
@@ -140,33 +91,20 @@ export function VendorExpensesReport() {
                             <TableCell className="pl-12 font-medium">{vendor.vendorName}</TableCell>
                             <TableCell>
                               <div className="flex flex-col gap-0.5">
-                                <span className="text-xs flex items-center gap-1">
-                                  <User className="h-3 w-3" />{vendor.contactPerson}
-                                </span>
-                                <span className="text-xs text-muted-foreground flex items-center gap-1">
-                                  <Phone className="h-3 w-3" />{vendor.phone}
-                                </span>
+                                <span className="text-xs flex items-center gap-1"><User className="h-3 w-3" />{vendor.contactPerson}</span>
+                                <span className="text-xs text-muted-foreground flex items-center gap-1"><Phone className="h-3 w-3" />{vendor.phone}</span>
                               </div>
                             </TableCell>
                             <TableCell className="text-right font-medium">{formatCurrency(vendor.totalPaid)}</TableCell>
                             <TableCell className="text-right">
                               {vendor.totalPending > 0 ? (
-                                <Badge variant="outline" className="text-[hsl(var(--status-pending))] border-[hsl(var(--status-pending)/0.3)]">
-                                  {formatCurrency(vendor.totalPending)}
-                                </Badge>
-                              ) : (
-                                <span className="text-muted-foreground text-xs">—</span>
-                              )}
+                                <Badge variant="outline" className="text-[hsl(var(--status-pending))] border-[hsl(var(--status-pending)/0.3)]">{formatCurrency(vendor.totalPending)}</Badge>
+                              ) : <span className="text-muted-foreground text-xs">—</span>}
                             </TableCell>
                             <TableCell className="text-right font-semibold">{formatCurrency(vendor.totalPaid + vendor.totalPending)}</TableCell>
-                            <TableCell className="text-center">
-                              <span className="text-xs flex items-center justify-center gap-1 text-muted-foreground">
-                                <FileText className="h-3 w-3" />{vendor.invoiceCount}
-                              </span>
-                            </TableCell>
+                            <TableCell className="text-center"><span className="text-xs flex items-center justify-center gap-1 text-muted-foreground"><FileText className="h-3 w-3" />{vendor.invoiceCount}</span></TableCell>
                           </TableRow>
                         ))}
-                        {/* Project totals */}
                         <TableRow className="bg-muted/30 font-semibold hover:bg-muted/40">
                           <TableCell colSpan={2} className="pl-12 text-sm">Project Total</TableCell>
                           <TableCell className="text-right">{formatCurrency(project.totalSpent)}</TableCell>

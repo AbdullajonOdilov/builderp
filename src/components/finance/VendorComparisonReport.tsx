@@ -1,7 +1,7 @@
 import { Card, CardContent } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
-import { MOCK_PROJECT_VENDOR_EXPENSES } from '@/types/finance';
+import { ProjectVendorExpense } from '@/types/finance';
 
 function formatCurrency(amount: number) {
   return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(amount);
@@ -16,13 +16,13 @@ interface AggregatedVendor {
   totalPending: number;
   totalInvoices: number;
   projectCount: number;
-  projects: string[];
 }
 
-export function VendorComparisonReport() {
-  // Aggregate across all projects
+interface Props { data: ProjectVendorExpense[]; }
+
+export function VendorComparisonReport({ data }: Props) {
   const vendorMap = new Map<string, AggregatedVendor>();
-  MOCK_PROJECT_VENDOR_EXPENSES.forEach(project => {
+  data.forEach(project => {
     project.vendors.forEach(v => {
       const existing = vendorMap.get(v.vendorId);
       if (existing) {
@@ -30,14 +30,8 @@ export function VendorComparisonReport() {
         existing.totalPending += v.totalPending;
         existing.totalInvoices += v.invoiceCount;
         existing.projectCount++;
-        existing.projects.push(project.projectName);
       } else {
-        vendorMap.set(v.vendorId, {
-          ...v,
-          totalInvoices: v.invoiceCount,
-          projectCount: 1,
-          projects: [project.projectName],
-        });
+        vendorMap.set(v.vendorId, { ...v, totalInvoices: v.invoiceCount, projectCount: 1 });
       }
     });
   });
@@ -46,7 +40,7 @@ export function VendorComparisonReport() {
 
   return (
     <div className="space-y-4">
-      <h2 className="text-lg font-semibold">Vendor Comparison (All Projects)</h2>
+      <h2 className="text-lg font-semibold">Vendor Comparison</h2>
       <Card>
         <CardContent className="p-0">
           <Table>
@@ -67,15 +61,9 @@ export function VendorComparisonReport() {
                     <div className="font-medium">{v.vendorName}</div>
                     <div className="text-xs text-muted-foreground">{v.contactPerson} · {v.phone}</div>
                   </TableCell>
-                  <TableCell className="text-center">
-                    <Badge variant="secondary" className="text-[10px]">{v.projectCount}</Badge>
-                  </TableCell>
+                  <TableCell className="text-center"><Badge variant="secondary" className="text-[10px]">{v.projectCount}</Badge></TableCell>
                   <TableCell className="text-right font-medium">{formatCurrency(v.totalPaid)}</TableCell>
-                  <TableCell className="text-right">
-                    {v.totalPending > 0 ? (
-                      <span className="text-[hsl(var(--status-pending))]">{formatCurrency(v.totalPending)}</span>
-                    ) : '—'}
-                  </TableCell>
+                  <TableCell className="text-right">{v.totalPending > 0 ? <span className="text-[hsl(var(--status-pending))]">{formatCurrency(v.totalPending)}</span> : '—'}</TableCell>
                   <TableCell className="text-right font-semibold">{formatCurrency(v.totalPaid + v.totalPending)}</TableCell>
                   <TableCell className="text-center">{v.totalInvoices}</TableCell>
                 </TableRow>
