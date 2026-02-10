@@ -26,6 +26,7 @@ export default function Finance() {
       case 'project-overview': return <ProjectOverviewReport data={filteredProjects} />;
       case 'inventory': return <InventoryReport />;
       case 'vendor-comparison': return <VendorComparisonReport data={filteredProjects} />;
+      case 'foremen': return <ForemenReport data={filteredProjects} />;
     }
   };
 
