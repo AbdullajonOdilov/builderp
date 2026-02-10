@@ -1,7 +1,7 @@
 import { DollarSign, TrendingUp, Package, Building2, Users, FileText } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
-export type FinanceReportType = 'vendor-expenses' | 'project-overview' | 'inventory' | 'vendor-comparison';
+export type FinanceReportType = 'vendor-expenses' | 'project-overview' | 'inventory' | 'vendor-comparison' | 'foremen';
 
 interface FinanceSidebarProps {
   activeReport: FinanceReportType;
@@ -10,6 +10,7 @@ interface FinanceSidebarProps {
 
 const REPORTS = [
   { id: 'vendor-expenses' as const, label: 'Vendor Expenses', icon: Users, description: 'Per-project vendor breakdown' },
+  { id: 'foremen' as const, label: 'Foremen', icon: FileText, description: 'Work & advances by foreman' },
   { id: 'project-overview' as const, label: 'Project Overview', icon: Building2, description: 'Budget vs spending' },
   { id: 'inventory' as const, label: 'Inventory Status', icon: Package, description: 'Warehouse & site stock' },
   { id: 'vendor-comparison' as const, label: 'Vendor Comparison', icon: TrendingUp, description: 'Compare vendor totals' },
