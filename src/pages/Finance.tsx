@@ -5,6 +5,7 @@ import { VendorExpensesReport } from '@/components/finance/VendorExpensesReport'
 import { ProjectOverviewReport } from '@/components/finance/ProjectOverviewReport';
 import { InventoryReport } from '@/components/finance/InventoryReport';
 import { VendorComparisonReport } from '@/components/finance/VendorComparisonReport';
+import { ForemenReport } from '@/components/finance/ForemenReport';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { MOCK_PROJECT_VENDOR_EXPENSES } from '@/types/finance';
 
