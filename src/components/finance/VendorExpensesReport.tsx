@@ -36,6 +36,27 @@ export function VendorExpensesReport() {
 
   return (
     <div className="space-y-6">
+      {/* Filter Bar */}
+      <div className="flex items-center gap-3">
+        <Filter className="h-4 w-4 text-muted-foreground" />
+        <Select value={selectedProject} onValueChange={setSelectedProject}>
+          <SelectTrigger className="w-[260px]">
+            <SelectValue placeholder="Filter by project" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All Projects</SelectItem>
+            {allData.map(p => (
+              <SelectItem key={p.projectId} value={p.projectId}>
+                <span className="flex items-center gap-2">
+                  <span className="w-2 h-2 rounded-full inline-block" style={{ backgroundColor: p.projectColor }} />
+                  {p.projectName}
+                </span>
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
+
       {/* Summary Cards */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         <Card>
