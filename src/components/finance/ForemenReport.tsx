@@ -1,23 +1,35 @@
 import { useState, useMemo } from 'react';
-import { Search, Users, Briefcase, DollarSign, Wallet } from 'lucide-react';
+import { Search, Users, Briefcase, DollarSign, Wallet, CalendarIcon } from 'lucide-react';
+import { format, subDays, isWithinInterval } from 'date-fns';
 import { Card, CardContent } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Calendar } from '@/components/ui/calendar';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { cn } from '@/lib/utils';
 import { ProjectVendorExpense } from '@/types/finance';
+import { ProjectFilterRow } from './ProjectFilterRow';
 import { MOCK_FOREMEN, Foreman } from '@/types/foreman';
 
 function formatCurrency(amount: number) {
   return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(amount);
 }
 
-interface Props { data: ProjectVendorExpense[]; }
+interface Props {
+  data: ProjectVendorExpense[];
+  selectedProject: string;
+  onSelectProject: (value: string) => void;
+}
 
-export function ForemenReport({ data }: Props) {
+export function ForemenReport({ data, selectedProject, onSelectProject }: Props) {
   const [search, setSearch] = useState('');
   const [selectedProfession, setSelectedProfession] = useState('all');
   const [selectedForeman, setSelectedForeman] = useState('all');
+  const [dateFrom, setDateFrom] = useState<Date | undefined>(undefined);
+  const [dateTo, setDateTo] = useState<Date | undefined>(undefined);
 
   const projectIds = new Set(data.map(p => p.projectId));
 
@@ -48,7 +60,6 @@ export function ForemenReport({ data }: Props) {
 
   const professions = [...new Set(MOCK_FOREMEN.map(f => f.profession))];
 
-  // Compute totals scoped to selected projects
   const getProjectScoped = (foreman: Foreman) => {
     const scoped = foreman.projects.filter(p => projectIds.has(p.projectId));
     const totalWork = scoped.reduce((s, p) => s + p.totalWork, 0);
@@ -67,6 +78,11 @@ export function ForemenReport({ data }: Props) {
     { totalWork: 0, totalAdvance: 0, balance: 0 }
   );
 
+  const setPresetRange = (days: number) => {
+    setDateTo(new Date());
+    setDateFrom(subDays(new Date(), days));
+  };
+
   return (
     <div className="space-y-6">
       {/* Title */}
@@ -78,8 +94,8 @@ export function ForemenReport({ data }: Props) {
         <p className="text-sm text-muted-foreground">Work completed and advances paid to foremen</p>
       </div>
 
-      {/* Filters */}
-      <div className="flex flex-wrap items-end gap-3">
+      {/* Filters Row */}
+      <ProjectFilterRow selectedProject={selectedProject} onSelectProject={onSelectProject}>
         <div className="space-y-1">
           <label className="text-xs font-medium text-muted-foreground">Search</label>
           <div className="relative">
@@ -88,7 +104,7 @@ export function ForemenReport({ data }: Props) {
               placeholder="Name, phone, profession..."
               value={search}
               onChange={e => setSearch(e.target.value)}
-              className="pl-9 w-[220px]"
+              className="pl-9 w-[200px]"
             />
           </div>
         </div>
@@ -96,7 +112,7 @@ export function ForemenReport({ data }: Props) {
         <div className="space-y-1">
           <label className="text-xs font-medium text-muted-foreground">Foreman</label>
           <Select value={selectedForeman} onValueChange={setSelectedForeman}>
-            <SelectTrigger className="w-[200px]"><SelectValue placeholder="All foremen" /></SelectTrigger>
+            <SelectTrigger className="w-[180px]"><SelectValue placeholder="All foremen" /></SelectTrigger>
             <SelectContent>
               <SelectItem value="all">All Foremen</SelectItem>
               {MOCK_FOREMEN.map(f => (
@@ -109,7 +125,7 @@ export function ForemenReport({ data }: Props) {
         <div className="space-y-1">
           <label className="text-xs font-medium text-muted-foreground">Profession</label>
           <Select value={selectedProfession} onValueChange={setSelectedProfession}>
-            <SelectTrigger className="w-[180px]"><SelectValue placeholder="All professions" /></SelectTrigger>
+            <SelectTrigger className="w-[160px]"><SelectValue placeholder="All professions" /></SelectTrigger>
             <SelectContent>
               <SelectItem value="all">All Professions</SelectItem>
               {professions.map(p => (
@@ -118,7 +134,44 @@ export function ForemenReport({ data }: Props) {
             </SelectContent>
           </Select>
         </div>
-      </div>
+
+        <div className="space-y-1">
+          <label className="text-xs font-medium text-muted-foreground">Date Range</label>
+          <div className="flex items-center gap-1.5">
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button variant="outline" className={cn("w-[130px] justify-start text-left font-normal h-10", !dateFrom && "text-muted-foreground")}>
+                  <CalendarIcon className="mr-1.5 h-3.5 w-3.5" />
+                  {dateFrom ? format(dateFrom, 'MMM dd, yy') : <span className="text-xs">From</span>}
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-auto p-0" align="start">
+                <div className="flex gap-1 p-2 border-b">
+                  <Button variant="ghost" size="sm" className="text-xs h-7" onClick={() => setPresetRange(7)}>7d</Button>
+                  <Button variant="ghost" size="sm" className="text-xs h-7" onClick={() => setPresetRange(30)}>30d</Button>
+                  <Button variant="ghost" size="sm" className="text-xs h-7" onClick={() => setPresetRange(90)}>90d</Button>
+                </div>
+                <Calendar mode="single" selected={dateFrom} onSelect={setDateFrom} initialFocus className={cn("p-3 pointer-events-auto")} />
+              </PopoverContent>
+            </Popover>
+            <span className="text-muted-foreground text-xs">–</span>
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button variant="outline" className={cn("w-[130px] justify-start text-left font-normal h-10", !dateTo && "text-muted-foreground")}>
+                  <CalendarIcon className="mr-1.5 h-3.5 w-3.5" />
+                  {dateTo ? format(dateTo, 'MMM dd, yy') : <span className="text-xs">To</span>}
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-auto p-0" align="start">
+                <Calendar mode="single" selected={dateTo} onSelect={setDateTo} initialFocus className={cn("p-3 pointer-events-auto")} />
+              </PopoverContent>
+            </Popover>
+            {(dateFrom || dateTo) && (
+              <Button variant="ghost" size="sm" className="text-xs h-7 px-2" onClick={() => { setDateFrom(undefined); setDateTo(undefined); }}>Clear</Button>
+            )}
+          </div>
+        </div>
+      </ProjectFilterRow>
 
       {/* Summary Cards */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
