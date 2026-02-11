@@ -1,4 +1,4 @@
-import { Building2, ClipboardList, DollarSign, HardHat, ListTodo } from 'lucide-react';
+import { Building2, ClipboardList, DollarSign, HardHat, ListTodo, Kanban } from 'lucide-react';
 import { NavLink } from './NavLink';
 
 export function AppNavigation() {
@@ -37,6 +37,14 @@ export function AppNavigation() {
             >
               <DollarSign className="h-4 w-4" />
               Finance
+            </NavLink>
+            <NavLink 
+              to="/ishlar-doskasi" 
+              className="flex items-center gap-2 px-3 py-2 rounded-md text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
+              activeClassName="bg-muted text-foreground"
+            >
+              <Kanban className="h-4 w-4" />
+              Ishlar doskasi
             </NavLink>
             <NavLink 
               to="/requests" 
