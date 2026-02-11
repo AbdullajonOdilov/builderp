@@ -14,6 +14,7 @@ import Finance from "./pages/Finance";
 import IshlarDoskasi from "./pages/IshlarDoskasi";
 import Index from "./pages/Index";
 import { AppNavigation } from "./components/AppNavigation";
+import { OfflineBanner } from "./components/OfflineBanner";
 
 const queryClient = new QueryClient();
 
@@ -22,6 +23,7 @@ const App = () => (
     <TooltipProvider>
       <Toaster />
       <Sonner />
+      <OfflineBanner />
       <BrowserRouter>
         <div className="min-h-screen bg-background">
           <AppNavigation />
