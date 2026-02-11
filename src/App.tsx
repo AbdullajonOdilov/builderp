@@ -11,6 +11,7 @@ import BuildingView from "./pages/BuildingView";
 import SectionView from "./pages/SectionView";
 import Tasks from "./pages/Tasks";
 import Finance from "./pages/Finance";
+import IshlarDoskasi from "./pages/IshlarDoskasi";
 import Index from "./pages/Index";
 import { AppNavigation } from "./components/AppNavigation";
 
@@ -33,6 +34,7 @@ const App = () => (
             <Route path="/buildings/:buildingId/sections/:sectionId" element={<SectionView />} />
             <Route path="/tasks" element={<Tasks />} />
             <Route path="/finance" element={<Finance />} />
+            <Route path="/ishlar-doskasi" element={<IshlarDoskasi />} />
             <Route path="/requests" element={<Index />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
