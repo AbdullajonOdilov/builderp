@@ -191,12 +191,20 @@ export function VendorExpensesReport({ data, onAddVendor, onEditVendor, onDelete
           <h2 className="text-xl font-bold">{vendor.vendorName}</h2>
           <p className="text-sm text-muted-foreground">{vendor.contactPerson} · {vendor.phone}</p>
         </div>
-      </div>
-
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <Card><CardContent className="p-4"><p className="text-xs text-muted-foreground">Jami to'langan</p><p className="text-2xl font-bold mt-1">{formatCurrency(vendor.totalPaid)}</p></CardContent></Card>
-        <Card><CardContent className="p-4"><p className="text-xs text-muted-foreground">Kutilmoqda</p><p className="text-2xl font-bold mt-1 text-[hsl(var(--status-pending))]">{formatCurrency(vendor.totalPending)}</p></CardContent></Card>
-        <Card><CardContent className="p-4"><p className="text-xs text-muted-foreground">Umumiy</p><p className="text-2xl font-bold mt-1 text-primary">{formatCurrency(vendor.totalPaid + vendor.totalPending)}</p></CardContent></Card>
+        <div className="ml-auto flex items-center gap-6">
+          <div className="text-right">
+            <p className="text-xs text-muted-foreground">To'langan</p>
+            <p className="text-sm font-bold">{formatCurrency(vendor.totalPaid)}</p>
+          </div>
+          <div className="text-right">
+            <p className="text-xs text-muted-foreground">Kutilmoqda</p>
+            <p className="text-sm font-bold text-[hsl(var(--status-pending))]">{formatCurrency(vendor.totalPending)}</p>
+          </div>
+          <div className="text-right">
+            <p className="text-xs text-muted-foreground">Umumiy</p>
+            <p className="text-sm font-bold text-primary">{formatCurrency(vendor.totalPaid + vendor.totalPending)}</p>
+          </div>
+        </div>
       </div>
 
       {/* Requests list */}
