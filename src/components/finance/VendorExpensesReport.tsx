@@ -1,16 +1,15 @@
-import { useState, useMemo } from 'react';
-import { ChevronDown, ChevronRight, ArrowLeft, Eye, FileText } from 'lucide-react';
-import { Card, CardContent } from '@/components/ui/card';
+import { useState } from 'react';
+import { ChevronDown, ChevronRight, Phone, User, FileText, FolderOpen } from 'lucide-react';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { Progress } from '@/components/ui/progress';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { ProjectVendorExpense, VendorExpense, VendorPayment } from '@/types/finance';
+import { ProjectVendorExpense } from '@/types/finance';
 import { ProjectFilterRow } from './ProjectFilterRow';
 
 function formatCurrency(amount: number) {
-  return new Intl.NumberFormat('uz-UZ').format(amount) + ' UZS';
+  return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(amount);
 }
 
 interface Props {
@@ -19,249 +18,115 @@ interface Props {
   onSelectProject: (value: string) => void;
 }
 
-function aggregateVendors(data: ProjectVendorExpense[]) {
-  const map = new Map<string, { vendor: VendorExpense; projects: string[] }>();
-  for (const project of data) {
-    for (const vendor of project.vendors) {
-      const existing = map.get(vendor.vendorId);
-      if (existing) {
-        existing.vendor = {
-          ...existing.vendor,
-          totalPaid: existing.vendor.totalPaid + vendor.totalPaid,
-          totalPending: existing.vendor.totalPending + vendor.totalPending,
-          invoiceCount: existing.vendor.invoiceCount + vendor.invoiceCount,
-          requests: [...existing.vendor.requests, ...vendor.requests],
-          payments: [...existing.vendor.payments, ...vendor.payments],
-        };
-        existing.projects.push(project.projectName);
-      } else {
-        map.set(vendor.vendorId, {
-          vendor: { ...vendor, requests: [...vendor.requests], payments: [...vendor.payments] },
-          projects: [project.projectName],
-        });
-      }
-    }
-  }
-  return Array.from(map.values());
-}
-
 export function VendorExpensesReport({ data, selectedProject, onSelectProject }: Props) {
-  const [selectedVendor, setSelectedVendor] = useState<string | null>(null);
-  const [openRequests, setOpenRequests] = useState<Set<string>>(new Set());
-  const [paymentDialogData, setPaymentDialogData] = useState<VendorPayment[] | null>(null);
+  const [openProjects, setOpenProjects] = useState<Set<string>>(new Set([data[0]?.projectId]));
 
-  const vendors = useMemo(() => aggregateVendors(data), [data]);
-
-  const activeVendor = vendors.find(v => v.vendor.vendorId === selectedVendor);
-
-  const toggleRequest = (id: string) => {
-    setOpenRequests(prev => {
+  const toggle = (id: string) => {
+    setOpenProjects((prev) => {
       const next = new Set(prev);
       next.has(id) ? next.delete(id) : next.add(id);
       return next;
     });
   };
 
-  const grandTotalPaid = vendors.reduce((s, v) => s + v.vendor.totalPaid, 0);
-  const grandTotalPending = vendors.reduce((s, v) => s + v.vendor.totalPending, 0);
-
-  // Vendor list view
-  if (!selectedVendor || !activeVendor) {
-    return (
-      <div className="space-y-6">
-        <ProjectFilterRow selectedProject={selectedProject} onSelectProject={onSelectProject} />
-
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <Card><CardContent className="p-4"><p className="text-xs text-muted-foreground">Jami to'langan</p><p className="text-2xl font-bold mt-1">{formatCurrency(grandTotalPaid)}</p></CardContent></Card>
-          <Card><CardContent className="p-4"><p className="text-xs text-muted-foreground">Kutilmoqda</p><p className="text-2xl font-bold mt-1 text-[hsl(var(--status-pending))]">{formatCurrency(grandTotalPending)}</p></CardContent></Card>
-          <Card><CardContent className="p-4"><p className="text-xs text-muted-foreground">Ta'minotchilar soni</p><p className="text-2xl font-bold mt-1">{vendors.length}</p></CardContent></Card>
-        </div>
-
-        <div className="border rounded-lg">
-          {/* Header */}
-          <div className="flex items-center px-4 py-2 border-b bg-muted/30">
-            <div className="w-7 shrink-0" />
-            <div className="flex-1 grid grid-cols-7 gap-x-4">
-              <p className="text-xs text-muted-foreground col-span-2">Nomi</p>
-              <p className="text-xs text-muted-foreground">So'rovlar</p>
-              <p className="text-xs text-muted-foreground">Kontakt</p>
-              <p className="text-xs text-muted-foreground">Telefon</p>
-              <p className="text-xs text-muted-foreground text-right">Jami (T)</p>
-              <p className="text-xs text-muted-foreground text-right">Berilgan</p>
-            </div>
-            <p className="text-xs text-muted-foreground text-right w-[100px] shrink-0">Qarz</p>
-          </div>
-          <div className="divide-y">
-          {vendors.map(({ vendor, projects }) => (
-            <div
-              key={vendor.vendorId}
-              className="flex items-center px-4 py-3 cursor-pointer hover:bg-muted/30 transition-colors"
-              onClick={() => { setSelectedVendor(vendor.vendorId); setOpenRequests(new Set()); }}
-            >
-              <ChevronRight className="h-4 w-4 text-muted-foreground shrink-0 mr-3" />
-              <div className="flex-1 grid grid-cols-7 gap-x-4 items-center">
-                <h3 className="font-bold text-sm truncate col-span-2">{vendor.vendorName}</h3>
-                <span className="text-sm">{vendor.requests.length} ta</span>
-                <span className="text-sm truncate">{vendor.contactPerson}</span>
-                <span className="text-sm text-muted-foreground">{vendor.phone}</span>
-                <span className="text-sm font-medium text-right">{formatCurrency(vendor.totalPaid + vendor.totalPending)}</span>
-                <span className="text-sm text-right">{formatCurrency(vendor.totalPaid)}</span>
-              </div>
-              <span className="text-sm font-medium text-right w-[100px] shrink-0 text-[hsl(var(--status-pending))]">
-                {vendor.totalPending > 0 ? formatCurrency(vendor.totalPending) : '—'}
-              </span>
-            </div>
-          ))}
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  // Vendor detail view
-  const { vendor } = activeVendor;
+  const grandTotalBudget = data.reduce((s, p) => s + p.totalBudget, 0);
+  const grandTotalSpent = data.reduce((s, p) => s + p.totalSpent, 0);
+  const grandTotalPending = data.reduce((s, p) => s + p.vendors.reduce((vs, v) => vs + v.totalPending, 0), 0);
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center gap-3">
-        <Button variant="ghost" size="icon" onClick={() => setSelectedVendor(null)}>
-          <ArrowLeft className="h-5 w-5" />
-        </Button>
-        <div>
-          <h2 className="text-xl font-bold">{vendor.vendorName}</h2>
-          <p className="text-sm text-muted-foreground">{vendor.contactPerson} · {vendor.phone}</p>
-        </div>
+      <ProjectFilterRow selectedProject={selectedProject} onSelectProject={onSelectProject} />
+      {/* Summary Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <Card><CardContent className="p-4"><p className="text-xs text-muted-foreground">Total Budget</p><p className="text-2xl font-bold mt-1">{formatCurrency(grandTotalBudget)}</p></CardContent></Card>
+        <Card><CardContent className="p-4"><p className="text-xs text-muted-foreground">Total Spent</p><p className="text-2xl font-bold mt-1 text-primary">{formatCurrency(grandTotalSpent)}</p><p className="text-xs text-muted-foreground mt-1">{grandTotalBudget > 0 ? (grandTotalSpent / grandTotalBudget * 100).toFixed(1) : 0}% of budget</p></CardContent></Card>
+        <Card><CardContent className="p-4"><p className="text-xs text-muted-foreground">Pending Payments</p><p className="text-2xl font-bold mt-1 text-[hsl(var(--status-pending))]">{formatCurrency(grandTotalPending)}</p></CardContent></Card>
+        <Card><CardContent className="p-4"><p className="text-xs text-muted-foreground">Remaining Budget</p><p className="text-2xl font-bold mt-1 text-[hsl(var(--status-delivered))]">{formatCurrency(grandTotalBudget - grandTotalSpent)}</p></CardContent></Card>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <Card><CardContent className="p-4"><p className="text-xs text-muted-foreground">Jami to'langan</p><p className="text-2xl font-bold mt-1">{formatCurrency(vendor.totalPaid)}</p></CardContent></Card>
-        <Card><CardContent className="p-4"><p className="text-xs text-muted-foreground">Kutilmoqda</p><p className="text-2xl font-bold mt-1 text-[hsl(var(--status-pending))]">{formatCurrency(vendor.totalPending)}</p></CardContent></Card>
-        <Card><CardContent className="p-4"><p className="text-xs text-muted-foreground">Umumiy</p><p className="text-2xl font-bold mt-1 text-primary">{formatCurrency(vendor.totalPaid + vendor.totalPending)}</p></CardContent></Card>
-      </div>
+      {/* Per-Project Breakdown */}
+      <div className="space-y-3">
+        {data.map((project) => {
+          const isOpen = openProjects.has(project.projectId);
+          const spentPercent = project.totalSpent / project.totalBudget * 100;
+          const projectPending = project.vendors.reduce((s, v) => s + v.totalPending, 0);
 
-      {/* Requests list */}
-      <div className="border rounded-lg">
-        {vendor.requests.length === 0 ? (
-          <div className="p-8 text-center text-muted-foreground">So'rovlar mavjud emas</div>
-        ) : (
-          <>
-            {/* Single header row */}
-            <div className="flex items-center px-4 py-2 border-b bg-muted/30">
-              <div className="w-7 shrink-0" />
-              <div className="flex-1 grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-x-6 gap-y-1">
-                <p className="text-xs text-muted-foreground">Sana</p>
-                <p className="text-xs text-muted-foreground">Manba</p>
-                <p className="text-xs text-muted-foreground">Oluvchi</p>
-                <p className="text-xs text-muted-foreground">Ta'minlovchi</p>
-                <p className="text-xs text-muted-foreground">Jami</p>
-                <p className="text-xs text-muted-foreground">To'langan</p>
-                <p className="text-xs text-muted-foreground">Qoldiq</p>
-              </div>
-              <div className="w-9 shrink-0" />
-            </div>
-            <div className="divide-y">
-            {vendor.requests.map(request => {
-              const isOpen = openRequests.has(request.requestId);
-              return (
-                <Collapsible key={request.requestId} open={isOpen} onOpenChange={() => toggleRequest(request.requestId)}>
-                  <div className="flex items-center">
-                    <CollapsibleTrigger asChild>
-                      <button className="flex-1 text-left px-4 py-3 hover:bg-muted/30 transition-colors">
-                        <div className="flex items-center gap-3">
-                          {isOpen ? <ChevronDown className="h-4 w-4 text-muted-foreground shrink-0" /> : <ChevronRight className="h-4 w-4 text-muted-foreground shrink-0" />}
-                          <div className="flex-1 grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-x-6 gap-y-2">
-                            <p className="font-bold text-sm">{request.date}</p>
-                            <p className="font-bold text-sm">{request.source}</p>
-                            <p className="font-bold text-sm">{request.buyer}</p>
-                            <p className="font-bold text-sm">{request.supplier}</p>
-                            <p className="font-bold text-sm">{formatCurrency(request.totalAmount)}</p>
-                            <p className="font-bold text-sm">{formatCurrency(request.paidAmount)}</p>
-                            <p className="font-bold text-sm">{formatCurrency(request.remainingAmount)}</p>
+          return (
+            <Collapsible key={project.projectId} open={isOpen} onOpenChange={() => toggle(project.projectId)}>
+              <Card className="overflow-hidden">
+                <CollapsibleTrigger asChild>
+                  <button className="w-full text-left">
+                    <CardHeader className="p-4 pb-3 hover:bg-muted/30 transition-colors">
+                      <div className="flex items-center gap-3">
+                        <div className="w-3 h-3 rounded-full shrink-0" style={{ backgroundColor: project.projectColor }} />
+                        {isOpen ? <ChevronDown className="h-4 w-4 text-muted-foreground shrink-0" /> : <ChevronRight className="h-4 w-4 text-muted-foreground shrink-0" />}
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center justify-between gap-4">
+                            <CardTitle className="text-base truncate">{project.projectName}</CardTitle>
+                            <div className="flex items-center gap-4 shrink-0 text-sm">
+                              <span className="text-muted-foreground">{project.vendors.length} vendors</span>
+                              <span className="font-semibold">{formatCurrency(project.totalSpent)}</span>
+                              <span className="text-muted-foreground">/ {formatCurrency(project.totalBudget)}</span>
+                            </div>
+                          </div>
+                          <div className="mt-2 flex items-center gap-3">
+                            <Progress value={spentPercent} className="h-2 flex-1" />
+                            <span className="text-xs text-muted-foreground w-12 text-right">{spentPercent.toFixed(0)}%</span>
                           </div>
                         </div>
-                      </button>
-                    </CollapsibleTrigger>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="mr-2 shrink-0"
-                    onClick={(e) => { e.stopPropagation(); setPaymentDialogData(vendor.payments); }}
-                  >
-                    <Eye className="h-4 w-4 text-muted-foreground" />
-                  </Button>
-                </div>
+                      </div>
+                    </CardHeader>
+                  </button>
+                </CollapsibleTrigger>
                 <CollapsibleContent>
-                  <div className="p-0 pb-2 border-t">
+                  <CardContent className="p-0 pb-2">
                     <Table>
                       <TableHeader>
                         <TableRow className="hover:bg-transparent">
-                          <TableHead className="pl-10 w-12">№</TableHead>
-                          <TableHead>Kod</TableHead>
-                          <TableHead>Nomi</TableHead>
-                          <TableHead>Birlik</TableHead>
-                          <TableHead className="text-right">So'rov miqdori</TableHead>
-                          <TableHead className="text-right">Berilgan</TableHead>
-                          <TableHead className="text-right">Birlik narx</TableHead>
-                          <TableHead className="text-right">Umumiy narx</TableHead>
+                          <TableHead className="pl-12">Vendor</TableHead>
+                          <TableHead>Contact</TableHead>
+                          <TableHead className="text-right">Paid</TableHead>
+                          <TableHead className="text-right">Pending</TableHead>
+                          <TableHead className="text-right">Total</TableHead>
+                          <TableHead className="text-center">Invoices</TableHead>
                         </TableRow>
                       </TableHeader>
                       <TableBody>
-                        {request.items.map((item, idx) => (
-                          <TableRow key={idx} className="hover:bg-muted/30">
-                            <TableCell className="pl-10">{idx + 1}</TableCell>
-                            <TableCell className="font-mono text-xs">{item.code}</TableCell>
-                            <TableCell>{item.name}</TableCell>
-                            <TableCell>{item.unit}</TableCell>
-                            <TableCell className="text-right">{item.requestedQty.toLocaleString()}</TableCell>
-                            <TableCell className="text-right">{item.givenQty.toLocaleString()}</TableCell>
-                            <TableCell className="text-right">{item.unitPrice.toLocaleString()}</TableCell>
-                            <TableCell className="text-right font-semibold">{item.totalPrice.toLocaleString()}</TableCell>
+                        {project.vendors.map((vendor) =>
+                        <TableRow key={vendor.vendorId} className="hover:bg-muted/30">
+                            <TableCell className="pl-12 font-medium">{vendor.vendorName}</TableCell>
+                            <TableCell>
+                              <div className="flex flex-col gap-0.5">
+                                <span className="text-xs flex items-center gap-1"><User className="h-3 w-3" />{vendor.contactPerson}</span>
+                                <FolderOpen className="text-xs text-muted-foreground flex items-center gap-1"><Phone className="h-3 w-3" />{vendor.phone}</FolderOpen>
+                              </div>
+                            </TableCell>
+                            <TableCell className="text-right font-medium">{formatCurrency(vendor.totalPaid)}</TableCell>
+                            <TableCell className="text-right">
+                              {vendor.totalPending > 0 ?
+                            <Badge variant="outline" className="text-[hsl(var(--status-pending))] border-[hsl(var(--status-pending)/0.3)]">{formatCurrency(vendor.totalPending)}</Badge> :
+                            <span className="text-muted-foreground text-xs">—</span>}
+                            </TableCell>
+                            <TableCell className="text-right font-semibold">{formatCurrency(vendor.totalPaid + vendor.totalPending)}</TableCell>
+                            <TableCell className="text-center"><span className="text-xs flex items-center justify-center gap-1 text-muted-foreground"><FileText className="h-3 w-3" />{vendor.invoiceCount}</span></TableCell>
                           </TableRow>
-                        ))}
+                        )}
+                        <TableRow className="bg-muted/30 font-semibold hover:bg-muted/40">
+                          <TableCell colSpan={2} className="pl-12 text-sm">Project Total</TableCell>
+                          <TableCell className="text-right">{formatCurrency(project.totalSpent)}</TableCell>
+                          <TableCell className="text-right">{formatCurrency(projectPending)}</TableCell>
+                          <TableCell className="text-right">{formatCurrency(project.totalSpent + projectPending)}</TableCell>
+                          <TableCell className="text-center text-xs">{project.vendors.reduce((s, v) => s + v.invoiceCount, 0)}</TableCell>
+                        </TableRow>
                       </TableBody>
                     </Table>
-                  </div>
+                  </CardContent>
                 </CollapsibleContent>
-              </Collapsible>
-            );
-          })}
-            </div>
-          </>
-        )}
-      </div>
+              </Card>
+            </Collapsible>);
 
-      {/* Payment History Dialog */}
-      <Dialog open={!!paymentDialogData} onOpenChange={() => setPaymentDialogData(null)}>
-        <DialogContent className="max-w-lg">
-          <DialogHeader>
-            <DialogTitle>To'lovlar tarixi</DialogTitle>
-          </DialogHeader>
-          {paymentDialogData && paymentDialogData.length === 0 ? (
-            <p className="text-center text-muted-foreground py-4">To'lovlar mavjud emas</p>
-          ) : (
-            <div className="space-y-3 max-h-[60vh] overflow-y-auto">
-              {paymentDialogData?.sort((a, b) => b.date.localeCompare(a.date)).map((p, idx) => (
-                <div key={p.paymentId} className="flex items-start gap-3 p-3 rounded-md border">
-                  <div className="flex-1 space-y-1">
-                    <div className="flex items-center justify-between">
-                      <span className="text-xs text-muted-foreground">{p.date}</span>
-                      <span className="font-semibold text-sm">{formatCurrency(p.amount)}</span>
-                    </div>
-                    <p className="text-sm">{p.paidBy}</p>
-                    <p className="text-xs text-muted-foreground">{p.comment}</p>
-                    {p.fileName && (
-                      <Badge variant="outline" className="gap-1 text-xs mt-1">
-                        <FileText className="h-3 w-3" />
-                        {p.fileName}
-                      </Badge>
-                    )}
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
-        </DialogContent>
-      </Dialog>
-    </div>
-  );
+        })}
+      </div>
+    </div>);
+
 }
