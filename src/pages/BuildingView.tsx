@@ -1,6 +1,6 @@
 import { useState, useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { Plus, FolderPlus, CalendarIcon, ClipboardList, Package, Users } from 'lucide-react';
+import { Plus, FolderPlus, CalendarIcon, ClipboardList, Package, Users, DollarSign, TrendingUp, TrendingDown, Wallet } from 'lucide-react';
 import { format } from 'date-fns';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -188,36 +188,60 @@ const BuildingView = () => {
           </div>
         </Card>
 
-        {/* Stats Overview */}
-        <div className="grid grid-cols-3 gap-4 mb-6">
-          <Card className="p-4 flex items-center gap-3">
-            <div className="p-2 rounded-lg bg-primary/10">
-              <ClipboardList className="h-5 w-5 text-primary" />
+        {/* Dashboard Stats */}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
+          <Card className="p-4">
+            <div className="flex items-center gap-2 mb-2">
+              <div className="p-1.5 rounded-md bg-primary/10">
+                <ClipboardList className="h-4 w-4 text-primary" />
+              </div>
+              <p className="text-xs text-muted-foreground">Ishlar summasi</p>
             </div>
-            <div>
-              <p className="text-xs text-muted-foreground">Ishlar</p>
-              <p className="text-lg font-bold">{taskStats.totalTasks}</p>
-              <p className="text-xs text-muted-foreground">{taskStats.totalSubResources} resurs · ${taskStats.totalTaskBudget.toLocaleString()}</p>
-            </div>
+            <p className="text-xl font-bold">${taskStats.totalTaskBudget.toLocaleString()}</p>
+            <p className="text-xs text-muted-foreground mt-1">{taskStats.totalTasks} ish · {taskStats.totalSubResources} resurs</p>
           </Card>
-          <Card className="p-4 flex items-center gap-3">
-            <div className="p-2 rounded-lg bg-amber-500/10">
-              <Package className="h-5 w-5 text-amber-600" />
+
+          <Card className="p-4">
+            <div className="flex items-center gap-2 mb-2">
+              <div className="p-1.5 rounded-md bg-green-500/10">
+                <TrendingUp className="h-4 w-4 text-green-600" />
+              </div>
+              <p className="text-xs text-muted-foreground">Olingan pullar</p>
             </div>
-            <div>
-              <p className="text-xs text-muted-foreground">Resurslar</p>
-              <p className="text-lg font-bold">{taskStats.totalSubResources}</p>
-              <p className="text-xs text-muted-foreground">{buildingTasks.length} ishda ishlatilmoqda</p>
-            </div>
+            <p className="text-xl font-bold text-green-600">${building.usedMoney.toLocaleString()}</p>
+            <p className="text-xs text-muted-foreground mt-1">{completePercentage.toFixed(0)}% byudjetdan</p>
           </Card>
-          <Card className="p-4 flex items-center gap-3">
-            <div className="p-2 rounded-lg bg-green-500/10">
-              <Users className="h-5 w-5 text-green-600" />
+
+          <Card className="p-4">
+            <div className="flex items-center gap-2 mb-2">
+              <div className="p-1.5 rounded-md bg-amber-500/10">
+                <Wallet className="h-4 w-4 text-amber-600" />
+              </div>
+              <p className="text-xs text-muted-foreground">Beriladigan pullar</p>
             </div>
-            <div>
-              <p className="text-xs text-muted-foreground">Kontragentlar</p>
-              <p className="text-lg font-bold">{vendorStats.count}</p>
-              <p className="text-xs text-muted-foreground">${vendorStats.totalPaid.toLocaleString()} to'langan · ${vendorStats.totalPending.toLocaleString()} qarz</p>
+            <p className="text-xl font-bold text-amber-600">${(building.pendingMoney || 0).toLocaleString()}</p>
+            <p className="text-xs text-muted-foreground mt-1">{vendorStats.count} kontragentga</p>
+          </Card>
+
+          <Card className="p-4">
+            <div className="flex items-center gap-2 mb-2">
+              <div className="p-1.5 rounded-md" style={{ backgroundColor: leftMoney >= 0 ? 'hsl(var(--primary) / 0.1)' : 'hsl(var(--destructive) / 0.1)' }}>
+                <DollarSign className={`h-4 w-4 ${leftMoney >= 0 ? 'text-primary' : 'text-destructive'}`} />
+              </div>
+              <p className="text-xs text-muted-foreground">Qolgan pullar</p>
+            </div>
+            <p className={`text-xl font-bold ${leftMoney >= 0 ? 'text-primary' : 'text-destructive'}`}>${leftMoney.toLocaleString()}</p>
+            <div className="flex items-center gap-2 mt-1">
+              <Progress 
+                value={Math.min(completePercentage, 100)} 
+                className="h-1.5 flex-1"
+                indicatorClassName={
+                  completePercentage >= 90 ? 'bg-green-500' : 
+                  completePercentage >= 20 ? 'bg-amber-500' : 
+                  'bg-red-500'
+                }
+              />
+              <span className="text-[10px] text-muted-foreground">{completePercentage.toFixed(0)}%</span>
             </div>
           </Card>
         </div>
