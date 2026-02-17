@@ -11,13 +11,22 @@ export interface RequestItem {
 export interface VendorRequest {
   requestId: string;
   date: string;
-  source: string;       // Manba
-  buyer: string;         // Oluvchi
-  supplier: string;      // Ta'minlovchi
-  totalAmount: number;   // Jami
-  paidAmount: number;    // To'langan
-  remainingAmount: number; // Qoldiq
+  source: string;
+  buyer: string;
+  supplier: string;
+  totalAmount: number;
+  paidAmount: number;
+  remainingAmount: number;
   items: RequestItem[];
+}
+
+export interface VendorPayment {
+  paymentId: string;
+  date: string;
+  paidBy: string;
+  amount: number;
+  comment: string;
+  fileName?: string;
 }
 
 export interface VendorExpense {
@@ -29,6 +38,7 @@ export interface VendorExpense {
   totalPending: number;
   invoiceCount: number;
   requests: VendorRequest[];
+  payments: VendorPayment[];
 }
 
 export interface ProjectVendorExpense {
@@ -75,61 +85,54 @@ export const MOCK_PROJECT_VENDOR_EXPENSES: ProjectVendorExpense[] = [
         vendorId: 'v1', vendorName: 'ABC Building Supplies', contactPerson: 'James Wilson', phone: '+1 555-0101',
         totalPaid: 580_000, totalPending: 45_000, invoiceCount: 23,
         requests: [
-          {
-            requestId: 'r1', date: '2026-02-06', source: 'Sunrise Tower', buyer: 'James Wilson', supplier: 'James Wilson',
-            totalAmount: 11_385_000, paidAmount: 11_385_000, remainingAmount: 0,
-            items: [
-              { code: 'M-Minva-001', name: 'Minvata', unit: 'Pochka', requestedQty: 1046, givenQty: 1046, unitPrice: 1, totalPrice: 1046 },
-              { code: 'M-Serp-10', name: 'Setka serepyanka', unit: 'dona', requestedQty: 300, givenQty: 300, unitPrice: 1, totalPrice: 300 },
-            ],
-          },
-          {
-            requestId: 'r2', date: '2025-12-29', source: 'Sunrise Tower', buyer: 'James Wilson', supplier: 'James Wilson',
-            totalAmount: 72_000_000, paidAmount: 0, remainingAmount: 72_000_000,
-            items: [
-              { code: 'CON-30', name: 'Beton C30', unit: 'm³', requestedQty: 120, givenQty: 120, unitPrice: 600_000, totalPrice: 72_000_000 },
-            ],
-          },
+          { requestId: 'r1', date: '2026-02-06', source: 'Sunrise Tower', buyer: 'James Wilson', supplier: 'James Wilson', totalAmount: 11_385_000, paidAmount: 11_385_000, remainingAmount: 0, items: [
+            { code: 'M-Minva-001', name: 'Minvata', unit: 'Pochka', requestedQty: 1046, givenQty: 1046, unitPrice: 1, totalPrice: 1046 },
+            { code: 'M-Serp-10', name: 'Setka serepyanka', unit: 'dona', requestedQty: 300, givenQty: 300, unitPrice: 1, totalPrice: 300 },
+          ]},
+          { requestId: 'r2', date: '2025-12-29', source: 'Sunrise Tower', buyer: 'James Wilson', supplier: 'James Wilson', totalAmount: 72_000_000, paidAmount: 0, remainingAmount: 72_000_000, items: [
+            { code: 'CON-30', name: 'Beton C30', unit: 'm³', requestedQty: 120, givenQty: 120, unitPrice: 600_000, totalPrice: 72_000_000 },
+          ]},
+        ],
+        payments: [
+          { paymentId: 'pay1', date: '2026-02-07', paidBy: 'Alisher Karimov', amount: 300_000, comment: 'Minvata uchun birinchi to\'lov', fileName: 'kvitansiya_001.pdf' },
+          { paymentId: 'pay2', date: '2026-02-10', paidBy: 'Alisher Karimov', amount: 280_000, comment: 'Qoldiq to\'lov' },
         ],
       },
       {
         vendorId: 'v3', vendorName: 'FastTrack Materials Co.', contactPerson: 'Mike Johnson', phone: '+1 555-0103',
         totalPaid: 320_000, totalPending: 0, invoiceCount: 14,
         requests: [
-          {
-            requestId: 'r3', date: '2026-01-15', source: 'Sunrise Tower', buyer: 'Mike Johnson', supplier: 'Mike Johnson',
-            totalAmount: 16_000, paidAmount: 16_000, remainingAmount: 0,
-            items: [
-              { code: 'CEM-01', name: 'Sement Portland', unit: 'ton', requestedQty: 8, givenQty: 8, unitPrice: 2_000, totalPrice: 16_000 },
-            ],
-          },
+          { requestId: 'r3', date: '2026-01-15', source: 'Sunrise Tower', buyer: 'Mike Johnson', supplier: 'Mike Johnson', totalAmount: 16_000, paidAmount: 16_000, remainingAmount: 0, items: [
+            { code: 'CEM-01', name: 'Sement Portland', unit: 'ton', requestedQty: 8, givenQty: 8, unitPrice: 2_000, totalPrice: 16_000 },
+          ]},
+        ],
+        payments: [
+          { paymentId: 'pay3', date: '2026-01-16', paidBy: 'Bobur Toshmatov', amount: 320_000, comment: 'To\'liq to\'lov', fileName: 'chek_fasttrack.pdf' },
         ],
       },
       {
         vendorId: 'v5', vendorName: 'BuildRight Contractors', contactPerson: 'David Lee', phone: '+1 555-0105',
         totalPaid: 410_000, totalPending: 85_000, invoiceCount: 18,
         requests: [
-          {
-            requestId: 'r4', date: '2026-02-04', source: 'Sunrise Tower', buyer: 'David Lee', supplier: 'David Lee',
-            totalAmount: 60_107_136, paidAmount: 60_107_136, remainingAmount: 0,
-            items: [
-              { code: 'BRK-01', name: "G'isht standart", unit: 'dona', requestedQty: 5000, givenQty: 5000, unitPrice: 12_000, totalPrice: 60_000_000 },
-              { code: 'SND-01', name: "Qum (mayda)", unit: 'm³', requestedQty: 10, givenQty: 10, unitPrice: 10_714, totalPrice: 107_136 },
-            ],
-          },
+          { requestId: 'r4', date: '2026-02-04', source: 'Sunrise Tower', buyer: 'David Lee', supplier: 'David Lee', totalAmount: 60_107_136, paidAmount: 60_107_136, remainingAmount: 0, items: [
+            { code: 'BRK-01', name: "G'isht standart", unit: 'dona', requestedQty: 5000, givenQty: 5000, unitPrice: 12_000, totalPrice: 60_000_000 },
+            { code: 'SND-01', name: "Qum (mayda)", unit: 'm³', requestedQty: 10, givenQty: 10, unitPrice: 10_714, totalPrice: 107_136 },
+          ]},
+        ],
+        payments: [
+          { paymentId: 'pay4', date: '2026-02-05', paidBy: 'Alisher Karimov', amount: 410_000, comment: "G'isht uchun to'lov" },
         ],
       },
       {
         vendorId: 'v2', vendorName: 'Metro Equipment Rentals', contactPerson: 'Sarah Chen', phone: '+1 555-0102',
         totalPaid: 110_000, totalPending: 25_000, invoiceCount: 8,
         requests: [
-          {
-            requestId: 'r5', date: '2025-12-20', source: 'Sunrise Tower', buyer: 'Sarah Chen', supplier: 'Sarah Chen',
-            totalAmount: 21_829_840, paidAmount: 21_829_840, remainingAmount: 0,
-            items: [
-              { code: 'EQ-01', name: 'Kran ijarasi', unit: 'kun', requestedQty: 30, givenQty: 30, unitPrice: 727_661, totalPrice: 21_829_840 },
-            ],
-          },
+          { requestId: 'r5', date: '2025-12-20', source: 'Sunrise Tower', buyer: 'Sarah Chen', supplier: 'Sarah Chen', totalAmount: 21_829_840, paidAmount: 21_829_840, remainingAmount: 0, items: [
+            { code: 'EQ-01', name: 'Kran ijarasi', unit: 'kun', requestedQty: 30, givenQty: 30, unitPrice: 727_661, totalPrice: 21_829_840 },
+          ]},
+        ],
+        payments: [
+          { paymentId: 'pay5', date: '2025-12-22', paidBy: 'Bobur Toshmatov', amount: 110_000, comment: 'Kran ijarasi uchun', fileName: 'metro_receipt.pdf' },
         ],
       },
     ],
@@ -145,39 +148,37 @@ export const MOCK_PROJECT_VENDOR_EXPENSES: ProjectVendorExpense[] = [
         vendorId: 'v1', vendorName: 'ABC Building Supplies', contactPerson: 'James Wilson', phone: '+1 555-0101',
         totalPaid: 420_000, totalPending: 30_000, invoiceCount: 16,
         requests: [
-          {
-            requestId: 'r6', date: '2026-01-20', source: 'Green Valley', buyer: 'James Wilson', supplier: 'James Wilson',
-            totalAmount: 420_000, paidAmount: 420_000, remainingAmount: 0,
-            items: [
-              { code: 'PLY-18', name: 'Fanera 18mm', unit: 'dona', requestedQty: 200, givenQty: 200, unitPrice: 2_100, totalPrice: 420_000 },
-            ],
-          },
+          { requestId: 'r6', date: '2026-01-20', source: 'Green Valley', buyer: 'James Wilson', supplier: 'James Wilson', totalAmount: 420_000, paidAmount: 420_000, remainingAmount: 0, items: [
+            { code: 'PLY-18', name: 'Fanera 18mm', unit: 'dona', requestedQty: 200, givenQty: 200, unitPrice: 2_100, totalPrice: 420_000 },
+          ]},
+        ],
+        payments: [
+          { paymentId: 'pay6', date: '2026-01-21', paidBy: 'Alisher Karimov', amount: 420_000, comment: 'Fanera uchun to\'liq to\'lov' },
         ],
       },
       {
         vendorId: 'v4', vendorName: 'Premier Construction Services', contactPerson: 'Emily Brown', phone: '+1 555-0104',
         totalPaid: 290_000, totalPending: 60_000, invoiceCount: 11,
         requests: [
-          {
-            requestId: 'r7', date: '2026-02-01', source: 'Green Valley', buyer: 'Emily Brown', supplier: 'Emily Brown',
-            totalAmount: 290_000, paidAmount: 290_000, remainingAmount: 0,
-            items: [
-              { code: 'SRV-01', name: 'Suvoq ishlari', unit: 'm²', requestedQty: 500, givenQty: 500, unitPrice: 580, totalPrice: 290_000 },
-            ],
-          },
+          { requestId: 'r7', date: '2026-02-01', source: 'Green Valley', buyer: 'Emily Brown', supplier: 'Emily Brown', totalAmount: 290_000, paidAmount: 290_000, remainingAmount: 0, items: [
+            { code: 'SRV-01', name: 'Suvoq ishlari', unit: 'm²', requestedQty: 500, givenQty: 500, unitPrice: 580, totalPrice: 290_000 },
+          ]},
+        ],
+        payments: [
+          { paymentId: 'pay7', date: '2026-02-02', paidBy: 'Bobur Toshmatov', amount: 200_000, comment: 'Avans to\'lov' },
+          { paymentId: 'pay8', date: '2026-02-08', paidBy: 'Bobur Toshmatov', amount: 90_000, comment: 'Qoldiq to\'lov', fileName: 'premier_receipt.pdf' },
         ],
       },
       {
         vendorId: 'v3', vendorName: 'FastTrack Materials Co.', contactPerson: 'Mike Johnson', phone: '+1 555-0103',
         totalPaid: 180_000, totalPending: 15_000, invoiceCount: 9,
         requests: [
-          {
-            requestId: 'r8', date: '2026-01-10', source: 'Green Valley', buyer: 'Mike Johnson', supplier: 'Mike Johnson',
-            totalAmount: 180_000, paidAmount: 180_000, remainingAmount: 0,
-            items: [
-              { code: 'CEM-01', name: 'Sement Portland', unit: 'ton', requestedQty: 60, givenQty: 60, unitPrice: 3_000, totalPrice: 180_000 },
-            ],
-          },
+          { requestId: 'r8', date: '2026-01-10', source: 'Green Valley', buyer: 'Mike Johnson', supplier: 'Mike Johnson', totalAmount: 180_000, paidAmount: 180_000, remainingAmount: 0, items: [
+            { code: 'CEM-01', name: 'Sement Portland', unit: 'ton', requestedQty: 60, givenQty: 60, unitPrice: 3_000, totalPrice: 180_000 },
+          ]},
+        ],
+        payments: [
+          { paymentId: 'pay9', date: '2026-01-12', paidBy: 'Alisher Karimov', amount: 180_000, comment: 'Sement uchun to\'lov' },
         ],
       },
     ],
@@ -193,35 +194,19 @@ export const MOCK_PROJECT_VENDOR_EXPENSES: ProjectVendorExpense[] = [
         vendorId: 'v5', vendorName: 'BuildRight Contractors', contactPerson: 'David Lee', phone: '+1 555-0105',
         totalPaid: 780_000, totalPending: 120_000, invoiceCount: 28,
         requests: [
-          {
-            requestId: 'r9', date: '2026-02-10', source: 'Metro Business Park', buyer: 'David Lee', supplier: 'David Lee',
-            totalAmount: 780_000, paidAmount: 780_000, remainingAmount: 0,
-            items: [
-              { code: 'BRK-01', name: "G'isht standart", unit: 'dona', requestedQty: 10000, givenQty: 10000, unitPrice: 78, totalPrice: 780_000 },
-            ],
-          },
+          { requestId: 'r9', date: '2026-02-10', source: 'Metro Business Park', buyer: 'David Lee', supplier: 'David Lee', totalAmount: 780_000, paidAmount: 780_000, remainingAmount: 0, items: [
+            { code: 'BRK-01', name: "G'isht standart", unit: 'dona', requestedQty: 10000, givenQty: 10000, unitPrice: 78, totalPrice: 780_000 },
+          ]},
+        ],
+        payments: [
+          { paymentId: 'pay10', date: '2026-02-11', paidBy: 'Alisher Karimov', amount: 500_000, comment: "G'isht uchun avans" },
+          { paymentId: 'pay11', date: '2026-02-14', paidBy: 'Alisher Karimov', amount: 280_000, comment: 'Qoldiq to\'lov', fileName: 'buildright_chek.pdf' },
         ],
       },
-      {
-        vendorId: 'v1', vendorName: 'ABC Building Supplies', contactPerson: 'James Wilson', phone: '+1 555-0101',
-        totalPaid: 650_000, totalPending: 55_000, invoiceCount: 22,
-        requests: [],
-      },
-      {
-        vendorId: 'v2', vendorName: 'Metro Equipment Rentals', contactPerson: 'Sarah Chen', phone: '+1 555-0102',
-        totalPaid: 380_000, totalPending: 40_000, invoiceCount: 15,
-        requests: [],
-      },
-      {
-        vendorId: 'v4', vendorName: 'Premier Construction Services', contactPerson: 'Emily Brown', phone: '+1 555-0104',
-        totalPaid: 220_000, totalPending: 0, invoiceCount: 7,
-        requests: [],
-      },
-      {
-        vendorId: 'v6', vendorName: 'SteelForge Industries', contactPerson: 'Ahmad Reza', phone: '+1 555-0106',
-        totalPaid: 120_000, totalPending: 95_000, invoiceCount: 5,
-        requests: [],
-      },
+      { vendorId: 'v1', vendorName: 'ABC Building Supplies', contactPerson: 'James Wilson', phone: '+1 555-0101', totalPaid: 650_000, totalPending: 55_000, invoiceCount: 22, requests: [], payments: [] },
+      { vendorId: 'v2', vendorName: 'Metro Equipment Rentals', contactPerson: 'Sarah Chen', phone: '+1 555-0102', totalPaid: 380_000, totalPending: 40_000, invoiceCount: 15, requests: [], payments: [] },
+      { vendorId: 'v4', vendorName: 'Premier Construction Services', contactPerson: 'Emily Brown', phone: '+1 555-0104', totalPaid: 220_000, totalPending: 0, invoiceCount: 7, requests: [], payments: [] },
+      { vendorId: 'v6', vendorName: 'SteelForge Industries', contactPerson: 'Ahmad Reza', phone: '+1 555-0106', totalPaid: 120_000, totalPending: 95_000, invoiceCount: 5, requests: [], payments: [] },
     ],
   },
   {
@@ -231,21 +216,9 @@ export const MOCK_PROJECT_VENDOR_EXPENSES: ProjectVendorExpense[] = [
     totalBudget: 3_100_000,
     totalSpent: 640_000,
     vendors: [
-      {
-        vendorId: 'v6', vendorName: 'SteelForge Industries', contactPerson: 'Ahmad Reza', phone: '+1 555-0106',
-        totalPaid: 310_000, totalPending: 180_000, invoiceCount: 10,
-        requests: [],
-      },
-      {
-        vendorId: 'v2', vendorName: 'Metro Equipment Rentals', contactPerson: 'Sarah Chen', phone: '+1 555-0102',
-        totalPaid: 190_000, totalPending: 35_000, invoiceCount: 6,
-        requests: [],
-      },
-      {
-        vendorId: 'v3', vendorName: 'FastTrack Materials Co.', contactPerson: 'Mike Johnson', phone: '+1 555-0103',
-        totalPaid: 140_000, totalPending: 20_000, invoiceCount: 5,
-        requests: [],
-      },
+      { vendorId: 'v6', vendorName: 'SteelForge Industries', contactPerson: 'Ahmad Reza', phone: '+1 555-0106', totalPaid: 310_000, totalPending: 180_000, invoiceCount: 10, requests: [], payments: [] },
+      { vendorId: 'v2', vendorName: 'Metro Equipment Rentals', contactPerson: 'Sarah Chen', phone: '+1 555-0102', totalPaid: 190_000, totalPending: 35_000, invoiceCount: 6, requests: [], payments: [] },
+      { vendorId: 'v3', vendorName: 'FastTrack Materials Co.', contactPerson: 'Mike Johnson', phone: '+1 555-0103', totalPaid: 140_000, totalPending: 20_000, invoiceCount: 5, requests: [], payments: [] },
     ],
   },
 ];
