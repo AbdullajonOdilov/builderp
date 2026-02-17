@@ -1,6 +1,6 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { Plus, FolderPlus, CalendarIcon } from 'lucide-react';
+import { Plus, FolderPlus, CalendarIcon, ClipboardList, Package, Users } from 'lucide-react';
 import { format } from 'date-fns';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -14,7 +14,9 @@ import { DocumentCard } from '@/components/buildings/DocumentCard';
 import { DocumentUpload } from '@/components/buildings/DocumentUpload';
 import { BuildingBreadcrumbs } from '@/components/buildings/BuildingBreadcrumbs';
 import { useBuildings } from '@/hooks/useBuildings';
+import { useTasks } from '@/hooks/useTasks';
 import { BuildingDocument } from '@/types/building';
+import { MOCK_PROJECT_VENDOR_EXPENSES } from '@/types/finance';
 import { cn } from '@/lib/utils';
 import {
   Dialog,
@@ -39,6 +41,7 @@ const BuildingView = () => {
   const { buildingId } = useParams();
   const navigate = useNavigate();
   const { getBuilding, addSection, deleteSection, addDocumentToBuilding, updateBuilding } = useBuildings();
+  const { tasks } = useTasks();
   
   const [showNewSection, setShowNewSection] = useState(false);
   const [newSectionName, setNewSectionName] = useState('');
@@ -48,6 +51,22 @@ const BuildingView = () => {
   const [deleteSectionId, setDeleteSectionId] = useState<string | null>(null);
 
   const building = getBuilding(buildingId || '');
+
+  const buildingTasks = useMemo(() => tasks.filter(t => t.buildingId === (building?.id || '')), [tasks, building?.id]);
+  const taskStats = useMemo(() => {
+    const totalTasks = buildingTasks.length;
+    const totalSubResources = buildingTasks.reduce((sum, t) => sum + t.subResources.length, 0);
+    const totalTaskBudget = buildingTasks.reduce((sum, t) => t.subResources.reduce((s, sr) => s + sr.totalPrice, sum), 0);
+    return { totalTasks, totalSubResources, totalTaskBudget };
+  }, [buildingTasks]);
+
+  const vendorStats = useMemo(() => {
+    const allVendors = MOCK_PROJECT_VENDOR_EXPENSES.flatMap(p => p.vendors);
+    const uniqueVendors = new Set(allVendors.map(v => v.vendorId));
+    const totalPaid = allVendors.reduce((s, v) => s + v.totalPaid, 0);
+    const totalPending = allVendors.reduce((s, v) => s + v.totalPending, 0);
+    return { count: uniqueVendors.size, totalPaid, totalPending };
+  }, []);
 
   if (!building) {
     return (
@@ -168,6 +187,40 @@ const BuildingView = () => {
             </div>
           </div>
         </Card>
+
+        {/* Stats Overview */}
+        <div className="grid grid-cols-3 gap-4 mb-6">
+          <Card className="p-4 flex items-center gap-3">
+            <div className="p-2 rounded-lg bg-primary/10">
+              <ClipboardList className="h-5 w-5 text-primary" />
+            </div>
+            <div>
+              <p className="text-xs text-muted-foreground">Ishlar</p>
+              <p className="text-lg font-bold">{taskStats.totalTasks}</p>
+              <p className="text-xs text-muted-foreground">{taskStats.totalSubResources} resurs · ${taskStats.totalTaskBudget.toLocaleString()}</p>
+            </div>
+          </Card>
+          <Card className="p-4 flex items-center gap-3">
+            <div className="p-2 rounded-lg bg-amber-500/10">
+              <Package className="h-5 w-5 text-amber-600" />
+            </div>
+            <div>
+              <p className="text-xs text-muted-foreground">Resurslar</p>
+              <p className="text-lg font-bold">{taskStats.totalSubResources}</p>
+              <p className="text-xs text-muted-foreground">{buildingTasks.length} ishda ishlatilmoqda</p>
+            </div>
+          </Card>
+          <Card className="p-4 flex items-center gap-3">
+            <div className="p-2 rounded-lg bg-green-500/10">
+              <Users className="h-5 w-5 text-green-600" />
+            </div>
+            <div>
+              <p className="text-xs text-muted-foreground">Kontragentlar</p>
+              <p className="text-lg font-bold">{vendorStats.count}</p>
+              <p className="text-xs text-muted-foreground">${vendorStats.totalPaid.toLocaleString()} to'langan · ${vendorStats.totalPending.toLocaleString()} qarz</p>
+            </div>
+          </Card>
+        </div>
 
         {/* Sections */}
         <div className="mb-8">
