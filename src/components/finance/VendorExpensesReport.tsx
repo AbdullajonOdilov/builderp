@@ -76,46 +76,29 @@ export function VendorExpensesReport({ data, selectedProject, onSelectProject }:
           <Card><CardContent className="p-4"><p className="text-xs text-muted-foreground">Ta'minotchilar soni</p><p className="text-2xl font-bold mt-1">{vendors.length}</p></CardContent></Card>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div className="space-y-1">
           {vendors.map(({ vendor, projects }) => (
             <Card
               key={vendor.vendorId}
               className="cursor-pointer hover:bg-muted/30 transition-colors group"
               onClick={() => { setSelectedVendor(vendor.vendorId); setOpenRequests(new Set()); }}
             >
-              <CardContent className="p-5">
-                <div className="flex items-start gap-3">
-                  <div className="mt-0.5">
-                    <Folder className="h-8 w-8 text-primary group-hover:hidden" />
-                    <FolderOpen className="h-8 w-8 text-primary hidden group-hover:block" />
-                  </div>
+              <CardContent className="px-4 py-3">
+                <div className="flex items-center gap-3">
+                  <Folder className="h-5 w-5 text-primary shrink-0 group-hover:hidden" />
+                  <FolderOpen className="h-5 w-5 text-primary shrink-0 hidden group-hover:block" />
                   <div className="flex-1 min-w-0">
-                    <h3 className="font-semibold text-base truncate">{vendor.vendorName}</h3>
-                    <div className="flex items-center gap-1 mt-1 text-xs text-muted-foreground">
-                      <User className="h-3 w-3" />
-                      <span>{vendor.contactPerson}</span>
+                    <div className="flex items-center gap-2">
+                      <h3 className="font-semibold text-sm truncate">{vendor.vendorName}</h3>
+                      <span className="text-xs text-muted-foreground shrink-0">({vendor.requests.length})</span>
                     </div>
-                    <div className="flex items-center gap-1 text-xs text-muted-foreground">
-                      <Phone className="h-3 w-3" />
-                      <span>{vendor.phone}</span>
-                    </div>
-                    <div className="mt-3 flex items-center justify-between text-sm">
-                      <span className="text-muted-foreground">To'langan:</span>
-                      <span className="font-semibold">{formatCurrency(vendor.totalPaid)}</span>
-                    </div>
+                  </div>
+                  <div className="flex items-center gap-4 text-xs shrink-0">
+                    <span className="font-medium">{formatCurrency(vendor.totalPaid)}</span>
                     {vendor.totalPending > 0 && (
-                      <div className="flex items-center justify-between text-sm">
-                        <span className="text-muted-foreground">Kutilmoqda:</span>
-                        <Badge variant="outline" className="text-[hsl(var(--status-pending))] border-[hsl(var(--status-pending)/0.3)]">
-                          {formatCurrency(vendor.totalPending)}
-                        </Badge>
-                      </div>
+                      <span className="text-[hsl(var(--status-pending))]">{formatCurrency(vendor.totalPending)}</span>
                     )}
-                    <div className="flex items-center justify-between text-sm mt-1 pt-1 border-t border-border/50">
-                      <span className="text-muted-foreground font-medium">Umumiy:</span>
-                      <span className="font-bold text-primary">{formatCurrency(vendor.totalPaid + vendor.totalPending)}</span>
-                    </div>
-                    <p className="text-xs text-muted-foreground mt-2">{vendor.requests.length} ta so'rov · {vendor.payments.length} ta to'lov</p>
+                    <span className="font-bold text-primary">{formatCurrency(vendor.totalPaid + vendor.totalPending)}</span>
                   </div>
                 </div>
               </CardContent>
