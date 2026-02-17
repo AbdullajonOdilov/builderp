@@ -112,6 +112,10 @@ export function VendorExpensesReport({ data, selectedProject, onSelectProject }:
                         </Badge>
                       </div>
                     )}
+                    <div className="flex items-center justify-between text-sm mt-1 pt-1 border-t border-border/50">
+                      <span className="text-muted-foreground font-medium">Umumiy:</span>
+                      <span className="font-bold text-primary">{formatCurrency(vendor.totalPaid + vendor.totalPending)}</span>
+                    </div>
                     <p className="text-xs text-muted-foreground mt-2">{vendor.requests.length} ta so'rov · {vendor.invoiceCount} ta hisob-faktura</p>
                   </div>
                 </div>
