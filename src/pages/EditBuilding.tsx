@@ -69,6 +69,7 @@ const EditBuilding = () => {
       expectedEndDate: expectedEndDate ? new Date(expectedEndDate) : new Date(),
       totalPrice: parseFloat(totalPrice) || 0,
       usedMoney: parseFloat(usedMoney) || 0,
+      pendingMoney: building.pendingMoney || 0,
       documents,
     });
 
