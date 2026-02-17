@@ -1,5 +1,5 @@
 import { useState, useMemo } from 'react';
-import { ChevronDown, ChevronRight, ArrowLeft, Eye, FileText } from 'lucide-react';
+import { ChevronDown, ChevronRight, ArrowLeft, Eye, FileText, Folder } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
@@ -98,7 +98,7 @@ export function VendorExpensesReport({ data, selectedProject, onSelectProject }:
               className="flex items-center px-4 py-3 cursor-pointer hover:bg-muted/30 transition-colors"
               onClick={() => { setSelectedVendor(vendor.vendorId); setOpenRequests(new Set()); }}
             >
-              <ChevronRight className="h-4 w-4 text-muted-foreground shrink-0 mr-3" />
+              <Folder className="h-5 w-5 text-blue-500 shrink-0 mr-3 fill-blue-500/20" />
               <div className="flex-1 grid grid-cols-7 gap-x-4 items-center">
                 <h3 className="font-bold text-sm truncate col-span-2">{vendor.vendorName}</h3>
                 <span className="text-sm">{vendor.requests.length} ta</span>
