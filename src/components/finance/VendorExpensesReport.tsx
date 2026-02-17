@@ -77,6 +77,16 @@ export function VendorExpensesReport({ data, selectedProject, onSelectProject }:
           <Card><CardContent className="p-4"><p className="text-xs text-muted-foreground">Ta'minotchilar soni</p><p className="text-2xl font-bold mt-1">{vendors.length}</p></CardContent></Card>
         </div>
 
+        {/* Column labels */}
+        <div className="flex items-center gap-3 px-4 py-2 text-xs text-muted-foreground">
+          <div className="w-5 shrink-0" />
+          <div className="flex-1">Nomi</div>
+          <div className="flex items-center gap-4 shrink-0">
+            <span className="w-[100px] text-right">To'langan</span>
+            <span className="w-[100px] text-right">Kutilmoqda</span>
+            <span className="w-[100px] text-right font-medium">Umumiy</span>
+          </div>
+        </div>
         <div className="space-y-1">
           {vendors.map(({ vendor, projects }) => (
             <Card
@@ -95,11 +105,11 @@ export function VendorExpensesReport({ data, selectedProject, onSelectProject }:
                     </div>
                   </div>
                   <div className="flex items-center gap-4 text-xs shrink-0">
-                    <span className="font-medium">{formatCurrency(vendor.totalPaid)}</span>
-                    {vendor.totalPending > 0 && (
-                      <span className="text-[hsl(var(--status-pending))]">{formatCurrency(vendor.totalPending)}</span>
-                    )}
-                    <span className="font-bold text-primary">{formatCurrency(vendor.totalPaid + vendor.totalPending)}</span>
+                    <span className="w-[100px] text-right font-medium">{formatCurrency(vendor.totalPaid)}</span>
+                    <span className="w-[100px] text-right text-[hsl(var(--status-pending))]">
+                      {vendor.totalPending > 0 ? formatCurrency(vendor.totalPending) : '—'}
+                    </span>
+                    <span className="w-[100px] text-right font-bold text-primary">{formatCurrency(vendor.totalPaid + vendor.totalPending)}</span>
                   </div>
                 </div>
               </CardContent>
