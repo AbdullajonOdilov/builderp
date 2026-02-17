@@ -1,6 +1,6 @@
 import { useState, useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { Plus, FolderPlus, CalendarIcon, ClipboardList, Package, Users, DollarSign, TrendingUp, TrendingDown, Wallet } from 'lucide-react';
+import { Plus, FolderPlus, CalendarIcon, ClipboardList, Package, Users, DollarSign, TrendingUp, Wallet, Hammer, Wrench, Truck, HardHat, MoreHorizontal } from 'lucide-react';
 import { format } from 'date-fns';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -57,7 +57,28 @@ const BuildingView = () => {
     const totalTasks = buildingTasks.length;
     const totalSubResources = buildingTasks.reduce((sum, t) => sum + t.subResources.length, 0);
     const totalTaskBudget = buildingTasks.reduce((sum, t) => t.subResources.reduce((s, sr) => s + sr.totalPrice, sum), 0);
-    return { totalTasks, totalSubResources, totalTaskBudget };
+    // Category breakdown
+    const categoryMap: Record<string, number> = {};
+    buildingTasks.forEach(t => {
+      t.subResources.forEach(sr => {
+        categoryMap[sr.categoryName] = (categoryMap[sr.categoryName] || 0) + sr.totalPrice;
+      });
+    });
+    return { totalTasks, totalSubResources, totalTaskBudget, categoryMap };
+  }, [buildingTasks]);
+
+  const resourceStats = useMemo(() => {
+    const resourceMap: Record<string, { count: number; totalPrice: number }> = {};
+    buildingTasks.forEach(t => {
+      t.subResources.forEach(sr => {
+        if (!resourceMap[sr.categoryName]) resourceMap[sr.categoryName] = { count: 0, totalPrice: 0 };
+        resourceMap[sr.categoryName].count += 1;
+        resourceMap[sr.categoryName].totalPrice += sr.totalPrice;
+      });
+    });
+    const totalResources = buildingTasks.reduce((s, t) => s + t.subResources.length, 0);
+    const totalResourceCost = buildingTasks.reduce((s, t) => t.subResources.reduce((a, sr) => a + sr.totalPrice, s), 0);
+    return { totalResources, totalResourceCost, breakdown: resourceMap };
   }, [buildingTasks]);
 
   const vendorStats = useMemo(() => {
@@ -65,7 +86,8 @@ const BuildingView = () => {
     const uniqueVendors = new Set(allVendors.map(v => v.vendorId));
     const totalPaid = allVendors.reduce((s, v) => s + v.totalPaid, 0);
     const totalPending = allVendors.reduce((s, v) => s + v.totalPending, 0);
-    return { count: uniqueVendors.size, totalPaid, totalPending };
+    const totalRequests = allVendors.reduce((s, v) => s + v.requests.length, 0);
+    return { count: uniqueVendors.size, totalPaid, totalPending, totalRequests };
   }, []);
 
   if (!building) {
@@ -188,60 +210,90 @@ const BuildingView = () => {
           </div>
         </Card>
 
-        {/* Dashboard Stats */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
+        {/* Dashboard: 3 Sections */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+          {/* Ishlar */}
           <Card className="p-4">
-            <div className="flex items-center gap-2 mb-2">
+            <div className="flex items-center gap-2 mb-3">
               <div className="p-1.5 rounded-md bg-primary/10">
                 <ClipboardList className="h-4 w-4 text-primary" />
               </div>
-              <p className="text-xs text-muted-foreground">Ishlar summasi</p>
+              <h3 className="text-sm font-semibold">Ishlar</h3>
+              <span className="ml-auto text-xs text-muted-foreground">{taskStats.totalTasks} ta</span>
             </div>
-            <p className="text-xl font-bold">${taskStats.totalTaskBudget.toLocaleString()}</p>
-            <p className="text-xs text-muted-foreground mt-1">{taskStats.totalTasks} ish · {taskStats.totalSubResources} resurs</p>
+            <p className="text-2xl font-bold mb-3">${taskStats.totalTaskBudget.toLocaleString()}</p>
+            <div className="space-y-2">
+              {Object.entries(taskStats.categoryMap).slice(0, 4).map(([cat, amount]) => (
+                <div key={cat} className="flex items-center justify-between text-xs">
+                  <span className="text-muted-foreground">{cat}</span>
+                  <span className="font-medium">${(amount as number).toLocaleString()}</span>
+                </div>
+              ))}
+              {Object.keys(taskStats.categoryMap).length === 0 && (
+                <p className="text-xs text-muted-foreground">Hali ishlar yo'q</p>
+              )}
+            </div>
           </Card>
 
+          {/* Resurslar */}
           <Card className="p-4">
-            <div className="flex items-center gap-2 mb-2">
-              <div className="p-1.5 rounded-md bg-green-500/10">
-                <TrendingUp className="h-4 w-4 text-green-600" />
-              </div>
-              <p className="text-xs text-muted-foreground">Olingan pullar</p>
-            </div>
-            <p className="text-xl font-bold text-green-600">${building.usedMoney.toLocaleString()}</p>
-            <p className="text-xs text-muted-foreground mt-1">{completePercentage.toFixed(0)}% byudjetdan</p>
-          </Card>
-
-          <Card className="p-4">
-            <div className="flex items-center gap-2 mb-2">
+            <div className="flex items-center gap-2 mb-3">
               <div className="p-1.5 rounded-md bg-amber-500/10">
-                <Wallet className="h-4 w-4 text-amber-600" />
+                <Package className="h-4 w-4 text-amber-600" />
               </div>
-              <p className="text-xs text-muted-foreground">Beriladigan pullar</p>
+              <h3 className="text-sm font-semibold">Resurslar</h3>
+              <span className="ml-auto text-xs text-muted-foreground">{resourceStats.totalResources} ta</span>
             </div>
-            <p className="text-xl font-bold text-amber-600">${(building.pendingMoney || 0).toLocaleString()}</p>
-            <p className="text-xs text-muted-foreground mt-1">{vendorStats.count} kontragentga</p>
+            <p className="text-2xl font-bold mb-3">${resourceStats.totalResourceCost.toLocaleString()}</p>
+            <div className="space-y-2">
+              {Object.entries(resourceStats.breakdown).map(([cat, data]) => {
+                const categoryIcons: Record<string, React.ReactNode> = {
+                  'Salary': <HardHat className="h-3 w-3" />,
+                  'Material': <Package className="h-3 w-3" />,
+                  'Instrument': <Wrench className="h-3 w-3" />,
+                  'Techniques': <Truck className="h-3 w-3" />,
+                  'Other': <MoreHorizontal className="h-3 w-3" />,
+                };
+                return (
+                  <div key={cat} className="flex items-center justify-between text-xs">
+                    <span className="flex items-center gap-1.5 text-muted-foreground">
+                      {categoryIcons[cat] || <Package className="h-3 w-3" />}
+                      {cat}
+                      <span className="text-[10px]">({data.count})</span>
+                    </span>
+                    <span className="font-medium">${data.totalPrice.toLocaleString()}</span>
+                  </div>
+                );
+              })}
+              {resourceStats.totalResources === 0 && (
+                <p className="text-xs text-muted-foreground">Hali resurslar yo'q</p>
+              )}
+            </div>
           </Card>
 
+          {/* Kontragentlar */}
           <Card className="p-4">
-            <div className="flex items-center gap-2 mb-2">
-              <div className="p-1.5 rounded-md" style={{ backgroundColor: leftMoney >= 0 ? 'hsl(var(--primary) / 0.1)' : 'hsl(var(--destructive) / 0.1)' }}>
-                <DollarSign className={`h-4 w-4 ${leftMoney >= 0 ? 'text-primary' : 'text-destructive'}`} />
+            <div className="flex items-center gap-2 mb-3">
+              <div className="p-1.5 rounded-md bg-green-500/10">
+                <Users className="h-4 w-4 text-green-600" />
               </div>
-              <p className="text-xs text-muted-foreground">Qolgan pullar</p>
+              <h3 className="text-sm font-semibold">Kontragentlar</h3>
+              <span className="ml-auto text-xs text-muted-foreground">{vendorStats.count} ta</span>
             </div>
-            <p className={`text-xl font-bold ${leftMoney >= 0 ? 'text-primary' : 'text-destructive'}`}>${leftMoney.toLocaleString()}</p>
-            <div className="flex items-center gap-2 mt-1">
-              <Progress 
-                value={Math.min(completePercentage, 100)} 
-                className="h-1.5 flex-1"
-                indicatorClassName={
-                  completePercentage >= 90 ? 'bg-green-500' : 
-                  completePercentage >= 20 ? 'bg-amber-500' : 
-                  'bg-red-500'
-                }
-              />
-              <span className="text-[10px] text-muted-foreground">{completePercentage.toFixed(0)}%</span>
+            <p className="text-2xl font-bold mb-3">${(vendorStats.totalPaid + vendorStats.totalPending).toLocaleString()}</p>
+            <div className="space-y-2">
+              <div className="flex items-center justify-between text-xs">
+                <span className="text-muted-foreground">To'langan</span>
+                <span className="font-medium text-green-600">${vendorStats.totalPaid.toLocaleString()}</span>
+              </div>
+              <div className="flex items-center justify-between text-xs">
+                <span className="text-muted-foreground">Kutilmoqda</span>
+                <span className="font-medium text-amber-600">${vendorStats.totalPending.toLocaleString()}</span>
+              </div>
+              <div className="flex items-center justify-between text-xs">
+                <span className="text-muted-foreground">So'rovlar</span>
+                <span className="font-medium">{vendorStats.totalRequests} ta</span>
+              </div>
             </div>
           </Card>
         </div>
