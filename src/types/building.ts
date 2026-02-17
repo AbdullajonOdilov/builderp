@@ -39,6 +39,7 @@ export interface Building {
   expectedEndDate: Date;
   totalPrice: number;
   usedMoney: number;
+  pendingMoney: number;
   documents: BuildingDocument[];
   sections: BuildingSection[];
   createdAt: Date;

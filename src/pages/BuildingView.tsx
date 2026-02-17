@@ -53,8 +53,8 @@ const BuildingView = () => {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="text-center">
-          <h2 className="text-xl font-semibold mb-2">Building not found</h2>
-          <Button onClick={() => navigate('/buildings')}>Go back to Buildings</Button>
+          <h2 className="text-xl font-semibold mb-2">Obyekt topilmadi</h2>
+          <Button onClick={() => navigate('/buildings')}>Obyektlarga qaytish</Button>
         </div>
       </div>
     );
@@ -62,7 +62,7 @@ const BuildingView = () => {
 
   const handleCreateSection = () => {
     if (!newSectionName.trim()) {
-      toast.error('Please enter a section name');
+      toast.error('Bo\'lim nomini kiriting');
       return;
     }
     addSection(building.id, newSectionName.trim(), {
@@ -75,20 +75,20 @@ const BuildingView = () => {
     setNewSectionEndDate(undefined);
     setNewSectionPrice('');
     setShowNewSection(false);
-    toast.success('Section created');
+    toast.success('Bo\'lim yaratildi');
   };
 
   const handleDeleteSection = () => {
     if (deleteSectionId) {
       deleteSection(building.id, deleteSectionId);
       setDeleteSectionId(null);
-      toast.success('Section deleted');
+      toast.success('Bo\'lim o\'chirildi');
     }
   };
 
   const handleDocumentUpload = (doc: BuildingDocument) => {
     addDocumentToBuilding(building.id, doc);
-    toast.success('Document uploaded');
+    toast.success('Hujjat yuklandi');
   };
 
   const handleDocumentDelete = (docId: string) => {
@@ -114,32 +114,36 @@ const BuildingView = () => {
             <div>
               <h1 className="text-2xl font-bold mb-1">{building.objectName}</h1>
               {building.contractNumber && (
-                <p className="text-muted-foreground">Contract: {building.contractNumber}</p>
+                <p className="text-muted-foreground">Shartnoma: {building.contractNumber}</p>
               )}
             </div>
             <div className="flex flex-wrap items-center gap-6 text-sm">
               <div>
-                <p className="text-muted-foreground">Start Date</p>
+                <p className="text-muted-foreground">Boshlanish</p>
                 <p className="font-semibold">
                   {building.startDate ? format(new Date(building.startDate), "PP") : "—"}
                 </p>
               </div>
               <div>
-                <p className="text-muted-foreground">End Date</p>
+                <p className="text-muted-foreground">Tugash</p>
                 <p className="font-semibold">
                   {building.expectedEndDate ? format(new Date(building.expectedEndDate), "PP") : "—"}
                 </p>
               </div>
               <div>
-                <p className="text-muted-foreground">Total</p>
+                <p className="text-muted-foreground">Umumiy</p>
                 <p className="font-semibold">${building.totalPrice.toLocaleString()}</p>
               </div>
               <div>
-                <p className="text-muted-foreground">Used</p>
+                <p className="text-muted-foreground">Sarflangan</p>
                 <p className="font-semibold">${building.usedMoney.toLocaleString()}</p>
               </div>
               <div>
-                <p className="text-muted-foreground">Left</p>
+                <p className="text-muted-foreground">Kutilmoqda</p>
+                <p className="font-semibold text-amber-600">${(building.pendingMoney || 0).toLocaleString()}</p>
+              </div>
+              <div>
+                <p className="text-muted-foreground">Qoldiq</p>
                 <p className={`font-semibold ${leftMoney >= 0 ? 'text-green-600' : 'text-destructive'}`}>
                   ${leftMoney.toLocaleString()}
                 </p>
@@ -168,10 +172,10 @@ const BuildingView = () => {
         {/* Sections */}
         <div className="mb-8">
           <div className="flex items-center justify-between mb-4">
-            <h2 className="text-lg font-semibold">Sections</h2>
+            <h2 className="text-lg font-semibold">Bo'limlar</h2>
             <Button onClick={() => setShowNewSection(true)}>
               <Plus className="h-4 w-4 mr-2" />
-              New Section
+              Yangi bo'lim
             </Button>
           </div>
 
@@ -181,8 +185,8 @@ const BuildingView = () => {
               onClick={() => setShowNewSection(true)}
             >
               <FolderPlus className="h-10 w-10 mx-auto mb-3 text-muted-foreground" />
-              <p className="font-medium">No sections yet</p>
-              <p className="text-sm text-muted-foreground">Click to create your first section</p>
+              <p className="font-medium">Bo'limlar hali yo'q</p>
+              <p className="text-sm text-muted-foreground">Birinchi bo'limni yaratish uchun bosing</p>
             </Card>
           ) : (
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
@@ -190,7 +194,7 @@ const BuildingView = () => {
                 <FolderCard
                   key={section.id}
                   name={section.name}
-                  subtitle={`${section.documents.length} documents`}
+                  subtitle={`${section.documents.length} hujjat`}
                   onClick={() => navigate(`/buildings/${building.id}/sections/${section.id}`)}
                   onDelete={() => setDeleteSectionId(section.id)}
                 />
@@ -201,7 +205,7 @@ const BuildingView = () => {
 
         {/* Documents */}
         <div>
-          <h2 className="text-lg font-semibold mb-4">Documents</h2>
+          <h2 className="text-lg font-semibold mb-4">Hujjatlar</h2>
           <DocumentUpload onUpload={handleDocumentUpload} className="mb-4" />
           {building.documents.length > 0 && (
             <div className="grid gap-2 md:grid-cols-2">
@@ -221,11 +225,11 @@ const BuildingView = () => {
       <Dialog open={showNewSection} onOpenChange={setShowNewSection}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
-            <DialogTitle>New Section</DialogTitle>
+            <DialogTitle>Yangi bo'lim</DialogTitle>
           </DialogHeader>
           <div className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="sectionName">Section Name *</Label>
+              <Label htmlFor="sectionName">Bo'lim nomi *</Label>
               <Input
                 id="sectionName"
                 placeholder="e.g., Floor 1, Block A"
@@ -237,7 +241,7 @@ const BuildingView = () => {
 
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label>Start Date</Label>
+              <Label>Boshlanish sanasi</Label>
                 <Popover>
                   <PopoverTrigger asChild>
                     <Button
@@ -248,7 +252,7 @@ const BuildingView = () => {
                       )}
                     >
                       <CalendarIcon className="mr-2 h-4 w-4" />
-                      {newSectionStartDate ? format(newSectionStartDate, "PP") : "Pick date"}
+                      {newSectionStartDate ? format(newSectionStartDate, "PP") : "Sana tanlang"}
                     </Button>
                   </PopoverTrigger>
                   <PopoverContent className="w-auto p-0" align="start">
@@ -264,7 +268,7 @@ const BuildingView = () => {
               </div>
 
               <div className="space-y-2">
-                <Label>Expected End Date</Label>
+                <Label>Tugash sanasi</Label>
                 <Popover>
                   <PopoverTrigger asChild>
                     <Button
@@ -275,7 +279,7 @@ const BuildingView = () => {
                       )}
                     >
                       <CalendarIcon className="mr-2 h-4 w-4" />
-                      {newSectionEndDate ? format(newSectionEndDate, "PP") : "Pick date"}
+                      {newSectionEndDate ? format(newSectionEndDate, "PP") : "Sana tanlang"}
                     </Button>
                   </PopoverTrigger>
                   <PopoverContent className="w-auto p-0" align="start">
@@ -292,7 +296,7 @@ const BuildingView = () => {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="sectionPrice">Section Price</Label>
+              <Label htmlFor="sectionPrice">Bo'lim narxi</Label>
               <Input
                 id="sectionPrice"
                 type="number"
@@ -303,8 +307,8 @@ const BuildingView = () => {
             </div>
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setShowNewSection(false)}>Cancel</Button>
-            <Button onClick={handleCreateSection}>Create</Button>
+            <Button variant="outline" onClick={() => setShowNewSection(false)}>Bekor qilish</Button>
+            <Button onClick={handleCreateSection}>Yaratish</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
@@ -313,15 +317,15 @@ const BuildingView = () => {
       <AlertDialog open={!!deleteSectionId} onOpenChange={() => setDeleteSectionId(null)}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Delete Section?</AlertDialogTitle>
+            <AlertDialogTitle>Bo'limni o'chirish?</AlertDialogTitle>
             <AlertDialogDescription>
-              This will permanently delete the section and all its documents.
+              Bu bo'lim va uning barcha hujjatlari butunlay o'chiriladi.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogCancel>Bekor qilish</AlertDialogCancel>
             <AlertDialogAction onClick={handleDeleteSection} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
-              Delete
+              O'chirish
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
