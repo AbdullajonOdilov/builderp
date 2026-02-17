@@ -1,13 +1,15 @@
 import { useState, useMemo } from 'react';
-import { ChevronDown, ChevronRight, ArrowLeft, Eye, FileText, Folder } from 'lucide-react';
+import { ChevronDown, ChevronRight, ArrowLeft, Eye, FileText, Folder, Plus, Pencil, Trash2 } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import { ProjectVendorExpense, VendorExpense, VendorPayment } from '@/types/finance';
 import { ProjectFilterRow } from './ProjectFilterRow';
+import { VendorFormDialog, VendorFormData } from './VendorFormDialog';
 
 function formatCurrency(amount: number) {
   return new Intl.NumberFormat('uz-UZ').format(amount) + ' UZS';
@@ -17,6 +19,9 @@ interface Props {
   data: ProjectVendorExpense[];
   selectedProject: string;
   onSelectProject: (value: string) => void;
+  onAddVendor: (data: VendorFormData) => void;
+  onEditVendor: (vendorId: string, data: VendorFormData) => void;
+  onDeleteVendor: (vendorId: string) => void;
 }
 
 function aggregateVendors(data: ProjectVendorExpense[]) {
@@ -45,10 +50,13 @@ function aggregateVendors(data: ProjectVendorExpense[]) {
   return Array.from(map.values());
 }
 
-export function VendorExpensesReport({ data, selectedProject, onSelectProject }: Props) {
+export function VendorExpensesReport({ data, selectedProject, onSelectProject, onAddVendor, onEditVendor, onDeleteVendor }: Props) {
   const [selectedVendor, setSelectedVendor] = useState<string | null>(null);
   const [openRequests, setOpenRequests] = useState<Set<string>>(new Set());
   const [paymentDialogData, setPaymentDialogData] = useState<VendorPayment[] | null>(null);
+  const [addDialogOpen, setAddDialogOpen] = useState(false);
+  const [editVendor, setEditVendor] = useState<{ vendorId: string; data: VendorFormData } | null>(null);
+  const [deleteVendorId, setDeleteVendorId] = useState<string | null>(null);
 
   const vendors = useMemo(() => aggregateVendors(data), [data]);
 
@@ -77,10 +85,16 @@ export function VendorExpensesReport({ data, selectedProject, onSelectProject }:
           <Card><CardContent className="p-4"><p className="text-xs text-muted-foreground">Ta'minotchilar soni</p><p className="text-2xl font-bold mt-1">{vendors.length}</p></CardContent></Card>
         </div>
 
+        <div className="flex justify-end">
+          <Button size="sm" onClick={() => setAddDialogOpen(true)}>
+            <Plus className="h-4 w-4 mr-1" /> Kontragent qo'shish
+          </Button>
+        </div>
+
         <div className="border rounded-lg">
           {/* Header */}
           <div className="flex items-center px-4 py-2 border-b bg-muted/30">
-            <div className="w-7 shrink-0" />
+            <div className="w-8 shrink-0" />
             <div className="flex-1 grid grid-cols-7 gap-x-4">
               <p className="text-xs text-muted-foreground col-span-2">Nomi</p>
               <p className="text-xs text-muted-foreground">So'rovlar</p>
@@ -90,12 +104,13 @@ export function VendorExpensesReport({ data, selectedProject, onSelectProject }:
               <p className="text-xs text-muted-foreground text-right">Berilgan</p>
             </div>
             <p className="text-xs text-muted-foreground text-right w-[100px] shrink-0">Qarz</p>
+            <div className="w-[72px] shrink-0" />
           </div>
           <div className="divide-y">
           {vendors.map(({ vendor, projects }) => (
             <div
               key={vendor.vendorId}
-              className="flex items-center px-4 py-3 cursor-pointer hover:bg-muted/30 transition-colors"
+              className="flex items-center px-4 py-3 cursor-pointer hover:bg-muted/30 transition-colors group"
               onClick={() => { setSelectedVendor(vendor.vendorId); setOpenRequests(new Set()); }}
             >
               <Folder className="h-5 w-5 text-blue-500 shrink-0 mr-3 fill-blue-500/20" />
@@ -110,10 +125,59 @@ export function VendorExpensesReport({ data, selectedProject, onSelectProject }:
               <span className="text-sm font-medium text-right w-[100px] shrink-0 text-[hsl(var(--status-pending))]">
                 {vendor.totalPending > 0 ? formatCurrency(vendor.totalPending) : '—'}
               </span>
+              <div className="flex shrink-0 ml-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                <Button variant="ghost" size="icon" className="h-8 w-8" onClick={(e) => {
+                  e.stopPropagation();
+                  setEditVendor({ vendorId: vendor.vendorId, data: { vendorName: vendor.vendorName, contactPerson: vendor.contactPerson, phone: vendor.phone } });
+                }}>
+                  <Pencil className="h-3.5 w-3.5" />
+                </Button>
+                <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive" onClick={(e) => {
+                  e.stopPropagation();
+                  setDeleteVendorId(vendor.vendorId);
+                }}>
+                  <Trash2 className="h-3.5 w-3.5" />
+                </Button>
+              </div>
             </div>
           ))}
           </div>
         </div>
+
+        {/* Add Vendor Dialog */}
+        <VendorFormDialog
+          open={addDialogOpen}
+          onClose={() => setAddDialogOpen(false)}
+          onSubmit={onAddVendor}
+          title="Yangi kontragent"
+        />
+
+        {/* Edit Vendor Dialog */}
+        <VendorFormDialog
+          open={!!editVendor}
+          onClose={() => setEditVendor(null)}
+          onSubmit={(data) => { if (editVendor) onEditVendor(editVendor.vendorId, data); }}
+          initialData={editVendor?.data}
+          title="Kontragentni tahrirlash"
+        />
+
+        {/* Delete Confirmation */}
+        <AlertDialog open={!!deleteVendorId} onOpenChange={() => setDeleteVendorId(null)}>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Kontragentni o'chirish</AlertDialogTitle>
+              <AlertDialogDescription>
+                Haqiqatan ham bu kontragentni o'chirmoqchimisiz? Bu amalni qaytarib bo'lmaydi.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel>Bekor qilish</AlertDialogCancel>
+              <AlertDialogAction onClick={() => { if (deleteVendorId) { onDeleteVendor(deleteVendorId); setDeleteVendorId(null); } }}>
+                O'chirish
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
       </div>
     );
   }
