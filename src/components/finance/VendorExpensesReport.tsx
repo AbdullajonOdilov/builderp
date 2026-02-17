@@ -124,31 +124,47 @@ export function VendorExpensesReport({ data, selectedProject, onSelectProject }:
       </div>
 
       {/* Requests list */}
-      <div className="border rounded-lg divide-y">
+      <div className="border rounded-lg">
         {vendor.requests.length === 0 ? (
           <div className="p-8 text-center text-muted-foreground">So'rovlar mavjud emas</div>
         ) : (
-          vendor.requests.map(request => {
-            const isOpen = openRequests.has(request.requestId);
-            return (
-              <Collapsible key={request.requestId} open={isOpen} onOpenChange={() => toggleRequest(request.requestId)}>
-                <div className="flex items-center">
-                  <CollapsibleTrigger asChild>
-                    <button className="flex-1 text-left px-4 py-3 hover:bg-muted/30 transition-colors">
-                      <div className="flex items-center gap-3">
-                        {isOpen ? <ChevronDown className="h-4 w-4 text-muted-foreground shrink-0" /> : <ChevronRight className="h-4 w-4 text-muted-foreground shrink-0" />}
-                        <div className="flex-1 grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-x-6 gap-y-2">
-                          <div><p className="text-xs text-muted-foreground">Sana</p><p className="font-bold text-sm">{request.date}</p></div>
-                          <div><p className="text-xs text-muted-foreground">Manba</p><p className="font-bold text-sm">{request.source}</p></div>
-                          <div><p className="text-xs text-muted-foreground">Oluvchi</p><p className="font-bold text-sm">{request.buyer}</p></div>
-                          <div><p className="text-xs text-muted-foreground">Ta'minlovchi</p><p className="font-bold text-sm">{request.supplier}</p></div>
-                          <div><p className="text-xs text-muted-foreground">Jami</p><p className="font-bold text-sm">{formatCurrency(request.totalAmount)}</p></div>
-                          <div><p className="text-xs text-muted-foreground">To'langan</p><p className="font-bold text-sm">{formatCurrency(request.paidAmount)}</p></div>
-                          <div><p className="text-xs text-muted-foreground">Qoldiq</p><p className="font-bold text-sm">{formatCurrency(request.remainingAmount)}</p></div>
+          <>
+            {/* Single header row */}
+            <div className="flex items-center px-4 py-2 border-b bg-muted/30">
+              <div className="w-7 shrink-0" />
+              <div className="flex-1 grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-x-6 gap-y-1">
+                <p className="text-xs text-muted-foreground">Sana</p>
+                <p className="text-xs text-muted-foreground">Manba</p>
+                <p className="text-xs text-muted-foreground">Oluvchi</p>
+                <p className="text-xs text-muted-foreground">Ta'minlovchi</p>
+                <p className="text-xs text-muted-foreground">Jami</p>
+                <p className="text-xs text-muted-foreground">To'langan</p>
+                <p className="text-xs text-muted-foreground">Qoldiq</p>
+              </div>
+              <div className="w-9 shrink-0" />
+            </div>
+            <div className="divide-y">
+            {vendor.requests.map(request => {
+              const isOpen = openRequests.has(request.requestId);
+              return (
+                <Collapsible key={request.requestId} open={isOpen} onOpenChange={() => toggleRequest(request.requestId)}>
+                  <div className="flex items-center">
+                    <CollapsibleTrigger asChild>
+                      <button className="flex-1 text-left px-4 py-3 hover:bg-muted/30 transition-colors">
+                        <div className="flex items-center gap-3">
+                          {isOpen ? <ChevronDown className="h-4 w-4 text-muted-foreground shrink-0" /> : <ChevronRight className="h-4 w-4 text-muted-foreground shrink-0" />}
+                          <div className="flex-1 grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-x-6 gap-y-2">
+                            <p className="font-bold text-sm">{request.date}</p>
+                            <p className="font-bold text-sm">{request.source}</p>
+                            <p className="font-bold text-sm">{request.buyer}</p>
+                            <p className="font-bold text-sm">{request.supplier}</p>
+                            <p className="font-bold text-sm">{formatCurrency(request.totalAmount)}</p>
+                            <p className="font-bold text-sm">{formatCurrency(request.paidAmount)}</p>
+                            <p className="font-bold text-sm">{formatCurrency(request.remainingAmount)}</p>
+                          </div>
                         </div>
-                      </div>
-                    </button>
-                  </CollapsibleTrigger>
+                      </button>
+                    </CollapsibleTrigger>
                   <Button
                     variant="ghost"
                     size="icon"
@@ -192,7 +208,9 @@ export function VendorExpensesReport({ data, selectedProject, onSelectProject }:
                 </CollapsibleContent>
               </Collapsible>
             );
-          })
+          })}
+            </div>
+          </>
         )}
       </div>
 
