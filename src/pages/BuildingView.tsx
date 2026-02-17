@@ -246,6 +246,50 @@ const BuildingView = () => {
           </Card>
         </div>
 
+        {/* Vendor Stats */}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
+          <Card className="p-4">
+            <div className="flex items-center gap-2 mb-2">
+              <div className="p-1.5 rounded-md bg-primary/10">
+                <Users className="h-4 w-4 text-primary" />
+              </div>
+              <p className="text-xs text-muted-foreground">Kontragentlar summasi</p>
+            </div>
+            <p className="text-xl font-bold">${(vendorStats.totalPaid + vendorStats.totalPending).toLocaleString()}</p>
+            <p className="text-xs text-muted-foreground mt-1">{vendorStats.count} kontragent</p>
+          </Card>
+
+          <Card className="p-4">
+            <div className="flex items-center gap-2 mb-2">
+              <div className="p-1.5 rounded-md bg-green-500/10">
+                <TrendingUp className="h-4 w-4 text-green-600" />
+              </div>
+              <p className="text-xs text-muted-foreground">Berilgan pullar</p>
+            </div>
+            <p className="text-xl font-bold text-green-600">${vendorStats.totalPaid.toLocaleString()}</p>
+          </Card>
+
+          <Card className="p-4">
+            <div className="flex items-center gap-2 mb-2">
+              <div className="p-1.5 rounded-md bg-amber-500/10">
+                <Wallet className="h-4 w-4 text-amber-600" />
+              </div>
+              <p className="text-xs text-muted-foreground">Kutilmoqda</p>
+            </div>
+            <p className="text-xl font-bold text-amber-600">${vendorStats.totalPending.toLocaleString()}</p>
+          </Card>
+
+          <Card className="p-4">
+            <div className="flex items-center gap-2 mb-2">
+              <div className="p-1.5 rounded-md bg-destructive/10">
+                <TrendingDown className="h-4 w-4 text-destructive" />
+              </div>
+              <p className="text-xs text-muted-foreground">Qarz</p>
+            </div>
+            <p className="text-xl font-bold text-destructive">${vendorStats.totalPending.toLocaleString()}</p>
+          </Card>
+        </div>
+
         {/* Sections */}
         <div className="mb-8">
           <div className="flex items-center justify-between mb-4">
