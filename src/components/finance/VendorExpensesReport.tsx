@@ -7,7 +7,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { ProjectVendorExpense, VendorExpense, VendorPayment } from '@/types/finance';
-import { ProjectFilterRow } from './ProjectFilterRow';
+
 
 function formatCurrency(amount: number) {
   return new Intl.NumberFormat('uz-UZ').format(amount) + ' UZS';
@@ -15,8 +15,6 @@ function formatCurrency(amount: number) {
 
 interface Props {
   data: ProjectVendorExpense[];
-  selectedProject: string;
-  onSelectProject: (value: string) => void;
 }
 
 function aggregateVendors(data: ProjectVendorExpense[]) {
@@ -45,7 +43,7 @@ function aggregateVendors(data: ProjectVendorExpense[]) {
   return Array.from(map.values());
 }
 
-export function VendorExpensesReport({ data, selectedProject, onSelectProject }: Props) {
+export function VendorExpensesReport({ data }: Props) {
   const [selectedVendor, setSelectedVendor] = useState<string | null>(null);
   const [openRequests, setOpenRequests] = useState<Set<string>>(new Set());
   const [paymentDialogData, setPaymentDialogData] = useState<VendorPayment[] | null>(null);
@@ -69,7 +67,6 @@ export function VendorExpensesReport({ data, selectedProject, onSelectProject }:
   if (!selectedVendor || !activeVendor) {
     return (
       <div className="space-y-6">
-        <ProjectFilterRow selectedProject={selectedProject} onSelectProject={onSelectProject} />
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <Card><CardContent className="p-4"><p className="text-xs text-muted-foreground">Jami to'langan</p><p className="text-2xl font-bold mt-1">{formatCurrency(grandTotalPaid)}</p></CardContent></Card>

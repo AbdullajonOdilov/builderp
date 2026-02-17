@@ -3,6 +3,7 @@ import { FinanceSidebar, FinanceReportType } from '@/components/finance/FinanceS
 import { VendorExpensesReport } from '@/components/finance/VendorExpensesReport';
 import { ProjectOverviewReport } from '@/components/finance/ProjectOverviewReport';
 import { ForemenReport } from '@/components/finance/ForemenReport';
+import { ProjectFilterRow } from '@/components/finance/ProjectFilterRow';
 import { MOCK_PROJECT_VENDOR_EXPENSES } from '@/types/finance';
 
 export default function Finance() {
@@ -18,9 +19,9 @@ export default function Finance() {
 
   const renderReport = () => {
     switch (activeReport) {
-      case 'vendor-expenses': return <VendorExpensesReport data={filteredProjects} selectedProject={selectedProject} onSelectProject={setSelectedProject} />;
+      case 'vendor-expenses': return <VendorExpensesReport data={filteredProjects} />;
       case 'project-overview': return <ProjectOverviewReport data={filteredProjects} />;
-      case 'foremen': return <ForemenReport data={filteredProjects} selectedProject={selectedProject} onSelectProject={setSelectedProject} />;
+      case 'foremen': return <ForemenReport data={filteredProjects} />;
     }
   };
 
@@ -28,7 +29,8 @@ export default function Finance() {
     <div className="flex">
       <FinanceSidebar activeReport={activeReport} onSelectReport={setActiveReport} />
       <main className="flex-1 overflow-auto h-[calc(100vh-56px)]">
-        <div className="p-6">
+        <div className="p-6 space-y-6">
+          <ProjectFilterRow selectedProject={selectedProject} onSelectProject={setSelectedProject} />
           {renderReport()}
         </div>
       </main>
