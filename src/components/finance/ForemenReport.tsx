@@ -11,7 +11,7 @@ import { Calendar } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { cn } from '@/lib/utils';
 import { ProjectVendorExpense } from '@/types/finance';
-
+import { ProjectFilterRow } from './ProjectFilterRow';
 import { MOCK_FOREMEN, Foreman } from '@/types/foreman';
 
 function formatCurrency(amount: number) {
@@ -20,9 +20,11 @@ function formatCurrency(amount: number) {
 
 interface Props {
   data: ProjectVendorExpense[];
+  selectedProject: string;
+  onSelectProject: (value: string) => void;
 }
 
-export function ForemenReport({ data }: Props) {
+export function ForemenReport({ data, selectedProject, onSelectProject }: Props) {
   const [search, setSearch] = useState('');
   const [selectedProfession, setSelectedProfession] = useState('all');
   const [selectedForeman, setSelectedForeman] = useState('all');
@@ -93,7 +95,7 @@ export function ForemenReport({ data }: Props) {
       </div>
 
       {/* Filters Row */}
-      <div className="flex flex-wrap items-end gap-3">
+      <ProjectFilterRow selectedProject={selectedProject} onSelectProject={onSelectProject}>
         <div className="space-y-1">
           <label className="text-xs font-medium text-muted-foreground">Search</label>
           <div className="relative">
@@ -169,7 +171,7 @@ export function ForemenReport({ data }: Props) {
             )}
           </div>
         </div>
-      </div>
+      </ProjectFilterRow>
 
       {/* Summary Cards */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
