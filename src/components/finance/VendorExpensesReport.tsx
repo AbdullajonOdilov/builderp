@@ -1,5 +1,5 @@
 import { useState, useMemo } from 'react';
-import { ChevronDown, ChevronRight, ArrowLeft, Phone, User, Folder, FolderOpen, FileText, Banknote, CalendarDays, Eye } from 'lucide-react';
+import { ChevronDown, ChevronRight, ArrowLeft, Eye, FileText } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
@@ -77,43 +77,25 @@ export function VendorExpensesReport({ data, selectedProject, onSelectProject }:
           <Card><CardContent className="p-4"><p className="text-xs text-muted-foreground">Ta'minotchilar soni</p><p className="text-2xl font-bold mt-1">{vendors.length}</p></CardContent></Card>
         </div>
 
-        {/* Column labels */}
-        <div className="flex items-center gap-3 px-4 py-2 text-xs text-muted-foreground">
-          <div className="w-5 shrink-0" />
-          <div className="flex-1">Nomi</div>
-          <div className="flex items-center gap-4 shrink-0">
-            <span className="w-[100px] text-right">To'langan</span>
-            <span className="w-[100px] text-right">Kutilmoqda</span>
-            <span className="w-[100px] text-right font-medium">Umumiy</span>
-          </div>
-        </div>
-        <div className="space-y-1">
+        <div className="border rounded-lg divide-y">
           {vendors.map(({ vendor, projects }) => (
-            <Card
+            <div
               key={vendor.vendorId}
-              className="cursor-pointer hover:bg-muted/30 transition-colors group"
+              className="flex items-center gap-3 px-4 py-3 cursor-pointer hover:bg-muted/30 transition-colors"
               onClick={() => { setSelectedVendor(vendor.vendorId); setOpenRequests(new Set()); }}
             >
-              <CardContent className="px-4 py-3">
-                <div className="flex items-center gap-3">
-                  <Folder className="h-5 w-5 text-primary shrink-0 group-hover:hidden" />
-                  <FolderOpen className="h-5 w-5 text-primary shrink-0 hidden group-hover:block" />
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2">
-                      <h3 className="font-semibold text-sm truncate">{vendor.vendorName}</h3>
-                      <span className="text-xs text-muted-foreground shrink-0">({vendor.requests.length})</span>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-4 text-xs shrink-0">
-                    <span className="w-[100px] text-right font-medium">{formatCurrency(vendor.totalPaid)}</span>
-                    <span className="w-[100px] text-right text-[hsl(var(--status-pending))]">
-                      {vendor.totalPending > 0 ? formatCurrency(vendor.totalPending) : '—'}
-                    </span>
-                    <span className="w-[100px] text-right font-bold text-primary">{formatCurrency(vendor.totalPaid + vendor.totalPending)}</span>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
+              <ChevronRight className="h-4 w-4 text-muted-foreground shrink-0" />
+              <div className="flex-1 min-w-0 flex items-center gap-2">
+                <h3 className="font-bold text-sm truncate">{vendor.vendorName}</h3>
+                <span className="text-xs text-muted-foreground shrink-0">{vendor.requests.length} ta so'rov</span>
+              </div>
+              <div className="flex items-center gap-4 text-xs shrink-0">
+                <span className="font-medium">{formatCurrency(vendor.totalPaid)}</span>
+                {vendor.totalPending > 0 && (
+                  <span className="text-[hsl(var(--status-pending))]">{formatCurrency(vendor.totalPending)}</span>
+                )}
+              </div>
+            </div>
           ))}
         </div>
       </div>
@@ -142,76 +124,72 @@ export function VendorExpensesReport({ data, selectedProject, onSelectProject }:
       </div>
 
       {/* Requests list */}
-      <div className="space-y-3">
+      <div className="border rounded-lg divide-y">
         {vendor.requests.length === 0 ? (
-          <Card><CardContent className="p-8 text-center text-muted-foreground">So'rovlar mavjud emas</CardContent></Card>
+          <div className="p-8 text-center text-muted-foreground">So'rovlar mavjud emas</div>
         ) : (
           vendor.requests.map(request => {
             const isOpen = openRequests.has(request.requestId);
             return (
               <Collapsible key={request.requestId} open={isOpen} onOpenChange={() => toggleRequest(request.requestId)}>
-                <Card className="overflow-hidden">
-                  <div className="flex items-center">
-                    <CollapsibleTrigger asChild>
-                      <button className="flex-1 text-left">
-                        <CardContent className="p-4 hover:bg-muted/30 transition-colors">
-                          <div className="flex items-center gap-3">
-                            {isOpen ? <ChevronDown className="h-4 w-4 text-muted-foreground shrink-0" /> : <ChevronRight className="h-4 w-4 text-muted-foreground shrink-0" />}
-                            <div className="flex-1 grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-x-6 gap-y-2">
-                              <div><p className="text-xs text-muted-foreground">Sana</p><p className="font-semibold text-sm">{request.date}</p></div>
-                              <div><p className="text-xs text-muted-foreground">Manba</p><p className="font-semibold text-sm">{request.source}</p></div>
-                              <div><p className="text-xs text-muted-foreground">Oluvchi</p><p className="font-semibold text-sm">{request.buyer}</p></div>
-                              <div><p className="text-xs text-muted-foreground">Ta'minlovchi</p><p className="font-semibold text-sm">{request.supplier}</p></div>
-                              <div><p className="text-xs text-muted-foreground">Jami</p><p className="font-semibold text-sm">{formatCurrency(request.totalAmount)}</p></div>
-                              <div><p className="text-xs text-muted-foreground">To'langan</p><p className="font-semibold text-sm">{formatCurrency(request.paidAmount)}</p></div>
-                              <div><p className="text-xs text-muted-foreground">Qoldiq</p><p className="font-semibold text-sm">{formatCurrency(request.remainingAmount)}</p></div>
-                            </div>
-                          </div>
-                        </CardContent>
-                      </button>
-                    </CollapsibleTrigger>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="mr-2 shrink-0"
-                      onClick={(e) => { e.stopPropagation(); setPaymentDialogData(vendor.payments); }}
-                    >
-                      <Eye className="h-4 w-4 text-muted-foreground" />
-                    </Button>
-                  </div>
-                  <CollapsibleContent>
-                    <CardContent className="p-0 pb-2 border-t">
-                      <Table>
-                        <TableHeader>
-                          <TableRow className="hover:bg-transparent">
-                            <TableHead className="pl-10 w-12">№</TableHead>
-                            <TableHead>Kod</TableHead>
-                            <TableHead>Nomi</TableHead>
-                            <TableHead>Birlik</TableHead>
-                            <TableHead className="text-right">So'rov miqdori</TableHead>
-                            <TableHead className="text-right">Berilgan</TableHead>
-                            <TableHead className="text-right">Birlik narx</TableHead>
-                            <TableHead className="text-right">Umumiy narx</TableHead>
+                <div className="flex items-center">
+                  <CollapsibleTrigger asChild>
+                    <button className="flex-1 text-left px-4 py-3 hover:bg-muted/30 transition-colors">
+                      <div className="flex items-center gap-3">
+                        {isOpen ? <ChevronDown className="h-4 w-4 text-muted-foreground shrink-0" /> : <ChevronRight className="h-4 w-4 text-muted-foreground shrink-0" />}
+                        <div className="flex-1 grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-x-6 gap-y-2">
+                          <div><p className="text-xs text-muted-foreground">Sana</p><p className="font-bold text-sm">{request.date}</p></div>
+                          <div><p className="text-xs text-muted-foreground">Manba</p><p className="font-bold text-sm">{request.source}</p></div>
+                          <div><p className="text-xs text-muted-foreground">Oluvchi</p><p className="font-bold text-sm">{request.buyer}</p></div>
+                          <div><p className="text-xs text-muted-foreground">Ta'minlovchi</p><p className="font-bold text-sm">{request.supplier}</p></div>
+                          <div><p className="text-xs text-muted-foreground">Jami</p><p className="font-bold text-sm">{formatCurrency(request.totalAmount)}</p></div>
+                          <div><p className="text-xs text-muted-foreground">To'langan</p><p className="font-bold text-sm">{formatCurrency(request.paidAmount)}</p></div>
+                          <div><p className="text-xs text-muted-foreground">Qoldiq</p><p className="font-bold text-sm">{formatCurrency(request.remainingAmount)}</p></div>
+                        </div>
+                      </div>
+                    </button>
+                  </CollapsibleTrigger>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="mr-2 shrink-0"
+                    onClick={(e) => { e.stopPropagation(); setPaymentDialogData(vendor.payments); }}
+                  >
+                    <Eye className="h-4 w-4 text-muted-foreground" />
+                  </Button>
+                </div>
+                <CollapsibleContent>
+                  <div className="p-0 pb-2 border-t">
+                    <Table>
+                      <TableHeader>
+                        <TableRow className="hover:bg-transparent">
+                          <TableHead className="pl-10 w-12">№</TableHead>
+                          <TableHead>Kod</TableHead>
+                          <TableHead>Nomi</TableHead>
+                          <TableHead>Birlik</TableHead>
+                          <TableHead className="text-right">So'rov miqdori</TableHead>
+                          <TableHead className="text-right">Berilgan</TableHead>
+                          <TableHead className="text-right">Birlik narx</TableHead>
+                          <TableHead className="text-right">Umumiy narx</TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        {request.items.map((item, idx) => (
+                          <TableRow key={idx} className="hover:bg-muted/30">
+                            <TableCell className="pl-10">{idx + 1}</TableCell>
+                            <TableCell className="font-mono text-xs">{item.code}</TableCell>
+                            <TableCell>{item.name}</TableCell>
+                            <TableCell>{item.unit}</TableCell>
+                            <TableCell className="text-right">{item.requestedQty.toLocaleString()}</TableCell>
+                            <TableCell className="text-right">{item.givenQty.toLocaleString()}</TableCell>
+                            <TableCell className="text-right">{item.unitPrice.toLocaleString()}</TableCell>
+                            <TableCell className="text-right font-semibold">{item.totalPrice.toLocaleString()}</TableCell>
                           </TableRow>
-                        </TableHeader>
-                        <TableBody>
-                          {request.items.map((item, idx) => (
-                            <TableRow key={idx} className="hover:bg-muted/30">
-                              <TableCell className="pl-10">{idx + 1}</TableCell>
-                              <TableCell className="font-mono text-xs">{item.code}</TableCell>
-                              <TableCell>{item.name}</TableCell>
-                              <TableCell>{item.unit}</TableCell>
-                              <TableCell className="text-right">{item.requestedQty.toLocaleString()}</TableCell>
-                              <TableCell className="text-right">{item.givenQty.toLocaleString()}</TableCell>
-                              <TableCell className="text-right">{item.unitPrice.toLocaleString()}</TableCell>
-                              <TableCell className="text-right font-semibold">{item.totalPrice.toLocaleString()}</TableCell>
-                            </TableRow>
-                          ))}
-                        </TableBody>
-                      </Table>
-                    </CardContent>
-                  </CollapsibleContent>
-                </Card>
+                        ))}
+                      </TableBody>
+                    </Table>
+                  </div>
+                </CollapsibleContent>
               </Collapsible>
             );
           })
