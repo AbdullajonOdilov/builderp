@@ -8,7 +8,6 @@ import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import { ProjectVendorExpense, VendorExpense, VendorPayment } from '@/types/finance';
-import { ProjectFilterRow } from './ProjectFilterRow';
 import { VendorFormDialog, VendorFormData } from './VendorFormDialog';
 
 function formatCurrency(amount: number) {
@@ -17,8 +16,6 @@ function formatCurrency(amount: number) {
 
 interface Props {
   data: ProjectVendorExpense[];
-  selectedProject: string;
-  onSelectProject: (value: string) => void;
   onAddVendor: (data: VendorFormData) => void;
   onEditVendor: (vendorId: string, data: VendorFormData) => void;
   onDeleteVendor: (vendorId: string) => void;
@@ -50,7 +47,7 @@ function aggregateVendors(data: ProjectVendorExpense[]) {
   return Array.from(map.values());
 }
 
-export function VendorExpensesReport({ data, selectedProject, onSelectProject, onAddVendor, onEditVendor, onDeleteVendor }: Props) {
+export function VendorExpensesReport({ data, onAddVendor, onEditVendor, onDeleteVendor }: Props) {
   const [selectedVendor, setSelectedVendor] = useState<string | null>(null);
   const [openRequests, setOpenRequests] = useState<Set<string>>(new Set());
   const [paymentDialogData, setPaymentDialogData] = useState<VendorPayment[] | null>(null);
@@ -77,7 +74,6 @@ export function VendorExpensesReport({ data, selectedProject, onSelectProject, o
   if (!selectedVendor || !activeVendor) {
     return (
       <div className="space-y-6">
-        <ProjectFilterRow selectedProject={selectedProject} onSelectProject={onSelectProject} />
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <Card><CardContent className="p-4"><p className="text-xs text-muted-foreground">Jami to'langan</p><p className="text-2xl font-bold mt-1">{formatCurrency(grandTotalPaid)}</p></CardContent></Card>
