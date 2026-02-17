@@ -56,8 +56,6 @@ export default function Finance() {
       case 'vendor-expenses': return (
         <VendorExpensesReport
           data={filteredProjects}
-          selectedProject={selectedProject}
-          onSelectProject={setSelectedProject}
           onAddVendor={handleAddVendor}
           onEditVendor={handleEditVendor}
           onDeleteVendor={handleDeleteVendor}
