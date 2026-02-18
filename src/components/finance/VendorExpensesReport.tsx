@@ -1,5 +1,5 @@
 import { useState, useMemo } from 'react';
-import { ChevronDown, ChevronRight, ArrowLeft, Eye, FileText, Folder, Plus, Pencil, Trash2 } from 'lucide-react';
+import { ChevronDown, ChevronRight, ArrowLeft, Eye, FileText, Folder, Plus, Pencil, Trash2, DollarSign } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
@@ -9,6 +9,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import { ProjectVendorExpense, VendorExpense, VendorPayment } from '@/types/finance';
 import { VendorFormDialog, VendorFormData } from './VendorFormDialog';
+import { Checkbox } from '@/components/ui/checkbox';
 
 function formatCurrency(amount: number) {
   return new Intl.NumberFormat('uz-UZ').format(amount) + ' UZS';
@@ -54,6 +55,7 @@ export function VendorExpensesReport({ data, onAddVendor, onEditVendor, onDelete
   const [addDialogOpen, setAddDialogOpen] = useState(false);
   const [editVendor, setEditVendor] = useState<{ vendorId: string; data: VendorFormData } | null>(null);
   const [deleteVendorId, setDeleteVendorId] = useState<string | null>(null);
+  const [checkedVendors, setCheckedVendors] = useState<Set<string>>(new Set());
 
   const vendors = useMemo(() => aggregateVendors(data), [data]);
 
@@ -63,6 +65,14 @@ export function VendorExpensesReport({ data, onAddVendor, onEditVendor, onDelete
     setOpenRequests(prev => {
       const next = new Set(prev);
       next.has(id) ? next.delete(id) : next.add(id);
+      return next;
+    });
+  };
+
+  const toggleCheck = (vendorId: string) => {
+    setCheckedVendors(prev => {
+      const next = new Set(prev);
+      next.has(vendorId) ? next.delete(vendorId) : next.add(vendorId);
       return next;
     });
   };
@@ -81,7 +91,14 @@ export function VendorExpensesReport({ data, onAddVendor, onEditVendor, onDelete
           <Card><CardContent className="p-4"><p className="text-xs text-muted-foreground">Ta'minotchilar soni</p><p className="text-2xl font-bold mt-1">{vendors.length}</p></CardContent></Card>
         </div>
 
-        <div className="flex justify-end">
+        <div className="flex justify-between items-center">
+          {checkedVendors.size > 0 ? (
+            <Button size="sm" variant="default">
+              <DollarSign className="h-4 w-4 mr-1" /> Pul so'rash ({checkedVendors.size})
+            </Button>
+          ) : (
+            <div />
+          )}
           <Button size="sm" onClick={() => setAddDialogOpen(true)}>
             <Plus className="h-4 w-4 mr-1" /> Kontragent qo'shish
           </Button>
@@ -91,32 +108,45 @@ export function VendorExpensesReport({ data, onAddVendor, onEditVendor, onDelete
           {/* Header */}
           <div className="flex items-center px-4 py-2 border-b bg-muted/30">
             <div className="w-8 shrink-0" />
-            <div className="flex-1 grid grid-cols-7 gap-x-4">
+            <div className="w-8 shrink-0" />
+            <div className="flex-1 grid grid-cols-8 gap-x-4">
               <p className="text-xs text-muted-foreground col-span-2">Nomi</p>
               <p className="text-xs text-muted-foreground">So'rovlar</p>
               <p className="text-xs text-muted-foreground">Kontakt</p>
               <p className="text-xs text-muted-foreground">Telefon</p>
               <p className="text-xs text-muted-foreground text-right">Jami (T)</p>
               <p className="text-xs text-muted-foreground text-right">Berilgan</p>
+              <p className="text-xs text-muted-foreground text-right">Balans</p>
             </div>
             <p className="text-xs text-muted-foreground text-right w-[100px] shrink-0">Qarz</p>
             <div className="w-[72px] shrink-0" />
           </div>
           <div className="divide-y">
-          {vendors.map(({ vendor, projects }) => (
+          {vendors.map(({ vendor, projects }) => {
+            const balance = vendor.totalPaid - vendor.totalPending;
+            return (
             <div
               key={vendor.vendorId}
               className="flex items-center px-4 py-3 cursor-pointer hover:bg-muted/30 transition-colors group"
               onClick={() => { setSelectedVendor(vendor.vendorId); setOpenRequests(new Set()); }}
             >
+              <div className="w-8 shrink-0 flex items-center" onClick={(e) => e.stopPropagation()}>
+                <Checkbox
+                  checked={checkedVendors.has(vendor.vendorId)}
+                  onCheckedChange={() => toggleCheck(vendor.vendorId)}
+                />
+              </div>
               <Folder className="h-5 w-5 text-blue-500 shrink-0 mr-3 fill-blue-500/20" />
-              <div className="flex-1 grid grid-cols-7 gap-x-4 items-center">
+              <div className="flex-1 grid grid-cols-8 gap-x-4 items-center">
                 <h3 className="font-bold text-sm truncate col-span-2">{vendor.vendorName}</h3>
                 <span className="text-sm">{vendor.requests.length} ta</span>
                 <span className="text-sm truncate">{vendor.contactPerson}</span>
                 <span className="text-sm text-muted-foreground">{vendor.phone}</span>
                 <span className="text-sm font-medium text-right">{formatCurrency(vendor.totalPaid + vendor.totalPending)}</span>
                 <span className="text-sm text-right">{formatCurrency(vendor.totalPaid)}</span>
+                <span className={`text-sm font-medium text-right ${balance >= 0 ? 'text-green-600' : 'text-destructive'}`}>
+                  {formatCurrency(balance)}
+                </span>
               </div>
               <span className="text-sm font-medium text-right w-[100px] shrink-0 text-[hsl(var(--status-pending))]">
                 {vendor.totalPending > 0 ? formatCurrency(vendor.totalPending) : '—'}
@@ -136,7 +166,7 @@ export function VendorExpensesReport({ data, onAddVendor, onEditVendor, onDelete
                 </Button>
               </div>
             </div>
-          ))}
+          );})}
           </div>
         </div>
 
