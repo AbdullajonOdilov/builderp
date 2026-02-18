@@ -96,9 +96,12 @@ export function VendorExpensesReport({ data, onAddVendor, onEditVendor, onDelete
     return (
       <div className="space-y-6">
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
           <Card><CardContent className="p-4"><p className="text-xs text-muted-foreground">Jami to'langan</p><p className="text-2xl font-bold mt-1">{formatCurrency(grandTotalPaid)}</p></CardContent></Card>
           <Card><CardContent className="p-4"><p className="text-xs text-muted-foreground">Kutilmoqda</p><p className="text-2xl font-bold mt-1 text-[hsl(var(--status-pending))]">{formatCurrency(grandTotalPending)}</p></CardContent></Card>
+          <Card><CardContent className="p-4"><p className="text-xs text-muted-foreground">Balans</p><p className={`text-2xl font-bold mt-1 ${(grandTotalPaid - grandTotalPending) >= 0 ? 'text-green-600' : 'text-destructive'}`}>{formatCurrency(grandTotalPaid - grandTotalPending)}</p></CardContent></Card>
+          <Card><CardContent className="p-4"><p className="text-xs text-muted-foreground">Qarz</p><p className="text-2xl font-bold mt-1 text-destructive">{formatCurrency(grandTotalPending)}</p></CardContent></Card>
+          <Card><CardContent className="p-4"><p className="text-xs text-muted-foreground">So'ralgan pul</p><p className="text-2xl font-bold mt-1 text-primary">{formatCurrency(0)}</p></CardContent></Card>
           <Card><CardContent className="p-4"><p className="text-xs text-muted-foreground">Ta'minotchilar soni</p><p className="text-2xl font-bold mt-1">{vendors.length}</p></CardContent></Card>
         </div>
 
