@@ -247,7 +247,7 @@ const BuildingView = () => {
         </div>
 
         {/* Vendor Stats */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
+        <div className="grid grid-cols-2 md:grid-cols-5 gap-3 mb-6">
           <Card className="p-4">
             <div className="flex items-center gap-2 mb-2">
               <div className="p-1.5 rounded-md bg-primary/10">
@@ -287,6 +287,18 @@ const BuildingView = () => {
               <p className="text-xs text-muted-foreground">Qarz</p>
             </div>
             <p className="text-xl font-bold text-destructive">${vendorStats.totalPending.toLocaleString()}</p>
+          </Card>
+
+          <Card className="p-4">
+            <div className="flex items-center gap-2 mb-2">
+              <div className="p-1.5 rounded-md bg-blue-500/10">
+                <DollarSign className="h-4 w-4 text-blue-600" />
+              </div>
+              <p className="text-xs text-muted-foreground">Balans</p>
+            </div>
+            <p className={`text-xl font-bold ${(vendorStats.totalPaid - vendorStats.totalPending) >= 0 ? 'text-green-600' : 'text-destructive'}`}>
+              ${(vendorStats.totalPaid - vendorStats.totalPending).toLocaleString()}
+            </p>
           </Card>
         </div>
 
