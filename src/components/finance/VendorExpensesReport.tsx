@@ -12,6 +12,7 @@ import { VendorFormDialog, VendorFormData } from './VendorFormDialog';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
 import { PaymentRequestDialog } from './PaymentRequestDialog';
+import { RequestPaymentDialog } from './RequestPaymentDialog';
 
 function formatCurrency(amount: number, showUnit = true) {
   return new Intl.NumberFormat('uz-UZ').format(amount) + (showUnit ? ' UZS' : '');
@@ -61,6 +62,7 @@ export function VendorExpensesReport({ data, onAddVendor, onEditVendor, onDelete
   const [checkedRequests, setCheckedRequests] = useState<Set<string>>(new Set());
   const [paymentRequestOpen, setPaymentRequestOpen] = useState(false);
   const [requestPayAmounts, setRequestPayAmounts] = useState<Record<string, string>>({});
+  const [requestPaymentDialogOpen, setRequestPaymentDialogOpen] = useState(false);
 
   const vendors = useMemo(() => aggregateVendors(data), [data]);
 
@@ -273,7 +275,7 @@ export function VendorExpensesReport({ data, onAddVendor, onEditVendor, onDelete
       {/* Pul so'rash button for checked requests */}
       {checkedRequests.size > 0 && (
         <div className="flex justify-start">
-          <Button size="sm" variant="default">
+          <Button size="sm" variant="default" onClick={() => setRequestPaymentDialogOpen(true)}>
             <DollarSign className="h-4 w-4 mr-1" /> Pul so'rash ({checkedRequests.size})
           </Button>
         </div>
@@ -398,6 +400,14 @@ export function VendorExpensesReport({ data, onAddVendor, onEditVendor, onDelete
           </>
         )}
       </div>
+
+      {/* Request Payment Dialog */}
+      <RequestPaymentDialog
+        open={requestPaymentDialogOpen}
+        onClose={() => { setRequestPaymentDialogOpen(false); setCheckedRequests(new Set()); }}
+        vendorName={vendor.vendorName}
+        selectedRequests={vendor.requests.filter(r => checkedRequests.has(r.requestId))}
+      />
 
       {/* Payment History Dialog */}
       <Dialog open={!!paymentDialogData} onOpenChange={() => setPaymentDialogData(null)}>
