@@ -412,33 +412,29 @@ export function VendorExpensesReport({ data, onAddVendor, onEditVendor, onDelete
 
       {/* Payment History Dialog */}
       <Dialog open={!!paymentDialogData} onOpenChange={() => setPaymentDialogData(null)}>
-        <DialogContent className="max-w-lg">
+        <DialogContent className="max-w-sm">
           <DialogHeader>
-            <DialogTitle>To'lovlar tarixi</DialogTitle>
+            <DialogTitle className="text-base">To'lovlar tarixi</DialogTitle>
           </DialogHeader>
           {paymentDialogData && paymentDialogData.length === 0 ? (
             <p className="text-center text-muted-foreground py-4">To'lovlar mavjud emas</p>
           ) : (
-            <div className="space-y-3 max-h-[60vh] overflow-y-auto">
-              {paymentDialogData?.sort((a, b) => b.date.localeCompare(a.date)).map((p, idx) => (
-                <div key={p.paymentId} className="flex items-start gap-3 p-3 rounded-md border">
-                  <div className="flex-1 space-y-1">
-                    <div className="flex items-center justify-between">
-                      <span className="text-xs text-muted-foreground">{p.date}</span>
-                      <span className="font-semibold text-sm">{formatCurrency(p.amount)}</span>
-                    </div>
-                    <p className="text-sm">{p.paidBy}</p>
-                    <p className="text-xs text-muted-foreground">{p.comment}</p>
-                    {p.fileName && (
-                      <Badge variant="outline" className="gap-1 text-xs mt-1">
-                        <FileText className="h-3 w-3" />
-                        {p.fileName}
-                      </Badge>
-                    )}
-                  </div>
-                </div>
-              ))}
-            </div>
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead className="text-xs px-2 py-1.5">Sana</TableHead>
+                  <TableHead className="text-xs px-2 py-1.5 text-right">Miqdor</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {paymentDialogData?.sort((a, b) => b.date.localeCompare(a.date)).map((p) => (
+                  <TableRow key={p.paymentId}>
+                    <TableCell className="text-xs px-2 py-1.5">{p.date}</TableCell>
+                    <TableCell className="text-xs px-2 py-1.5 text-right font-medium">{formatCurrency(p.amount)}</TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
           )}
         </DialogContent>
       </Dialog>
