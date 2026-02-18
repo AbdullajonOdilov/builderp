@@ -316,6 +316,7 @@ export function VendorExpensesReport({ data, onAddVendor, onEditVendor, onDelete
                       <Checkbox
                         checked={checkedRequests.has(request.requestId)}
                         onCheckedChange={() => toggleRequestCheck(request.requestId)}
+                        disabled={request.remainingAmount <= 0}
                       />
                     </div>
                     <CollapsibleTrigger asChild>
