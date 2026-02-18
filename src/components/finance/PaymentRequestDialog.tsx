@@ -8,7 +8,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { VendorExpense } from '@/types/finance';
 
 function fmt(amount: number) {
-  return new Intl.NumberFormat('uz-UZ').format(amount) + ' UZS';
+  return new Intl.NumberFormat('uz-UZ').format(amount);
 }
 
 interface VendorSummary {
@@ -77,7 +77,7 @@ export function PaymentRequestDialog({ open, onClose, selectedVendors }: Props) 
                         type="number"
                         placeholder="Miqdor"
                         className="h-8 text-sm w-[140px] ml-auto"
-                        value={amounts[vendor.vendorId] || ''}
+                        value={amounts[vendor.vendorId] ?? String(vendor.totalPending)}
                         onChange={(e) => setAmounts(prev => ({ ...prev, [vendor.vendorId]: e.target.value }))}
                       />
                     </TableCell>

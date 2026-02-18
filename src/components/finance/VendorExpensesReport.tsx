@@ -12,8 +12,8 @@ import { VendorFormDialog, VendorFormData } from './VendorFormDialog';
 import { Checkbox } from '@/components/ui/checkbox';
 import { PaymentRequestDialog } from './PaymentRequestDialog';
 
-function formatCurrency(amount: number) {
-  return new Intl.NumberFormat('uz-UZ').format(amount) + ' UZS';
+function formatCurrency(amount: number, showUnit = true) {
+  return new Intl.NumberFormat('uz-UZ').format(amount) + (showUnit ? ' UZS' : '');
 }
 
 interface Props {
@@ -128,7 +128,7 @@ export function VendorExpensesReport({ data, onAddVendor, onEditVendor, onDelete
               <p className="text-xs text-muted-foreground">So'rovlar</p>
               <p className="text-xs text-muted-foreground">Kontakt</p>
               <p className="text-xs text-muted-foreground">Telefon</p>
-              <p className="text-xs text-muted-foreground text-right">Jami (T)</p>
+              <p className="text-xs text-muted-foreground text-right">Jami (UZS)</p>
               <p className="text-xs text-muted-foreground text-right">Berilgan</p>
               <p className="text-xs text-muted-foreground text-right">Balans</p>
             </div>
@@ -156,14 +156,14 @@ export function VendorExpensesReport({ data, onAddVendor, onEditVendor, onDelete
                 <span className="text-sm">{vendor.requests.length} ta</span>
                 <span className="text-sm truncate">{vendor.contactPerson}</span>
                 <span className="text-sm text-muted-foreground">{vendor.phone}</span>
-                <span className="text-sm font-medium text-right">{formatCurrency(vendor.totalPaid + vendor.totalPending)}</span>
-                <span className="text-sm text-right">{formatCurrency(vendor.totalPaid)}</span>
+                <span className="text-sm font-medium text-right">{formatCurrency(vendor.totalPaid + vendor.totalPending, false)}</span>
+                <span className="text-sm text-right">{formatCurrency(vendor.totalPaid, false)}</span>
                 <span className={`text-sm font-medium text-right ${balance >= 0 ? 'text-green-600' : 'text-destructive'}`}>
-                  {formatCurrency(balance)}
+                  {formatCurrency(balance, false)}
                 </span>
               </div>
               <span className="text-sm font-medium text-right w-[100px] shrink-0 text-[hsl(var(--status-pending))]">
-                {vendor.totalPending > 0 ? formatCurrency(vendor.totalPending) : '—'}
+                {vendor.totalPending > 0 ? formatCurrency(vendor.totalPending, false) : '—'}
               </span>
               <div className="flex shrink-0 ml-2 opacity-0 group-hover:opacity-100 transition-opacity">
                 <Button variant="ghost" size="icon" className="h-8 w-8" onClick={(e) => {
