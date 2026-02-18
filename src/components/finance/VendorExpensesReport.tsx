@@ -56,6 +56,7 @@ export function VendorExpensesReport({ data, onAddVendor, onEditVendor, onDelete
   const [editVendor, setEditVendor] = useState<{ vendorId: string; data: VendorFormData } | null>(null);
   const [deleteVendorId, setDeleteVendorId] = useState<string | null>(null);
   const [checkedVendors, setCheckedVendors] = useState<Set<string>>(new Set());
+  const [checkedRequests, setCheckedRequests] = useState<Set<string>>(new Set());
 
   const vendors = useMemo(() => aggregateVendors(data), [data]);
 
@@ -73,6 +74,14 @@ export function VendorExpensesReport({ data, onAddVendor, onEditVendor, onDelete
     setCheckedVendors(prev => {
       const next = new Set(prev);
       next.has(vendorId) ? next.delete(vendorId) : next.add(vendorId);
+      return next;
+    });
+  };
+
+  const toggleRequestCheck = (requestId: string) => {
+    setCheckedRequests(prev => {
+      const next = new Set(prev);
+      next.has(requestId) ? next.delete(requestId) : next.add(requestId);
       return next;
     });
   };
@@ -237,6 +246,15 @@ export function VendorExpensesReport({ data, onAddVendor, onEditVendor, onDelete
         </div>
       </div>
 
+      {/* Pul so'rash button for checked requests */}
+      {checkedRequests.size > 0 && (
+        <div className="flex justify-start">
+          <Button size="sm" variant="default">
+            <DollarSign className="h-4 w-4 mr-1" /> Pul so'rash ({checkedRequests.size})
+          </Button>
+        </div>
+      )}
+
       {/* Requests list */}
       <div className="border rounded-lg">
         {vendor.requests.length === 0 ? (
@@ -245,6 +263,7 @@ export function VendorExpensesReport({ data, onAddVendor, onEditVendor, onDelete
           <>
             {/* Single header row */}
             <div className="flex items-center px-4 py-2 border-b bg-muted/30">
+              <div className="w-8 shrink-0" />
               <div className="w-7 shrink-0" />
               <div className="flex-1 grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-x-6 gap-y-1">
                 <p className="text-xs text-muted-foreground">Sana</p>
@@ -255,6 +274,7 @@ export function VendorExpensesReport({ data, onAddVendor, onEditVendor, onDelete
                 <p className="text-xs text-muted-foreground">To'langan</p>
                 <p className="text-xs text-muted-foreground">Qoldiq</p>
               </div>
+              <div className="w-20 shrink-0" />
               <div className="w-9 shrink-0" />
             </div>
             <div className="divide-y">
@@ -263,8 +283,14 @@ export function VendorExpensesReport({ data, onAddVendor, onEditVendor, onDelete
               return (
                 <Collapsible key={request.requestId} open={isOpen} onOpenChange={() => toggleRequest(request.requestId)}>
                   <div className="flex items-center">
+                    <div className="pl-4 shrink-0 w-8 flex items-center" onClick={(e) => e.stopPropagation()}>
+                      <Checkbox
+                        checked={checkedRequests.has(request.requestId)}
+                        onCheckedChange={() => toggleRequestCheck(request.requestId)}
+                      />
+                    </div>
                     <CollapsibleTrigger asChild>
-                      <button className="flex-1 text-left px-4 py-3 hover:bg-muted/30 transition-colors">
+                      <button className="flex-1 text-left px-2 py-3 hover:bg-muted/30 transition-colors">
                         <div className="flex items-center gap-3">
                           {isOpen ? <ChevronDown className="h-4 w-4 text-muted-foreground shrink-0" /> : <ChevronRight className="h-4 w-4 text-muted-foreground shrink-0" />}
                           <div className="flex-1 grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-x-6 gap-y-2">
@@ -279,6 +305,14 @@ export function VendorExpensesReport({ data, onAddVendor, onEditVendor, onDelete
                         </div>
                       </button>
                     </CollapsibleTrigger>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="mr-1 shrink-0 text-xs"
+                    onClick={(e) => { e.stopPropagation(); }}
+                  >
+                    Pul berish
+                  </Button>
                   <Button
                     variant="ghost"
                     size="icon"
