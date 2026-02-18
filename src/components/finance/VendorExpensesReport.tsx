@@ -10,6 +10,7 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import { ProjectVendorExpense, VendorExpense, VendorPayment } from '@/types/finance';
 import { VendorFormDialog, VendorFormData } from './VendorFormDialog';
 import { Checkbox } from '@/components/ui/checkbox';
+import { Input } from '@/components/ui/input';
 import { PaymentRequestDialog } from './PaymentRequestDialog';
 
 function formatCurrency(amount: number, showUnit = true) {
@@ -59,6 +60,7 @@ export function VendorExpensesReport({ data, onAddVendor, onEditVendor, onDelete
   const [checkedVendors, setCheckedVendors] = useState<Set<string>>(new Set());
   const [checkedRequests, setCheckedRequests] = useState<Set<string>>(new Set());
   const [paymentRequestOpen, setPaymentRequestOpen] = useState(false);
+  const [requestPayAmounts, setRequestPayAmounts] = useState<Record<string, string>>({});
 
   const vendors = useMemo(() => aggregateVendors(data), [data]);
 
@@ -245,15 +247,23 @@ export function VendorExpensesReport({ data, onAddVendor, onEditVendor, onDelete
         <div className="ml-auto flex items-center gap-6">
           <div className="text-right">
             <p className="text-xs text-muted-foreground">To'langan</p>
-            <p className="text-sm font-bold">{formatCurrency(vendor.totalPaid)}</p>
+            <p className="text-sm font-bold">{formatCurrency(vendor.totalPaid, false)}</p>
           </div>
           <div className="text-right">
             <p className="text-xs text-muted-foreground">Kutilmoqda</p>
-            <p className="text-sm font-bold text-[hsl(var(--status-pending))]">{formatCurrency(vendor.totalPending)}</p>
+            <p className="text-sm font-bold text-[hsl(var(--status-pending))]">{formatCurrency(vendor.totalPending, false)}</p>
+          </div>
+          <div className="text-right">
+            <p className="text-xs text-muted-foreground">Balans</p>
+            <p className={`text-sm font-bold ${(vendor.totalPaid - vendor.totalPending) >= 0 ? 'text-green-600' : 'text-destructive'}`}>{formatCurrency(vendor.totalPaid - vendor.totalPending, false)}</p>
+          </div>
+          <div className="text-right">
+            <p className="text-xs text-muted-foreground">Qolgan</p>
+            <p className="text-sm font-bold text-destructive">{formatCurrency(vendor.totalPending, false)}</p>
           </div>
           <div className="text-right">
             <p className="text-xs text-muted-foreground">Umumiy</p>
-            <p className="text-sm font-bold text-primary">{formatCurrency(vendor.totalPaid + vendor.totalPending)}</p>
+            <p className="text-sm font-bold text-primary">{formatCurrency(vendor.totalPaid + vendor.totalPending, false)}</p>
           </div>
         </div>
       </div>
@@ -286,6 +296,7 @@ export function VendorExpensesReport({ data, onAddVendor, onEditVendor, onDelete
                 <p className="text-xs text-muted-foreground">To'langan</p>
                 <p className="text-xs text-muted-foreground">Qoldiq</p>
               </div>
+              <div className="w-[120px] shrink-0 text-xs text-muted-foreground text-center">Miqdor</div>
               <div className="w-20 shrink-0" />
               <div className="w-9 shrink-0" />
             </div>
@@ -310,17 +321,27 @@ export function VendorExpensesReport({ data, onAddVendor, onEditVendor, onDelete
                             <p className="font-bold text-sm">{request.source}</p>
                             <p className="font-bold text-sm">{request.buyer}</p>
                             <p className="font-bold text-sm">{request.supplier}</p>
-                            <p className="font-bold text-sm">{formatCurrency(request.totalAmount)}</p>
-                            <p className="font-bold text-sm">{formatCurrency(request.paidAmount)}</p>
-                            <p className="font-bold text-sm">{formatCurrency(request.remainingAmount)}</p>
+                            <p className="font-bold text-sm">{formatCurrency(request.totalAmount, false)}</p>
+                            <p className="font-bold text-sm">{formatCurrency(request.paidAmount, false)}</p>
+                            <p className="font-bold text-sm">{formatCurrency(request.remainingAmount, false)}</p>
                           </div>
                         </div>
                       </button>
                     </CollapsibleTrigger>
+                  <div className="shrink-0 w-[120px] px-1" onClick={(e) => e.stopPropagation()}>
+                    <Input
+                      type="number"
+                      placeholder="Miqdor"
+                      className="h-8 text-sm"
+                      value={requestPayAmounts[request.requestId] || ''}
+                      onChange={(e) => setRequestPayAmounts(prev => ({ ...prev, [request.requestId]: e.target.value }))}
+                    />
+                  </div>
                   <Button
                     variant="outline"
                     size="sm"
                     className="mr-1 shrink-0 text-xs"
+                    disabled={!requestPayAmounts[request.requestId] || Number(requestPayAmounts[request.requestId]) <= 0}
                     onClick={(e) => { e.stopPropagation(); }}
                   >
                     Pul berish
