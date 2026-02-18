@@ -123,6 +123,7 @@ export function VendorExpensesReport({ data, onAddVendor, onEditVendor, onDelete
         <div className="border rounded-lg">
           {/* Header */}
           <div className="flex items-center px-4 py-2 border-b bg-muted/30">
+            <div className="w-6 shrink-0 text-xs text-muted-foreground">№</div>
             <div className="w-8 shrink-0" />
             <div className="w-8 shrink-0" />
             <div className="flex-1 grid grid-cols-8 gap-x-4">
@@ -138,7 +139,7 @@ export function VendorExpensesReport({ data, onAddVendor, onEditVendor, onDelete
             <div className="w-[72px] shrink-0" />
           </div>
           <div className="divide-y">
-          {vendors.map(({ vendor, projects }) => {
+          {vendors.map(({ vendor, projects }, idx) => {
             const balance = vendor.totalPaid - vendor.totalPending;
             return (
             <div
@@ -146,6 +147,7 @@ export function VendorExpensesReport({ data, onAddVendor, onEditVendor, onDelete
               className="flex items-center px-4 py-3 cursor-pointer hover:bg-muted/30 transition-colors group"
               onClick={() => { setSelectedVendor(vendor.vendorId); setOpenRequests(new Set()); }}
             >
+              <span className="w-6 shrink-0 text-xs text-muted-foreground">{idx + 1}</span>
               <div className="w-8 shrink-0 flex items-center" onClick={(e) => e.stopPropagation()}>
                 <Checkbox
                   checked={checkedVendors.has(vendor.vendorId)}
@@ -285,6 +287,7 @@ export function VendorExpensesReport({ data, onAddVendor, onEditVendor, onDelete
           <>
             {/* Single header row */}
             <div className="flex items-center px-4 py-2 border-b bg-muted/30">
+              <div className="w-6 shrink-0 text-xs text-muted-foreground">№</div>
               <div className="w-8 shrink-0" />
               <div className="w-7 shrink-0" />
               <div className="flex-1 grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-x-6 gap-y-1">
@@ -301,12 +304,13 @@ export function VendorExpensesReport({ data, onAddVendor, onEditVendor, onDelete
               <div className="w-9 shrink-0" />
             </div>
             <div className="divide-y">
-            {vendor.requests.map(request => {
+            {vendor.requests.map((request, idx) => {
               const isOpen = openRequests.has(request.requestId);
               return (
                 <Collapsible key={request.requestId} open={isOpen} onOpenChange={() => toggleRequest(request.requestId)}>
                   <div className="flex items-center">
-                    <div className="pl-4 shrink-0 w-8 flex items-center" onClick={(e) => e.stopPropagation()}>
+                    <span className="pl-4 w-6 shrink-0 text-xs text-muted-foreground">{idx + 1}</span>
+                    <div className="shrink-0 w-8 flex items-center" onClick={(e) => e.stopPropagation()}>
                       <Checkbox
                         checked={checkedRequests.has(request.requestId)}
                         onCheckedChange={() => toggleRequestCheck(request.requestId)}
