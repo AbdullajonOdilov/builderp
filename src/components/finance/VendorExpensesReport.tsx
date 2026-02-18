@@ -10,6 +10,7 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import { ProjectVendorExpense, VendorExpense, VendorPayment } from '@/types/finance';
 import { VendorFormDialog, VendorFormData } from './VendorFormDialog';
 import { Checkbox } from '@/components/ui/checkbox';
+import { PaymentRequestDialog } from './PaymentRequestDialog';
 
 function formatCurrency(amount: number) {
   return new Intl.NumberFormat('uz-UZ').format(amount) + ' UZS';
@@ -57,6 +58,7 @@ export function VendorExpensesReport({ data, onAddVendor, onEditVendor, onDelete
   const [deleteVendorId, setDeleteVendorId] = useState<string | null>(null);
   const [checkedVendors, setCheckedVendors] = useState<Set<string>>(new Set());
   const [checkedRequests, setCheckedRequests] = useState<Set<string>>(new Set());
+  const [paymentRequestOpen, setPaymentRequestOpen] = useState(false);
 
   const vendors = useMemo(() => aggregateVendors(data), [data]);
 
@@ -102,7 +104,7 @@ export function VendorExpensesReport({ data, onAddVendor, onEditVendor, onDelete
 
         <div className="flex justify-between items-center">
           {checkedVendors.size > 0 ? (
-            <Button size="sm" variant="default">
+            <Button size="sm" variant="default" onClick={() => setPaymentRequestOpen(true)}>
               <DollarSign className="h-4 w-4 mr-1" /> Pul so'rash ({checkedVendors.size})
             </Button>
           ) : (
@@ -213,6 +215,13 @@ export function VendorExpensesReport({ data, onAddVendor, onEditVendor, onDelete
             </AlertDialogFooter>
           </AlertDialogContent>
         </AlertDialog>
+
+        {/* Payment Request Dialog */}
+        <PaymentRequestDialog
+          open={paymentRequestOpen}
+          onClose={() => { setPaymentRequestOpen(false); setCheckedVendors(new Set()); }}
+          selectedVendors={vendors.filter(v => checkedVendors.has(v.vendor.vendorId))}
+        />
       </div>
     );
   }
