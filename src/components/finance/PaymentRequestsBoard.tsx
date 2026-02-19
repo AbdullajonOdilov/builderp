@@ -128,10 +128,10 @@ export function PaymentRequestsBoard() {
                     <CardContent className="p-3 space-y-1.5">
                       <div className="flex items-start justify-between gap-2">
                         <p className="text-sm font-semibold truncate">{item.vendorName}</p>
-                      </div>
-                      <div className="flex items-center justify-between text-xs text-muted-foreground">
-                        <span>So'ralgan: {item.requestedDate}</span>
-                        {item.givenDate && <span>Berilgan: {item.givenDate}</span>}
+                        <div className="flex gap-2 shrink-0">
+                          <span className="text-[10px] text-muted-foreground whitespace-nowrap">{item.requestedDate}</span>
+                          {item.givenDate && <span className="text-[10px] text-green-600 whitespace-nowrap">{item.givenDate}</span>}
+                        </div>
                       </div>
                       <div className="flex items-center justify-between">
                         <div>
