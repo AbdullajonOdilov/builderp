@@ -46,6 +46,7 @@ export function RequestPaymentDialog({ open, onClose, vendorName, selectedReques
             <TableHeader>
               <TableRow className="bg-muted/30 hover:bg-muted/30">
                 <TableHead className="text-xs w-8">№</TableHead>
+                <TableHead className="text-xs">Sana</TableHead>
                 <TableHead className="text-xs">Manba</TableHead>
                 <TableHead className="text-xs text-right">Jami</TableHead>
                 <TableHead className="text-xs text-right">To'langan</TableHead>
@@ -57,6 +58,7 @@ export function RequestPaymentDialog({ open, onClose, vendorName, selectedReques
               {selectedRequests.map((req, idx) => (
                 <TableRow key={req.requestId}>
                   <TableCell className="text-xs text-muted-foreground">{idx + 1}</TableCell>
+                  <TableCell className="text-sm">{req.date}</TableCell>
                   <TableCell className="text-sm">{req.source}</TableCell>
                   <TableCell className="text-sm text-right">{fmt(req.totalAmount)}</TableCell>
                   <TableCell className="text-sm text-right">{fmt(req.paidAmount)}</TableCell>
