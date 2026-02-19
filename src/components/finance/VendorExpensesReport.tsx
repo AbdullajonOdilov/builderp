@@ -252,10 +252,6 @@ export function VendorExpensesReport({ data, onAddVendor, onEditVendor, onDelete
             <p className="text-sm font-bold">{formatCurrency(vendor.totalPaid, false)}</p>
           </div>
           <div className="text-right">
-            <p className="text-xs text-muted-foreground">Kutilmoqda</p>
-            <p className="text-sm font-bold text-[hsl(var(--status-pending))]">{formatCurrency(vendor.totalPending, false)}</p>
-          </div>
-          <div className="text-right">
             <p className="text-xs text-muted-foreground">Balans</p>
             <p className={`text-sm font-bold ${(vendor.totalPaid - vendor.totalPending) >= 0 ? 'text-green-600' : 'text-destructive'}`}>{formatCurrency(vendor.totalPaid - vendor.totalPending, false)}</p>
           </div>
