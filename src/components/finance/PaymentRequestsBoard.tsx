@@ -22,7 +22,9 @@ export interface PaymentRequestItem {
   id: string;
   vendorName: string;
   amount: number;
-  date: string;
+  requestedDate: string;
+  givenDate?: string;
+  givenAmount?: number;
   comment: string;
   status: PaymentRequestStatus;
   items?: PaymentRequestLineItem[];
@@ -30,63 +32,63 @@ export interface PaymentRequestItem {
 }
 
 const MOCK_PAYMENT_REQUESTS: PaymentRequestItem[] = [
-  { id: 'pr1', vendorName: 'ABC Building Supplies', amount: 5_000_000, date: '2026-02-17', comment: 'Minvata uchun to\'lov', status: 'pending', items: [
+  { id: 'pr1', vendorName: 'ABC Building Supplies', amount: 5_000_000, requestedDate: '2026-02-17', comment: 'Minvata uchun to\'lov', status: 'pending', items: [
     { name: 'Minvata', qty: 100, unit: 'Pochka', unitPrice: 50_000, total: 5_000_000 },
   ], requests: [
     { requestId: 'r1', date: '2026-02-15', source: 'Obiekt-1', totalAmount: 5_000_000, paidAmount: 0, remainingAmount: 5_000_000 },
   ]},
-  { id: 'pr2', vendorName: 'ABC Building Supplies', amount: 2_000_000, date: '2026-02-11', comment: 'Setka serepyanka uchun', status: 'pending', items: [
+  { id: 'pr2', vendorName: 'ABC Building Supplies', amount: 2_000_000, requestedDate: '2026-02-11', comment: 'Setka serepyanka uchun', status: 'pending', items: [
     { name: 'Setka serepyanka', qty: 200, unit: 'dona', unitPrice: 10_000, total: 2_000_000 },
   ], requests: [
     { requestId: 'r2', date: '2026-02-10', source: 'Obiekt-2', totalAmount: 2_000_000, paidAmount: 0, remainingAmount: 2_000_000 },
   ]},
-  { id: 'pr3', vendorName: 'FastTrack Materials Co.', amount: 216_000_000, date: '2026-02-11', comment: 'Sement uchun avans', status: 'pending', items: [
+  { id: 'pr3', vendorName: 'FastTrack Materials Co.', amount: 216_000_000, requestedDate: '2026-02-11', comment: 'Sement uchun avans', status: 'pending', items: [
     { name: 'Sement Portland', qty: 72, unit: 'ton', unitPrice: 3_000_000, total: 216_000_000 },
   ], requests: [
     { requestId: 'r3', date: '2026-02-09', source: 'Obiekt-1', totalAmount: 120_000_000, paidAmount: 0, remainingAmount: 120_000_000 },
     { requestId: 'r4', date: '2026-02-08', source: 'Obiekt-3', totalAmount: 96_000_000, paidAmount: 0, remainingAmount: 96_000_000 },
   ]},
-  { id: 'pr4', vendorName: 'BuildRight Contractors', amount: 120_000, date: '2026-02-11', comment: 'G\'isht qoldiq to\'lov', status: 'pending', requests: [
+  { id: 'pr4', vendorName: 'BuildRight Contractors', amount: 120_000, requestedDate: '2026-02-11', comment: 'G\'isht qoldiq to\'lov', status: 'pending', requests: [
     { requestId: 'r5', date: '2026-02-10', source: 'Obiekt-2', totalAmount: 120_000, paidAmount: 0, remainingAmount: 120_000 },
   ]},
-  { id: 'pr5', vendorName: 'Metro Equipment Rentals', amount: 216_000_000, date: '2026-02-11', comment: 'Kran ijarasi', status: 'pending', requests: [
+  { id: 'pr5', vendorName: 'Metro Equipment Rentals', amount: 216_000_000, requestedDate: '2026-02-11', comment: 'Kran ijarasi', status: 'pending', requests: [
     { requestId: 'r6', date: '2026-02-11', source: 'Obiekt-1', totalAmount: 216_000_000, paidAmount: 0, remainingAmount: 216_000_000 },
   ]},
-  { id: 'pr6', vendorName: 'ABC Building Supplies', amount: 227_000_000, date: '2026-02-13', comment: 'Fanera uchun to\'liq to\'lov', status: 'approved', items: [
+  { id: 'pr6', vendorName: 'ABC Building Supplies', amount: 227_000_000, requestedDate: '2026-02-13', givenDate: '2026-02-14', givenAmount: 227_000_000, comment: 'Fanera uchun to\'liq to\'lov', status: 'approved', items: [
     { name: 'Fanera 18mm', qty: 200, unit: 'dona', unitPrice: 1_135_000, total: 227_000_000 },
   ], requests: [
     { requestId: 'r7', date: '2026-02-12', source: 'Obiekt-1', totalAmount: 227_000_000, paidAmount: 0, remainingAmount: 227_000_000 },
   ]},
-  { id: 'pr7', vendorName: 'Premier Construction Services', amount: 50_000_000, date: '2026-02-12', comment: 'Suvoq ishlari avans', status: 'approved', requests: [
+  { id: 'pr7', vendorName: 'Premier Construction Services', amount: 50_000_000, requestedDate: '2026-02-12', givenDate: '2026-02-13', givenAmount: 50_000_000, comment: 'Suvoq ishlari avans', status: 'approved', requests: [
     { requestId: 'r8', date: '2026-02-11', source: 'Obiekt-2', totalAmount: 50_000_000, paidAmount: 0, remainingAmount: 50_000_000 },
   ]},
-  { id: 'pr8', vendorName: 'FastTrack Materials Co.', amount: 3_000_000, date: '2026-02-12', comment: 'Sement uchun qo\'shimcha', status: 'approved', requests: [
+  { id: 'pr8', vendorName: 'FastTrack Materials Co.', amount: 3_000_000, requestedDate: '2026-02-12', givenDate: '2026-02-13', givenAmount: 3_000_000, comment: 'Sement uchun qo\'shimcha', status: 'approved', requests: [
     { requestId: 'r9', date: '2026-02-11', source: 'Obiekt-3', totalAmount: 3_000_000, paidAmount: 0, remainingAmount: 3_000_000 },
   ]},
-  { id: 'pr9', vendorName: 'BuildRight Contractors', amount: 10_000_000, date: '2026-02-11', comment: 'G\'isht uchun avans', status: 'approved', items: [
+  { id: 'pr9', vendorName: 'BuildRight Contractors', amount: 10_000_000, requestedDate: '2026-02-11', givenDate: '2026-02-12', givenAmount: 10_000_000, comment: 'G\'isht uchun avans', status: 'approved', items: [
     { name: "G'isht standart", qty: 5000, unit: 'dona', unitPrice: 2_000, total: 10_000_000 },
   ], requests: [
     { requestId: 'r10', date: '2026-02-10', source: 'Obiekt-1', totalAmount: 10_000_000, paidAmount: 0, remainingAmount: 10_000_000 },
   ]},
-  { id: 'pr10', vendorName: 'SteelForge Industries', amount: 58_900_000, date: '2026-02-07', comment: 'Armatura uchun', status: 'approved', requests: [
+  { id: 'pr10', vendorName: 'SteelForge Industries', amount: 58_900_000, requestedDate: '2026-02-07', givenDate: '2026-02-08', givenAmount: 58_900_000, comment: 'Armatura uchun', status: 'approved', requests: [
     { requestId: 'r11', date: '2026-02-06', source: 'Obiekt-2', totalAmount: 58_900_000, paidAmount: 0, remainingAmount: 58_900_000 },
   ]},
-  { id: 'pr11', vendorName: 'ABC Building Supplies', amount: 23_000_000, date: '2026-02-11', comment: 'Oyna uchun to\'lov', status: 'archived', requests: [
+  { id: 'pr11', vendorName: 'ABC Building Supplies', amount: 23_000_000, requestedDate: '2026-02-11', givenDate: '2026-02-12', givenAmount: 23_000_000, comment: 'Oyna uchun to\'lov', status: 'archived', requests: [
     { requestId: 'r12', date: '2026-02-10', source: 'Obiekt-1', totalAmount: 23_000_000, paidAmount: 23_000_000, remainingAmount: 0 },
   ]},
-  { id: 'pr12', vendorName: 'FastTrack Materials Co.', amount: 10_000, date: '2026-02-11', comment: 'Test to\'lov', status: 'archived' },
-  { id: 'pr13', vendorName: 'BuildRight Contractors', amount: 201_000_000, date: '2026-02-11', comment: 'Beton plita uchun', status: 'archived', requests: [
+  { id: 'pr12', vendorName: 'FastTrack Materials Co.', amount: 10_000, requestedDate: '2026-02-11', givenDate: '2026-02-12', givenAmount: 10_000, comment: 'Test to\'lov', status: 'archived' },
+  { id: 'pr13', vendorName: 'BuildRight Contractors', amount: 201_000_000, requestedDate: '2026-02-11', givenDate: '2026-02-12', givenAmount: 201_000_000, comment: 'Beton plita uchun', status: 'archived', requests: [
     { requestId: 'r13', date: '2026-02-09', source: 'Obiekt-3', totalAmount: 201_000_000, paidAmount: 201_000_000, remainingAmount: 0 },
   ]},
-  { id: 'pr14', vendorName: 'Metro Equipment Rentals', amount: 216_000_000, date: '2026-02-11', comment: 'Ekskavator ijarasi', status: 'archived', requests: [
+  { id: 'pr14', vendorName: 'Metro Equipment Rentals', amount: 216_000_000, requestedDate: '2026-02-11', givenDate: '2026-02-13', givenAmount: 216_000_000, comment: 'Ekskavator ijarasi', status: 'archived', requests: [
     { requestId: 'r14', date: '2026-02-10', source: 'Obiekt-1', totalAmount: 216_000_000, paidAmount: 216_000_000, remainingAmount: 0 },
   ]},
-  { id: 'pr15', vendorName: 'SteelForge Industries', amount: 1_000_000, date: '2026-02-07', comment: 'Metall buyumlar', status: 'archived' },
-  { id: 'pr16', vendorName: 'Premier Construction Services', amount: 600_000, date: '2026-02-05', comment: 'Ish haqi to\'lov', status: 'archived' },
-  { id: 'pr17', vendorName: 'ABC Building Supplies', amount: 19_500_000, date: '2026-02-04', comment: 'Quvur uchun', status: 'archived', requests: [
+  { id: 'pr15', vendorName: 'SteelForge Industries', amount: 1_000_000, requestedDate: '2026-02-07', givenDate: '2026-02-08', givenAmount: 1_000_000, comment: 'Metall buyumlar', status: 'archived' },
+  { id: 'pr16', vendorName: 'Premier Construction Services', amount: 600_000, requestedDate: '2026-02-05', givenDate: '2026-02-06', givenAmount: 600_000, comment: 'Ish haqi to\'lov', status: 'archived' },
+  { id: 'pr17', vendorName: 'ABC Building Supplies', amount: 19_500_000, requestedDate: '2026-02-04', givenDate: '2026-02-05', givenAmount: 19_500_000, comment: 'Quvur uchun', status: 'archived', requests: [
     { requestId: 'r15', date: '2026-02-03', source: 'Obiekt-2', totalAmount: 19_500_000, paidAmount: 19_500_000, remainingAmount: 0 },
   ]},
-  { id: 'pr18', vendorName: 'FastTrack Materials Co.', amount: 3_000_000, date: '2026-01-22', comment: 'Transport xarajati', status: 'archived' },
+  { id: 'pr18', vendorName: 'FastTrack Materials Co.', amount: 3_000_000, requestedDate: '2026-01-22', givenDate: '2026-01-23', givenAmount: 3_000_000, comment: 'Transport xarajati', status: 'archived' },
 ];
 
 const COLUMNS: { key: PaymentRequestStatus; label: string; color: string }[] = [
@@ -126,9 +128,23 @@ export function PaymentRequestsBoard() {
                     <CardContent className="p-3 space-y-1.5">
                       <div className="flex items-start justify-between gap-2">
                         <p className="text-sm font-semibold truncate">{item.vendorName}</p>
-                        <span className="text-[10px] text-muted-foreground whitespace-nowrap">{item.date}</span>
                       </div>
-                      <p className="text-sm font-bold">{fmt(item.amount)} UZS</p>
+                      <div className="flex items-center justify-between text-xs text-muted-foreground">
+                        <span>So'ralgan: {item.requestedDate}</span>
+                        {item.givenDate && <span>Berilgan: {item.givenDate}</span>}
+                      </div>
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <p className="text-[10px] text-muted-foreground">So'ralgan</p>
+                          <p className="text-sm font-bold">{fmt(item.amount)}</p>
+                        </div>
+                        {item.givenAmount != null && (
+                          <div className="text-right">
+                            <p className="text-[10px] text-muted-foreground">Berilgan</p>
+                            <p className="text-sm font-bold text-green-600">{fmt(item.givenAmount)}</p>
+                          </div>
+                        )}
+                      </div>
                       <p className="text-xs text-muted-foreground line-clamp-2">{item.comment}</p>
                     </CardContent>
                   </Card>
@@ -223,9 +239,27 @@ export function PaymentRequestsBoard() {
               </div>
 
               {/* Summary */}
-              <div className="flex justify-between items-center pt-2 border-t">
-                <span className="text-sm text-muted-foreground">Jami so'ralgan:</span>
-                <span className="text-base font-bold">{fmt(selectedRequest.amount)} UZS</span>
+              <div className="grid grid-cols-2 gap-3 pt-2 border-t text-sm">
+                <div>
+                  <p className="text-xs text-muted-foreground">So'ralgan sana</p>
+                  <p className="font-medium">{selectedRequest.requestedDate}</p>
+                </div>
+                {selectedRequest.givenDate && (
+                  <div>
+                    <p className="text-xs text-muted-foreground">Berilgan sana</p>
+                    <p className="font-medium">{selectedRequest.givenDate}</p>
+                  </div>
+                )}
+                <div>
+                  <p className="text-xs text-muted-foreground">So'ralgan summa</p>
+                  <p className="font-bold">{fmt(selectedRequest.amount)} UZS</p>
+                </div>
+                {selectedRequest.givenAmount != null && (
+                  <div>
+                    <p className="text-xs text-muted-foreground">Berilgan summa</p>
+                    <p className="font-bold text-green-600">{fmt(selectedRequest.givenAmount)} UZS</p>
+                  </div>
+                )}
               </div>
             </div>
           )}
