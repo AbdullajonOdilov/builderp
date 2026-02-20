@@ -246,7 +246,13 @@ export function VendorExpensesReport({ data, onAddVendor, onEditVendor, onDelete
           <h2 className="text-xl font-bold">{vendor.vendorName}</h2>
           <p className="text-sm text-muted-foreground">{vendor.contactPerson} · {vendor.phone}</p>
         </div>
-        <div className="ml-auto flex items-center gap-6">
+        <div className="ml-auto flex items-center gap-4">
+          <Button size="sm" variant="outline" onClick={() => setPaymentRequestOpen(true)}>
+            <DollarSign className="h-4 w-4 mr-1" /> Pul so'rash
+          </Button>
+          <Button size="sm" variant="default" onClick={() => setRequestPaymentDialogOpen(true)}>
+            <DollarSign className="h-4 w-4 mr-1" /> Pul taqsimlash
+          </Button>
           <div className="text-right">
             <p className="text-xs text-muted-foreground">To'langan</p>
             <p className="text-sm font-bold">{formatCurrency(vendor.totalPaid, false)}</p>
@@ -266,14 +272,6 @@ export function VendorExpensesReport({ data, onAddVendor, onEditVendor, onDelete
         </div>
       </div>
 
-      {/* Pul so'rash button for checked requests */}
-      {checkedRequests.size > 0 && (
-        <div className="flex justify-start">
-          <Button size="sm" variant="default" onClick={() => setRequestPaymentDialogOpen(true)}>
-            <DollarSign className="h-4 w-4 mr-1" /> Pul so'rash ({checkedRequests.size})
-          </Button>
-        </div>
-      )}
 
       {/* Requests list */}
       <div className="border rounded-lg">
@@ -284,7 +282,6 @@ export function VendorExpensesReport({ data, onAddVendor, onEditVendor, onDelete
             {/* Single header row */}
             <div className="flex items-center px-4 py-2 border-b bg-muted/30">
               <div className="w-6 shrink-0 text-xs text-muted-foreground">№</div>
-              <div className="w-8 shrink-0" />
               <div className="w-7 shrink-0" />
               <div className="flex-1 grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-x-6 gap-y-1">
                 <p className="text-xs text-muted-foreground">Sana</p>
@@ -306,13 +303,6 @@ export function VendorExpensesReport({ data, onAddVendor, onEditVendor, onDelete
                 <Collapsible key={request.requestId} open={isOpen} onOpenChange={() => toggleRequest(request.requestId)}>
                   <div className="flex items-center">
                     <span className="pl-4 w-6 shrink-0 text-xs text-muted-foreground">{idx + 1}</span>
-                    <div className="shrink-0 w-8 flex items-center" onClick={(e) => e.stopPropagation()}>
-                      <Checkbox
-                        checked={checkedRequests.has(request.requestId)}
-                        onCheckedChange={() => toggleRequestCheck(request.requestId)}
-                        disabled={request.remainingAmount <= 0}
-                      />
-                    </div>
                     <CollapsibleTrigger asChild>
                       <button className="flex-1 text-left px-2 py-3 hover:bg-muted/30 transition-colors">
                         <div className="flex items-center gap-3">
