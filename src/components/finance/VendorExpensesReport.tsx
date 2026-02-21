@@ -1,5 +1,5 @@
 import { useState, useMemo } from 'react';
-import { ChevronDown, ChevronRight, ArrowLeft, Eye, FileText, Folder, Plus, Pencil, Trash2, DollarSign, Banknote, Landmark } from 'lucide-react';
+import { ChevronDown, ChevronRight, ArrowLeft, Eye, FileText, Folder, Plus, Pencil, Trash2, DollarSign, Banknote, Landmark, Search } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
@@ -63,8 +63,18 @@ export function VendorExpensesReport({ data, onAddVendor, onEditVendor, onDelete
   const [paymentRequestOpen, setPaymentRequestOpen] = useState(false);
   const [requestPayAmounts, setRequestPayAmounts] = useState<Record<string, string>>({});
   const [requestPaymentDialogOpen, setRequestPaymentDialogOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
 
-  const vendors = useMemo(() => aggregateVendors(data), [data]);
+  const allVendors = useMemo(() => aggregateVendors(data), [data]);
+  const vendors = useMemo(() => {
+    if (!searchQuery.trim()) return allVendors;
+    const q = searchQuery.toLowerCase();
+    return allVendors.filter(v =>
+      v.vendor.vendorName.toLowerCase().includes(q) ||
+      v.vendor.contactPerson.toLowerCase().includes(q) ||
+      v.vendor.phone.includes(q)
+    );
+  }, [allVendors, searchQuery]);
 
   const activeVendor = vendors.find(v => v.vendor.vendorId === selectedVendor);
 
@@ -100,20 +110,40 @@ export function VendorExpensesReport({ data, onAddVendor, onEditVendor, onDelete
     return (
       <div className="space-y-6">
 
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
-          <Card><CardContent className="p-3"><p className="text-[10px] text-muted-foreground">Jami to'langan</p><p className="text-sm font-bold mt-0.5">{formatCurrency(grandTotalPaid, false)}</p></CardContent></Card>
-          <Card><CardContent className="p-3"><p className="text-[10px] text-muted-foreground">Kutilmoqda</p><p className="text-sm font-bold mt-0.5 text-[hsl(var(--status-pending))]">{formatCurrency(grandTotalPending, false)}</p></CardContent></Card>
-          <Card><CardContent className="p-3"><p className="text-[10px] text-muted-foreground">Balans</p><p className={`text-sm font-bold mt-0.5 ${(grandTotalPaid - grandTotalPending) >= 0 ? 'text-green-600' : 'text-destructive'}`}>{formatCurrency(grandTotalPaid - grandTotalPending, false)}</p></CardContent></Card>
-          <Card><CardContent className="p-3"><p className="text-[10px] text-muted-foreground">Qarz</p><p className="text-sm font-bold mt-0.5 text-destructive">{formatCurrency(grandTotalPending, false)}</p></CardContent></Card>
-        </div>
+        <div className="flex items-center gap-3 flex-wrap">
+          <div className="relative flex-1 min-w-[180px] max-w-[280px]">
+            <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <Input
+              placeholder="Qidirish..."
+              className="pl-8 h-8 text-sm"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+            />
+          </div>
 
-        <div className="flex justify-between items-center">
-          {checkedVendors.size > 0 ? (
+          <div className="flex items-center gap-4 ml-auto">
+            <div className="text-right">
+              <p className="text-[10px] text-muted-foreground">Jami to'langan</p>
+              <p className="text-sm font-bold">{formatCurrency(grandTotalPaid, false)}</p>
+            </div>
+            <div className="text-right">
+              <p className="text-[10px] text-muted-foreground">Kutilmoqda</p>
+              <p className="text-sm font-bold text-[hsl(var(--status-pending))]">{formatCurrency(grandTotalPending, false)}</p>
+            </div>
+            <div className="text-right">
+              <p className="text-[10px] text-muted-foreground">Balans</p>
+              <p className={`text-sm font-bold ${(grandTotalPaid - grandTotalPending) >= 0 ? 'text-green-600' : 'text-destructive'}`}>{formatCurrency(grandTotalPaid - grandTotalPending, false)}</p>
+            </div>
+            <div className="text-right">
+              <p className="text-[10px] text-muted-foreground">Qarz</p>
+              <p className="text-sm font-bold text-destructive">{formatCurrency(grandTotalPending, false)}</p>
+            </div>
+          </div>
+
+          {checkedVendors.size > 0 && (
             <Button size="sm" variant="default" onClick={() => setPaymentRequestOpen(true)}>
               <DollarSign className="h-4 w-4 mr-1" /> Pul so'rash ({checkedVendors.size})
             </Button>
-          ) : (
-            <div />
           )}
           <Button size="sm" onClick={() => setAddDialogOpen(true)}>
             <Plus className="h-4 w-4 mr-1" /> Kontragent qo'shish
