@@ -236,7 +236,13 @@ export function VendorExpensesReport({ data, onAddVendor, onEditVendor, onDelete
         </Button>
         <div>
           <div className="flex items-center gap-2">
-            <h2 className="text-xl font-bold">{vendor.vendorName}</h2>
+            <h2 className="text-xl font-bold flex items-center gap-2">
+              {vendor.vendorName}
+              {(vendor as any).vendorType === 'bank'
+                ? <Landmark className="h-4 w-4 text-primary shrink-0" />
+                : <Banknote className="h-4 w-4 text-green-600 shrink-0" />
+              }
+            </h2>
             <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => setEditVendor({ vendorId: vendor.vendorId, data: { vendorName: vendor.vendorName, contactPerson: vendor.contactPerson, phone: vendor.phone, vendorType: (vendor as any).vendorType ?? 'naqd' } })}>
               <Pencil className="h-3.5 w-3.5" />
             </Button>
