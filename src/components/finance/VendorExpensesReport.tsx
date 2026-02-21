@@ -248,7 +248,7 @@ export function VendorExpensesReport({ data, onAddVendor, onEditVendor, onDelete
         </div>
         <div className="ml-auto flex items-center gap-4">
           <Button size="sm" variant="outline" onClick={() => setPaymentRequestOpen(true)}>
-            <DollarSign className="h-4 w-4 mr-1" /> Pul berish
+            <DollarSign className="h-4 w-4 mr-1" /> Pul so'rash
           </Button>
           <Button size="sm" variant="default" onClick={() => setRequestPaymentDialogOpen(true)}>
             <DollarSign className="h-4 w-4 mr-1" /> Pul taqsimlash
@@ -372,6 +372,12 @@ export function VendorExpensesReport({ data, onAddVendor, onEditVendor, onDelete
         onClose={() => { setRequestPaymentDialogOpen(false); setCheckedRequests(new Set()); }}
         vendorName={vendor.vendorName}
         selectedRequests={vendor.requests}
+      />
+
+      <PaymentRequestDialog
+        open={paymentRequestOpen}
+        onClose={() => setPaymentRequestOpen(false)}
+        selectedVendors={[{ vendor, projects: [] }]}
       />
 
       {/* Payment History Dialog */}
