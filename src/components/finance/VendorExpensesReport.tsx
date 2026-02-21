@@ -292,8 +292,6 @@ export function VendorExpensesReport({ data, onAddVendor, onEditVendor, onDelete
                 <p className="text-xs text-muted-foreground">To'langan</p>
                 <p className="text-xs text-muted-foreground">Qoldiq</p>
               </div>
-              <div className="w-[120px] shrink-0 text-xs text-muted-foreground text-center">Miqdor</div>
-              <div className="w-20 shrink-0" />
               <div className="w-9 shrink-0" />
             </div>
             <div className="divide-y">
@@ -319,24 +317,6 @@ export function VendorExpensesReport({ data, onAddVendor, onEditVendor, onDelete
                         </div>
                       </button>
                     </CollapsibleTrigger>
-                  <div className="shrink-0 w-[120px] px-1" onClick={(e) => e.stopPropagation()}>
-                    <Input
-                      type="number"
-                      placeholder="Miqdor"
-                      className="h-8 text-sm"
-                      value={requestPayAmounts[request.requestId] || ''}
-                      onChange={(e) => setRequestPayAmounts(prev => ({ ...prev, [request.requestId]: e.target.value }))}
-                    />
-                  </div>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    className="mr-1 shrink-0 text-xs"
-                    disabled={!requestPayAmounts[request.requestId] || Number(requestPayAmounts[request.requestId]) <= 0}
-                    onClick={(e) => { e.stopPropagation(); }}
-                  >
-                    Pul berish
-                  </Button>
                   <Button
                     variant="ghost"
                     size="icon"
@@ -391,7 +371,7 @@ export function VendorExpensesReport({ data, onAddVendor, onEditVendor, onDelete
         open={requestPaymentDialogOpen}
         onClose={() => { setRequestPaymentDialogOpen(false); setCheckedRequests(new Set()); }}
         vendorName={vendor.vendorName}
-        selectedRequests={vendor.requests.filter(r => checkedRequests.has(r.requestId))}
+        selectedRequests={vendor.requests}
       />
 
       {/* Payment History Dialog */}
