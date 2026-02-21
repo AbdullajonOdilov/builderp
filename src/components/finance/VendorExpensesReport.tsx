@@ -1,5 +1,5 @@
 import { useState, useMemo } from 'react';
-import { ChevronDown, ChevronRight, ArrowLeft, Eye, FileText, Folder, Plus, Pencil, Trash2, DollarSign } from 'lucide-react';
+import { ChevronDown, ChevronRight, ArrowLeft, Eye, FileText, Folder, Plus, Pencil, Trash2, DollarSign, Banknote, Landmark } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
@@ -156,7 +156,13 @@ export function VendorExpensesReport({ data, onAddVendor, onEditVendor, onDelete
               </div>
               <Folder className="h-5 w-5 text-blue-500 shrink-0 mr-3 fill-blue-500/20" />
               <div className="flex-1 grid grid-cols-8 gap-x-4 items-center">
-                <h3 className="font-bold text-sm truncate col-span-2">{vendor.vendorName}</h3>
+                <h3 className="font-bold text-sm truncate col-span-2 flex items-center gap-1.5">
+                  {vendor.vendorName}
+                  {(vendor as any).vendorType === 'bank'
+                    ? <Landmark className="h-3.5 w-3.5 text-primary shrink-0" />
+                    : <Banknote className="h-3.5 w-3.5 text-green-600 shrink-0" />
+                  }
+                </h3>
                 <span className="text-sm">{vendor.requests.length} ta</span>
                 <span className="text-sm truncate">{vendor.contactPerson}</span>
                 <span className="text-sm text-muted-foreground">{vendor.phone}</span>
