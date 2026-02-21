@@ -3,11 +3,15 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+
+export type VendorType = 'naqd' | 'bank';
 
 export interface VendorFormData {
   vendorName: string;
   contactPerson: string;
   phone: string;
+  vendorType: VendorType;
 }
 
 interface Props {
@@ -22,19 +26,21 @@ export function VendorFormDialog({ open, onClose, onSubmit, initialData, title }
   const [name, setName] = useState('');
   const [contact, setContact] = useState('');
   const [phone, setPhone] = useState('');
+  const [vendorType, setVendorType] = useState<VendorType>('naqd');
 
   useEffect(() => {
     if (open) {
       setName(initialData?.vendorName ?? '');
       setContact(initialData?.contactPerson ?? '');
       setPhone(initialData?.phone ?? '');
+      setVendorType(initialData?.vendorType ?? 'naqd');
     }
   }, [open, initialData]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!name.trim()) return;
-    onSubmit({ vendorName: name.trim(), contactPerson: contact.trim(), phone: phone.trim() });
+    onSubmit({ vendorName: name.trim(), contactPerson: contact.trim(), phone: phone.trim(), vendorType });
     onClose();
   };
 
@@ -48,6 +54,18 @@ export function VendorFormDialog({ open, onClose, onSubmit, initialData, title }
           <div className="space-y-2">
             <Label htmlFor="vendor-name">Nomi *</Label>
             <Input id="vendor-name" value={name} onChange={e => setName(e.target.value)} placeholder="Kontragent nomi" required />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="vendor-type">Turi *</Label>
+            <Select value={vendorType} onValueChange={(v) => setVendorType(v as VendorType)}>
+              <SelectTrigger>
+                <SelectValue placeholder="Turini tanlang" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="naqd">Naqd</SelectItem>
+                <SelectItem value="bank">Bank</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
           <div className="space-y-2">
             <Label htmlFor="vendor-contact">Kontakt shaxs</Label>

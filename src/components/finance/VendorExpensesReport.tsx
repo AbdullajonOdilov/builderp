@@ -136,7 +136,7 @@ export function VendorExpensesReport({ data, onAddVendor, onEditVendor, onDelete
               <p className="text-xs text-muted-foreground text-right">Balans</p>
             </div>
             <p className="text-xs text-muted-foreground text-right w-[100px] shrink-0">Qarz</p>
-            <div className="w-[72px] shrink-0" />
+            
           </div>
           <div className="divide-y">
           {vendors.map(({ vendor, projects }, idx) => {
@@ -169,20 +169,6 @@ export function VendorExpensesReport({ data, onAddVendor, onEditVendor, onDelete
               <span className="text-sm font-medium text-right w-[100px] shrink-0 text-[hsl(var(--status-pending))]">
                 {vendor.totalPending > 0 ? formatCurrency(vendor.totalPending, false) : '—'}
               </span>
-              <div className="flex shrink-0 ml-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                <Button variant="ghost" size="icon" className="h-8 w-8" onClick={(e) => {
-                  e.stopPropagation();
-                  setEditVendor({ vendorId: vendor.vendorId, data: { vendorName: vendor.vendorName, contactPerson: vendor.contactPerson, phone: vendor.phone } });
-                }}>
-                  <Pencil className="h-3.5 w-3.5" />
-                </Button>
-                <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive" onClick={(e) => {
-                  e.stopPropagation();
-                  setDeleteVendorId(vendor.vendorId);
-                }}>
-                  <Trash2 className="h-3.5 w-3.5" />
-                </Button>
-              </div>
             </div>
           );})}
           </div>
@@ -245,7 +231,7 @@ export function VendorExpensesReport({ data, onAddVendor, onEditVendor, onDelete
         <div>
           <div className="flex items-center gap-2">
             <h2 className="text-xl font-bold">{vendor.vendorName} <span className={`text-base font-semibold ${(vendor.totalPaid - vendor.totalPending) >= 0 ? 'text-green-600' : 'text-destructive'}`}>({formatCurrency(vendor.totalPaid - vendor.totalPending, false)})</span></h2>
-            <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => setEditVendor({ vendorId: vendor.vendorId, data: { vendorName: vendor.vendorName, contactPerson: vendor.contactPerson, phone: vendor.phone } })}>
+            <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => setEditVendor({ vendorId: vendor.vendorId, data: { vendorName: vendor.vendorName, contactPerson: vendor.contactPerson, phone: vendor.phone, vendorType: (vendor as any).vendorType ?? 'naqd' } })}>
               <Pencil className="h-3.5 w-3.5" />
             </Button>
             <Button variant="ghost" size="icon" className="h-7 w-7 text-destructive" onClick={() => setDeleteVendorId(vendor.vendorId)}>
