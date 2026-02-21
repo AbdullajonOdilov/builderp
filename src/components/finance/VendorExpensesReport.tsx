@@ -243,12 +243,12 @@ export function VendorExpensesReport({ data, onAddVendor, onEditVendor, onDelete
           <ArrowLeft className="h-5 w-5" />
         </Button>
         <div>
-          <h2 className="text-xl font-bold">{vendor.vendorName}</h2>
+          <h2 className="text-xl font-bold">{vendor.vendorName} <span className={`text-base font-semibold ${(vendor.totalPaid - vendor.totalPending) >= 0 ? 'text-green-600' : 'text-destructive'}`}>({formatCurrency(vendor.totalPaid - vendor.totalPending, false)})</span></h2>
           <p className="text-sm text-muted-foreground">{vendor.contactPerson} · {vendor.phone}</p>
         </div>
         <div className="ml-auto flex items-center gap-4">
           <Button size="sm" variant="outline" onClick={() => setPaymentRequestOpen(true)}>
-            <DollarSign className="h-4 w-4 mr-1" /> Pul so'rash
+            <DollarSign className="h-4 w-4 mr-1" /> Pul berish
           </Button>
           <Button size="sm" variant="default" onClick={() => setRequestPaymentDialogOpen(true)}>
             <DollarSign className="h-4 w-4 mr-1" /> Pul taqsimlash

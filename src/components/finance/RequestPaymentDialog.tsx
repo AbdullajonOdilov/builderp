@@ -2,8 +2,6 @@ import { useState } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
-import { Label } from '@/components/ui/label';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { VendorRequest } from '@/types/finance';
 
@@ -38,7 +36,7 @@ export function RequestPaymentDialog({ open, onClose, vendorName, selectedReques
     <Dialog open={open} onOpenChange={handleClose}>
       <DialogContent className="max-w-3xl max-h-[85vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>Pul so'rash — {vendorName}</DialogTitle>
+          <DialogTitle>Pul berish — {vendorName}</DialogTitle>
         </DialogHeader>
 
         <div className="border rounded-lg overflow-hidden">
@@ -47,11 +45,11 @@ export function RequestPaymentDialog({ open, onClose, vendorName, selectedReques
               <TableRow className="bg-muted/30 hover:bg-muted/30">
                 <TableHead className="text-xs w-8">№</TableHead>
                 <TableHead className="text-xs">Sana</TableHead>
-                <TableHead className="text-xs">Manba</TableHead>
+                <TableHead className="text-xs">Obyekt</TableHead>
                 <TableHead className="text-xs text-right">Jami</TableHead>
                 <TableHead className="text-xs text-right">To'langan</TableHead>
                 <TableHead className="text-xs text-right">Qoldiq</TableHead>
-                <TableHead className="text-xs text-right w-[140px]">So'ralayotgan</TableHead>
+                <TableHead className="text-xs text-right w-[140px]">Berilayotgan miqdor</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -78,19 +76,9 @@ export function RequestPaymentDialog({ open, onClose, vendorName, selectedReques
           </Table>
         </div>
 
-        <div className="space-y-1.5">
-          <Label className="text-xs">Izoh</Label>
-          <Textarea
-            placeholder="Izoh yozing..."
-            rows={3}
-            value={comment}
-            onChange={(e) => setComment(e.target.value)}
-          />
-        </div>
-
         <DialogFooter>
           <Button variant="outline" onClick={handleClose}>Bekor qilish</Button>
-          <Button onClick={handleSubmit}>So'rov yuborish</Button>
+          <Button onClick={handleSubmit}>Pul berish</Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>
