@@ -3,7 +3,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Banknote, Landmark } from 'lucide-react';
 
 export type VendorType = 'naqd' | 'bank';
 
@@ -56,16 +56,25 @@ export function VendorFormDialog({ open, onClose, onSubmit, initialData, title }
             <Input id="vendor-name" value={name} onChange={e => setName(e.target.value)} placeholder="Kontragent nomi" required />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="vendor-type">Turi *</Label>
-            <Select value={vendorType} onValueChange={(v) => setVendorType(v as VendorType)}>
-              <SelectTrigger>
-                <SelectValue placeholder="Turini tanlang" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="naqd">Naqd</SelectItem>
-                <SelectItem value="bank">Bank</SelectItem>
-              </SelectContent>
-            </Select>
+            <Label>Turi *</Label>
+            <div className="flex gap-2">
+              <Button
+                type="button"
+                variant={vendorType === 'naqd' ? 'default' : 'outline'}
+                className="flex-1 gap-2"
+                onClick={() => setVendorType('naqd')}
+              >
+                <Banknote className="h-4 w-4" /> Naqd
+              </Button>
+              <Button
+                type="button"
+                variant={vendorType === 'bank' ? 'default' : 'outline'}
+                className="flex-1 gap-2"
+                onClick={() => setVendorType('bank')}
+              >
+                <Landmark className="h-4 w-4" /> Bank
+              </Button>
+            </div>
           </div>
           <div className="space-y-2">
             <Label htmlFor="vendor-contact">Kontakt shaxs</Label>
