@@ -236,7 +236,7 @@ export function VendorExpensesReport({ data, onAddVendor, onEditVendor, onDelete
         </Button>
         <div>
           <div className="flex items-center gap-2">
-            <h2 className="text-xl font-bold">{vendor.vendorName} <span className={`text-base font-semibold ${(vendor.totalPaid - vendor.totalPending) >= 0 ? 'text-green-600' : 'text-destructive'}`}>({formatCurrency(vendor.totalPaid - vendor.totalPending, false)})</span></h2>
+            <h2 className="text-xl font-bold">{vendor.vendorName}</h2>
             <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => setEditVendor({ vendorId: vendor.vendorId, data: { vendorName: vendor.vendorName, contactPerson: vendor.contactPerson, phone: vendor.phone, vendorType: (vendor as any).vendorType ?? 'naqd' } })}>
               <Pencil className="h-3.5 w-3.5" />
             </Button>
@@ -283,11 +283,10 @@ export function VendorExpensesReport({ data, onAddVendor, onEditVendor, onDelete
             <div className="flex items-center px-4 py-2 border-b bg-muted/30">
               <div className="w-6 shrink-0 text-xs text-muted-foreground">№</div>
               <div className="w-7 shrink-0" />
-              <div className="flex-1 grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-x-6 gap-y-1">
+              <div className="flex-1 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-x-6 gap-y-1">
                 <p className="text-xs text-muted-foreground">Sana</p>
                 <p className="text-xs text-muted-foreground">Manba</p>
                 <p className="text-xs text-muted-foreground">Oluvchi</p>
-                <p className="text-xs text-muted-foreground">Ta'minlovchi</p>
                 <p className="text-xs text-muted-foreground">Jami</p>
                 <p className="text-xs text-muted-foreground">To'langan</p>
                 <p className="text-xs text-muted-foreground">Qoldiq</p>
@@ -305,11 +304,10 @@ export function VendorExpensesReport({ data, onAddVendor, onEditVendor, onDelete
                       <button className="flex-1 text-left px-2 py-3 hover:bg-muted/30 transition-colors">
                         <div className="flex items-center gap-3">
                           {isOpen ? <ChevronDown className="h-4 w-4 text-muted-foreground shrink-0" /> : <ChevronRight className="h-4 w-4 text-muted-foreground shrink-0" />}
-                          <div className="flex-1 grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-x-6 gap-y-2">
+                          <div className="flex-1 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-x-6 gap-y-2">
                             <p className="font-bold text-sm">{request.date}</p>
                             <p className="font-bold text-sm">{request.source}</p>
                             <p className="font-bold text-sm">{request.buyer}</p>
-                            <p className="font-bold text-sm">{request.supplier}</p>
                             <p className="font-bold text-sm">{formatCurrency(request.totalAmount, false)}</p>
                             <p className="font-bold text-sm">{formatCurrency(request.paidAmount, false)}</p>
                             <p className="font-bold text-sm">{formatCurrency(request.remainingAmount, false)}</p>
