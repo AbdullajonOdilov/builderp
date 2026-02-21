@@ -243,7 +243,15 @@ export function VendorExpensesReport({ data, onAddVendor, onEditVendor, onDelete
           <ArrowLeft className="h-5 w-5" />
         </Button>
         <div>
-          <h2 className="text-xl font-bold">{vendor.vendorName} <span className={`text-base font-semibold ${(vendor.totalPaid - vendor.totalPending) >= 0 ? 'text-green-600' : 'text-destructive'}`}>({formatCurrency(vendor.totalPaid - vendor.totalPending, false)})</span></h2>
+          <div className="flex items-center gap-2">
+            <h2 className="text-xl font-bold">{vendor.vendorName} <span className={`text-base font-semibold ${(vendor.totalPaid - vendor.totalPending) >= 0 ? 'text-green-600' : 'text-destructive'}`}>({formatCurrency(vendor.totalPaid - vendor.totalPending, false)})</span></h2>
+            <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => setEditVendor({ vendorId: vendor.vendorId, data: { vendorName: vendor.vendorName, contactPerson: vendor.contactPerson, phone: vendor.phone } })}>
+              <Pencil className="h-3.5 w-3.5" />
+            </Button>
+            <Button variant="ghost" size="icon" className="h-7 w-7 text-destructive" onClick={() => setDeleteVendorId(vendor.vendorId)}>
+              <Trash2 className="h-3.5 w-3.5" />
+            </Button>
+          </div>
           <p className="text-sm text-muted-foreground">{vendor.contactPerson} · {vendor.phone}</p>
         </div>
         <div className="ml-auto flex items-center gap-4">
@@ -379,6 +387,33 @@ export function VendorExpensesReport({ data, onAddVendor, onEditVendor, onDelete
         onClose={() => setPaymentRequestOpen(false)}
         selectedVendors={[{ vendor, projects: [] }]}
       />
+
+      {/* Edit Vendor Dialog (detail view) */}
+      <VendorFormDialog
+        open={!!editVendor}
+        onClose={() => setEditVendor(null)}
+        onSubmit={(data) => { if (editVendor) onEditVendor(editVendor.vendorId, data); }}
+        initialData={editVendor?.data}
+        title="Kontragentni tahrirlash"
+      />
+
+      {/* Delete Confirmation (detail view) */}
+      <AlertDialog open={!!deleteVendorId} onOpenChange={() => setDeleteVendorId(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Kontragentni o'chirish</AlertDialogTitle>
+            <AlertDialogDescription>
+              Haqiqatan ham bu kontragentni o'chirmoqchimisiz? Bu amalni qaytarib bo'lmaydi.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Bekor qilish</AlertDialogCancel>
+            <AlertDialogAction onClick={() => { if (deleteVendorId) { onDeleteVendor(deleteVendorId); setDeleteVendorId(null); setSelectedVendor(null); } }}>
+              O'chirish
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
 
       {/* Payment History Dialog */}
       <Dialog open={!!paymentDialogData} onOpenChange={() => setPaymentDialogData(null)}>
