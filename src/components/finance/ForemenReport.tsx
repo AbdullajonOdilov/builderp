@@ -6,6 +6,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
+import { Checkbox } from '@/components/ui/checkbox';
 import { Button } from '@/components/ui/button';
 import { Calendar } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
@@ -30,8 +31,8 @@ interface Props {
 
 export function ForemenReport({ data, selectedProject, onSelectProject }: Props) {
   const [search, setSearch] = useState('');
-  const [selectedProfession, setSelectedProfession] = useState('all');
-  const [selectedForeman, setSelectedForeman] = useState('all');
+  const [selectedProfessions, setSelectedProfessions] = useState<string[]>([]);
+  const [selectedForemen, setSelectedForemen] = useState<string[]>([]);
   const [dateFrom, setDateFrom] = useState<Date | undefined>(undefined);
   const [dateTo, setDateTo] = useState<Date | undefined>(undefined);
   const [activeForeman, setActiveForeman] = useState<string | null>(null);
@@ -56,16 +57,16 @@ export function ForemenReport({ data, selectedProject, onSelectProject }: Props)
       );
     }
 
-    if (selectedProfession !== 'all') {
-      result = result.filter(f => f.profession === selectedProfession);
+    if (selectedProfessions.length > 0) {
+      result = result.filter(f => selectedProfessions.includes(f.profession));
     }
 
-    if (selectedForeman !== 'all') {
-      result = result.filter(f => f.id === selectedForeman);
+    if (selectedForemen.length > 0) {
+      result = result.filter(f => selectedForemen.includes(f.id));
     }
 
     return result;
-  }, [search, selectedProfession, selectedForeman, projectIds]);
+  }, [search, selectedProfessions, selectedForemen, projectIds]);
 
   const professions = [...new Set(MOCK_FOREMEN.map(f => f.profession))];
 
@@ -316,28 +317,46 @@ export function ForemenReport({ data, selectedProject, onSelectProject }: Props)
 
         <div className="space-y-1">
           <label className="text-xs font-medium text-muted-foreground">Birgadir</label>
-          <Select value={selectedForeman} onValueChange={setSelectedForeman}>
-            <SelectTrigger className="w-[180px]"><SelectValue placeholder="Barcha birgadirlar" /></SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">Barcha birgadirlar</SelectItem>
+          <Popover>
+            <PopoverTrigger asChild>
+              <Button variant="outline" className="w-[180px] justify-start text-left font-normal h-10 text-sm">
+                {selectedForemen.length === 0 ? <span className="text-muted-foreground">Barcha birgadirlar</span> : `${selectedForemen.length} tanlangan`}
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-[200px] p-2 z-[200]" align="start">
               {MOCK_FOREMEN.map(f => (
-                <SelectItem key={f.id} value={f.id}>{f.name}</SelectItem>
+                <label key={f.id} className="flex items-center gap-2 px-2 py-1.5 hover:bg-accent rounded cursor-pointer text-sm">
+                  <Checkbox checked={selectedForemen.includes(f.id)} onCheckedChange={() => setSelectedForemen(prev => prev.includes(f.id) ? prev.filter(x => x !== f.id) : [...prev, f.id])} />
+                  {f.name}
+                </label>
               ))}
-            </SelectContent>
-          </Select>
+              {selectedForemen.length > 0 && (
+                <Button variant="ghost" size="sm" className="w-full text-xs mt-1" onClick={() => setSelectedForemen([])}>Tozalash</Button>
+              )}
+            </PopoverContent>
+          </Popover>
         </div>
 
         <div className="space-y-1">
           <label className="text-xs font-medium text-muted-foreground">Kasb</label>
-          <Select value={selectedProfession} onValueChange={setSelectedProfession}>
-            <SelectTrigger className="w-[160px]"><SelectValue placeholder="Barcha kasblar" /></SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">Barcha kasblar</SelectItem>
+          <Popover>
+            <PopoverTrigger asChild>
+              <Button variant="outline" className="w-[160px] justify-start text-left font-normal h-10 text-sm">
+                {selectedProfessions.length === 0 ? <span className="text-muted-foreground">Barcha kasblar</span> : `${selectedProfessions.length} tanlangan`}
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-[180px] p-2 z-[200]" align="start">
               {professions.map(p => (
-                <SelectItem key={p} value={p}>{p}</SelectItem>
+                <label key={p} className="flex items-center gap-2 px-2 py-1.5 hover:bg-accent rounded cursor-pointer text-sm">
+                  <Checkbox checked={selectedProfessions.includes(p)} onCheckedChange={() => setSelectedProfessions(prev => prev.includes(p) ? prev.filter(x => x !== p) : [...prev, p])} />
+                  {p}
+                </label>
               ))}
-            </SelectContent>
-          </Select>
+              {selectedProfessions.length > 0 && (
+                <Button variant="ghost" size="sm" className="w-full text-xs mt-1" onClick={() => setSelectedProfessions([])}>Tozalash</Button>
+              )}
+            </PopoverContent>
+          </Popover>
         </div>
 
         <div className="space-y-1">
