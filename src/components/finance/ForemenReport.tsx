@@ -417,14 +417,6 @@ export function ForemenReport({ data, selectedProject, onSelectProject }: Props)
                   <TableCell colSpan={8} className="text-center py-8 text-muted-foreground">Birgadir topilmadi</TableCell>
                 </TableRow>
               )}
-              {filteredForemen.length > 0 && (
-                <TableRow className="bg-muted/30 font-semibold hover:bg-muted/40">
-                  <TableCell colSpan={5} className="text-right text-sm">Jami</TableCell>
-                  <TableCell className="text-right">{formatCurrency(summaryTotals.totalWork)}</TableCell>
-                  <TableCell className="text-right text-[hsl(var(--status-delivered))]">{formatCurrency(summaryTotals.totalAdvance)}</TableCell>
-                  <TableCell className="text-right text-[hsl(var(--status-pending))]">{formatCurrency(summaryTotals.balance)}</TableCell>
-                </TableRow>
-              )}
             </TableBody>
           </Table>
         </CardContent>
