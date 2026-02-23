@@ -38,6 +38,7 @@ export interface Foreman {
   name: string;
   phone: string;
   profession: string;
+  comment?: string;
   projects: ForemanProject[];
   workItems: ForemanWorkItem[];
   toolItems: ForemanToolItem[];
@@ -54,7 +55,7 @@ const TOOL_ITEMS_FM1: ForemanToolItem[] = [
 
 export const MOCK_FOREMEN: Foreman[] = [
   {
-    id: 'fm1', name: 'Rustam Karimov', phone: '+998 90 123-45-67', profession: 'Mason',
+    id: 'fm1', name: 'Rustam Karimov', phone: '+998 90 123-45-67', profession: 'Mason', comment: 'Tajribali usta',
     projects: [
       { projectId: 'p1', projectName: 'Sunrise Tower - Block A', taskCount: 24, totalWork: 185_000, totalAdvance: 62_000 },
       { projectId: 'p2', projectName: 'Green Valley Residences', taskCount: 18, totalWork: 142_000, totalAdvance: 48_000 },

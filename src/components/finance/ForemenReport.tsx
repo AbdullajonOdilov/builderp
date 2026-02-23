@@ -431,6 +431,7 @@ export function ForemenReport({ data, selectedProject, onSelectProject }: Props)
                 <TableHead className="text-right">Jami ish</TableHead>
                 <TableHead className="text-right">Olingan avanslar</TableHead>
                 <TableHead className="text-right">Qolgan pul</TableHead>
+                <TableHead>Izoh</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -452,12 +453,13 @@ export function ForemenReport({ data, selectedProject, onSelectProject }: Props)
                     <TableCell className="text-right font-medium">{formatCurrency(scoped.totalWork)}</TableCell>
                     <TableCell className="text-right text-[hsl(var(--status-delivered))]">{formatCurrency(scoped.totalAdvance)}</TableCell>
                     <TableCell className="text-right font-semibold text-[hsl(var(--status-pending))]">{formatCurrency(scoped.balance)}</TableCell>
+                    <TableCell className="text-xs text-muted-foreground">{foreman.comment || '—'}</TableCell>
                   </TableRow>
                 );
               })}
               {filteredForemen.length === 0 && (
                 <TableRow>
-                  <TableCell colSpan={8} className="text-center py-8 text-muted-foreground">Birgadir topilmadi</TableCell>
+                  <TableCell colSpan={9} className="text-center py-8 text-muted-foreground">Birgadir topilmadi</TableCell>
                 </TableRow>
               )}
             </TableBody>
