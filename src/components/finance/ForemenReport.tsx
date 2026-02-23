@@ -124,6 +124,10 @@ export function ForemenReport({ data, selectedProject, onSelectProject }: Props)
               <p className="text-[10px] text-muted-foreground">Qolgan pul</p>
               <p className="text-sm font-bold text-[hsl(var(--status-pending))]">{formatCurrency(scoped.balance)}</p>
             </div>
+            <div className="text-right">
+              <p className="text-[10px] text-muted-foreground">Instrumentlar narxi</p>
+              <p className="text-sm font-bold">{formatCurrency(detailForeman.toolItems.reduce((s, t) => s + t.totalAmount, 0))}</p>
+            </div>
           </div>
         </div>
 
@@ -152,8 +156,8 @@ export function ForemenReport({ data, selectedProject, onSelectProject }: Props)
                       <TableCell className="text-xs">{item.projectName}</TableCell>
                       <TableCell className="text-xs font-medium">{item.workType}</TableCell>
                       <TableCell className="text-right text-xs font-medium">{formatCurrency(item.totalAmount)}</TableCell>
-                      <TableCell className="text-right text-xs text-[hsl(var(--status-pending))]">{formatCurrency(item.receivedAmount)}</TableCell>
-                      <TableCell className="text-right text-xs font-semibold text-[hsl(var(--status-delivered))]">{formatCurrency(item.remainingAmount)}</TableCell>
+                      <TableCell className="text-right text-xs text-[hsl(var(--status-delivered))]">{formatCurrency(item.receivedAmount)}</TableCell>
+                      <TableCell className="text-right text-xs font-semibold text-[hsl(var(--status-pending))]">{formatCurrency(item.remainingAmount)}</TableCell>
                       <TableCell className="text-xs text-muted-foreground">{item.comment}</TableCell>
                       <TableCell>
                         <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => setPaymentDetailItem(item)}>
@@ -243,6 +247,7 @@ export function ForemenReport({ data, selectedProject, onSelectProject }: Props)
           open={editDialogOpen}
           onOpenChange={setEditDialogOpen}
           foreman={detailForeman}
+          projects={data.map(p => ({ id: p.projectId, name: p.projectId }))}
         />
         <DeleteForemanDialog
           open={deleteDialogOpen}
