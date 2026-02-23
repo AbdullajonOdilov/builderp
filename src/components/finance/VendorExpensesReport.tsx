@@ -286,8 +286,8 @@ export function VendorExpensesReport({ data, onAddVendor, onEditVendor, onDelete
           <Button size="sm" variant="outline" onClick={() => setPaymentRequestOpen(true)}>
             <DollarSign className="h-4 w-4 mr-1" /> Pul so'rash
           </Button>
-          <Button size="sm" variant="default" onClick={() => setRequestPaymentDialogOpen(true)}>
-            <DollarSign className="h-4 w-4 mr-1" /> Pul taqsimlash
+          <Button size="sm" variant="default" disabled={checkedRequests.size === 0} onClick={() => setRequestPaymentDialogOpen(true)}>
+            <DollarSign className="h-4 w-4 mr-1" /> Pul taqsimlash {checkedRequests.size > 0 && `(${checkedRequests.size})`}
           </Button>
           <div className="text-right">
             <p className="text-xs text-muted-foreground">To'langan</p>
@@ -318,6 +318,7 @@ export function VendorExpensesReport({ data, onAddVendor, onEditVendor, onDelete
             {/* Single header row */}
             <div className="flex items-center px-4 py-2 border-b bg-muted/30">
               <div className="w-6 shrink-0 text-xs text-muted-foreground">№</div>
+              <div className="w-8 shrink-0" />
               <div className="w-7 shrink-0" />
               <div className="flex-1 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-x-6 gap-y-1">
                 <p className="text-xs text-muted-foreground">Sana</p>
@@ -336,6 +337,12 @@ export function VendorExpensesReport({ data, onAddVendor, onEditVendor, onDelete
                 <Collapsible key={request.requestId} open={isOpen} onOpenChange={() => toggleRequest(request.requestId)}>
                   <div className="flex items-center">
                     <span className="pl-4 w-6 shrink-0 text-xs text-muted-foreground">{idx + 1}</span>
+                    <div className="w-8 shrink-0 flex items-center" onClick={(e) => e.stopPropagation()}>
+                      <Checkbox
+                        checked={checkedRequests.has(request.requestId)}
+                        onCheckedChange={() => toggleRequestCheck(request.requestId)}
+                      />
+                    </div>
                     <CollapsibleTrigger asChild>
                       <button className="flex-1 text-left px-2 py-3 hover:bg-muted/30 transition-colors">
                         <div className="flex items-center gap-3">
