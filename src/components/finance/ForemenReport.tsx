@@ -14,6 +14,7 @@ import { ProjectVendorExpense } from '@/types/finance';
 import { ProjectFilterRow } from './ProjectFilterRow';
 import { MOCK_FOREMEN, Foreman, ForemanWorkItem } from '@/types/foreman';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { AddForemanDialog } from './AddForemanDialog';
 
 function formatCurrency(amount: number) {
   return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(amount);
@@ -33,6 +34,8 @@ export function ForemenReport({ data, selectedProject, onSelectProject }: Props)
   const [dateTo, setDateTo] = useState<Date | undefined>(undefined);
   const [activeForeman, setActiveForeman] = useState<string | null>(null);
   const [paymentDetailItem, setPaymentDetailItem] = useState<ForemanWorkItem | null>(null);
+  const [addDialogOpen, setAddDialogOpen] = useState(false);
+  const [datePickerStep, setDatePickerStep] = useState<'from' | 'to'>('from');
   const projectIds = new Set(data.map(p => p.projectId));
 
   const filteredForemen = useMemo(() => {
@@ -110,12 +113,12 @@ export function ForemenReport({ data, selectedProject, onSelectProject }: Props)
               <p className="text-sm font-bold">{formatCurrency(scoped.totalWork)}</p>
             </div>
             <div className="text-right">
-              <p className="text-[10px] text-muted-foreground">Avanslar</p>
-              <p className="text-sm font-bold text-[hsl(var(--status-pending))]">{formatCurrency(scoped.totalAdvance)}</p>
+              <p className="text-[10px] text-muted-foreground">Olingan avanslar</p>
+              <p className="text-sm font-bold text-[hsl(var(--status-delivered))]">{formatCurrency(scoped.totalAdvance)}</p>
             </div>
             <div className="text-right">
-              <p className="text-[10px] text-muted-foreground">Balans</p>
-              <p className="text-sm font-bold text-[hsl(var(--status-delivered))]">{formatCurrency(scoped.balance)}</p>
+              <p className="text-[10px] text-muted-foreground">Qolgan pul</p>
+              <p className="text-sm font-bold text-[hsl(var(--status-pending))]">{formatCurrency(scoped.balance)}</p>
             </div>
           </div>
         </div>
@@ -256,17 +259,17 @@ export function ForemenReport({ data, selectedProject, onSelectProject }: Props)
             </div>
           </div>
           <div className="flex items-center gap-2">
-            <DollarSign className="h-4 w-4 text-[hsl(var(--status-pending))]" />
+            <DollarSign className="h-4 w-4 text-[hsl(var(--status-delivered))]" />
             <div>
-              <p className="text-[10px] text-muted-foreground">Avanslar</p>
-              <p className="text-sm font-bold text-[hsl(var(--status-pending))]">{formatCurrency(summaryTotals.totalAdvance)}</p>
+              <p className="text-[10px] text-muted-foreground">Olingan avanslar</p>
+              <p className="text-sm font-bold text-[hsl(var(--status-delivered))]">{formatCurrency(summaryTotals.totalAdvance)}</p>
             </div>
           </div>
           <div className="flex items-center gap-2">
-            <Wallet className="h-4 w-4 text-[hsl(var(--status-delivered))]" />
+            <Wallet className="h-4 w-4 text-[hsl(var(--status-pending))]" />
             <div>
-              <p className="text-[10px] text-muted-foreground">Balans</p>
-              <p className="text-sm font-bold text-[hsl(var(--status-delivered))]">{formatCurrency(summaryTotals.balance)}</p>
+              <p className="text-[10px] text-muted-foreground">Qolgan pul</p>
+              <p className="text-sm font-bold text-[hsl(var(--status-pending))]">{formatCurrency(summaryTotals.balance)}</p>
             </div>
           </div>
         </div>
@@ -315,48 +318,61 @@ export function ForemenReport({ data, selectedProject, onSelectProject }: Props)
 
         <div className="space-y-1">
           <label className="text-xs font-medium text-muted-foreground">Sana</label>
-          <div className="flex items-center gap-1.5">
-            <Popover>
-              <PopoverTrigger asChild>
-                <Button variant="outline" className={cn("w-[120px] justify-start text-left font-normal h-10", !dateFrom && "text-muted-foreground")}>
-                  <CalendarIcon className="mr-1.5 h-3.5 w-3.5" />
-                  {dateFrom ? format(dateFrom, 'dd.MM.yy') : <span className="text-xs">Dan</span>}
-                </Button>
-              </PopoverTrigger>
-              <PopoverContent className="w-auto p-0" align="start">
-                <div className="flex gap-1 p-2 border-b">
-                  <Button variant="ghost" size="sm" className="text-xs h-7" onClick={() => setPresetRange(7)}>7k</Button>
-                  <Button variant="ghost" size="sm" className="text-xs h-7" onClick={() => setPresetRange(30)}>30k</Button>
-                  <Button variant="ghost" size="sm" className="text-xs h-7" onClick={() => setPresetRange(90)}>90k</Button>
-                </div>
-                <Calendar mode="single" selected={dateFrom} onSelect={setDateFrom} initialFocus className={cn("p-3 pointer-events-auto")} />
-              </PopoverContent>
-            </Popover>
-            <span className="text-muted-foreground text-xs">–</span>
-            <Popover>
-              <PopoverTrigger asChild>
-                <Button variant="outline" className={cn("w-[120px] justify-start text-left font-normal h-10", !dateTo && "text-muted-foreground")}>
-                  <CalendarIcon className="mr-1.5 h-3.5 w-3.5" />
-                  {dateTo ? format(dateTo, 'dd.MM.yy') : <span className="text-xs">Gacha</span>}
-                </Button>
-              </PopoverTrigger>
-              <PopoverContent className="w-auto p-0" align="start">
-                <Calendar mode="single" selected={dateTo} onSelect={setDateTo} initialFocus className={cn("p-3 pointer-events-auto")} />
-              </PopoverContent>
-            </Popover>
-            {(dateFrom || dateTo) && (
-              <Button variant="ghost" size="sm" className="text-xs h-7 px-2" onClick={() => { setDateFrom(undefined); setDateTo(undefined); }}>Tozalash</Button>
-            )}
-          </div>
+          <Popover>
+            <PopoverTrigger asChild>
+              <Button variant="outline" className={cn("w-[220px] justify-start text-left font-normal h-10", !dateFrom && !dateTo && "text-muted-foreground")}>
+                <CalendarIcon className="mr-1.5 h-3.5 w-3.5" />
+                {dateFrom && dateTo
+                  ? `${format(dateFrom, 'dd.MM.yy')} – ${format(dateTo, 'dd.MM.yy')}`
+                  : dateFrom
+                    ? `${format(dateFrom, 'dd.MM.yy')} – ...`
+                    : <span className="text-xs">Sanani tanlang</span>}
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-auto p-0" align="start">
+              <div className="flex gap-1 p-2 border-b">
+                <Button variant="ghost" size="sm" className="text-xs h-7" onClick={() => setPresetRange(7)}>7k</Button>
+                <Button variant="ghost" size="sm" className="text-xs h-7" onClick={() => setPresetRange(30)}>30k</Button>
+                <Button variant="ghost" size="sm" className="text-xs h-7" onClick={() => setPresetRange(90)}>90k</Button>
+                {(dateFrom || dateTo) && (
+                  <Button variant="ghost" size="sm" className="text-xs h-7 ml-auto" onClick={() => { setDateFrom(undefined); setDateTo(undefined); setDatePickerStep('from'); }}>Tozalash</Button>
+                )}
+              </div>
+              <div className="p-2 text-center text-xs text-muted-foreground border-b">
+                {datePickerStep === 'from' ? 'Boshlanish sanasini tanlang' : 'Tugash sanasini tanlang'}
+              </div>
+              <Calendar
+                mode="single"
+                selected={datePickerStep === 'from' ? dateFrom : dateTo}
+                onSelect={(date) => {
+                  if (datePickerStep === 'from') {
+                    setDateFrom(date);
+                    setDatePickerStep('to');
+                  } else {
+                    setDateTo(date);
+                    setDatePickerStep('from');
+                  }
+                }}
+                initialFocus
+                className={cn("p-3 pointer-events-auto")}
+              />
+            </PopoverContent>
+          </Popover>
         </div>
 
         <div className="space-y-1">
           <label className="text-xs font-medium text-muted-foreground">&nbsp;</label>
-          <Button size="sm" className="h-10">
+          <Button size="sm" className="h-10" onClick={() => setAddDialogOpen(true)}>
             <Plus className="h-4 w-4 mr-1" /> Qo'shish
           </Button>
         </div>
       </ProjectFilterRow>
+
+      <AddForemanDialog
+        open={addDialogOpen}
+        onOpenChange={setAddDialogOpen}
+        projects={data.map(p => ({ id: p.projectId, name: p.projectId }))}
+      />
 
       {/* Table */}
       <Card>
@@ -370,8 +386,8 @@ export function ForemenReport({ data, selectedProject, onSelectProject }: Props)
                 <TableHead>Kasb</TableHead>
                 <TableHead className="text-center">Vazifalar</TableHead>
                 <TableHead className="text-right">Jami ish</TableHead>
-                <TableHead className="text-right">Avanslar</TableHead>
-                <TableHead className="text-right">Balans</TableHead>
+                <TableHead className="text-right">Olingan avanslar</TableHead>
+                <TableHead className="text-right">Qolgan pul</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -391,8 +407,8 @@ export function ForemenReport({ data, selectedProject, onSelectProject }: Props)
                     </TableCell>
                     <TableCell className="text-center">{scoped.taskCount}</TableCell>
                     <TableCell className="text-right font-medium">{formatCurrency(scoped.totalWork)}</TableCell>
-                    <TableCell className="text-right text-[hsl(var(--status-pending))]">{formatCurrency(scoped.totalAdvance)}</TableCell>
-                    <TableCell className="text-right font-semibold text-[hsl(var(--status-delivered))]">{formatCurrency(scoped.balance)}</TableCell>
+                    <TableCell className="text-right text-[hsl(var(--status-delivered))]">{formatCurrency(scoped.totalAdvance)}</TableCell>
+                    <TableCell className="text-right font-semibold text-[hsl(var(--status-pending))]">{formatCurrency(scoped.balance)}</TableCell>
                   </TableRow>
                 );
               })}
@@ -405,8 +421,8 @@ export function ForemenReport({ data, selectedProject, onSelectProject }: Props)
                 <TableRow className="bg-muted/30 font-semibold hover:bg-muted/40">
                   <TableCell colSpan={5} className="text-right text-sm">Jami</TableCell>
                   <TableCell className="text-right">{formatCurrency(summaryTotals.totalWork)}</TableCell>
-                  <TableCell className="text-right text-[hsl(var(--status-pending))]">{formatCurrency(summaryTotals.totalAdvance)}</TableCell>
-                  <TableCell className="text-right text-[hsl(var(--status-delivered))]">{formatCurrency(summaryTotals.balance)}</TableCell>
+                  <TableCell className="text-right text-[hsl(var(--status-delivered))]">{formatCurrency(summaryTotals.totalAdvance)}</TableCell>
+                  <TableCell className="text-right text-[hsl(var(--status-pending))]">{formatCurrency(summaryTotals.balance)}</TableCell>
                 </TableRow>
               )}
             </TableBody>
