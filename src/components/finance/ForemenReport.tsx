@@ -1,5 +1,5 @@
 import { useState, useMemo } from 'react';
-import { Search, Users, Briefcase, DollarSign, Wallet, CalendarIcon, ArrowLeft, Plus, Phone } from 'lucide-react';
+import { Search, Users, Briefcase, DollarSign, Wallet, CalendarIcon, ArrowLeft, Plus, Phone, Eye, Pencil, Trash2 } from 'lucide-react';
 import { format, subDays } from 'date-fns';
 import { Card, CardContent } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
@@ -12,7 +12,8 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import { cn } from '@/lib/utils';
 import { ProjectVendorExpense } from '@/types/finance';
 import { ProjectFilterRow } from './ProjectFilterRow';
-import { MOCK_FOREMEN, Foreman } from '@/types/foreman';
+import { MOCK_FOREMEN, Foreman, ForemanWorkItem } from '@/types/foreman';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 
 function formatCurrency(amount: number) {
   return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(amount);
@@ -31,7 +32,7 @@ export function ForemenReport({ data, selectedProject, onSelectProject }: Props)
   const [dateFrom, setDateFrom] = useState<Date | undefined>(undefined);
   const [dateTo, setDateTo] = useState<Date | undefined>(undefined);
   const [activeForeman, setActiveForeman] = useState<string | null>(null);
-
+  const [paymentDetailItem, setPaymentDetailItem] = useState<ForemanWorkItem | null>(null);
   const projectIds = new Set(data.map(p => p.projectId));
 
   const filteredForemen = useMemo(() => {
@@ -90,71 +91,146 @@ export function ForemenReport({ data, selectedProject, onSelectProject }: Props)
     const scoped = getProjectScoped(detailForeman);
     return (
       <div className="space-y-6">
+        {/* Header with back, name, edit/delete, stats */}
         <div className="flex items-center gap-3">
           <Button variant="ghost" size="icon" onClick={() => setActiveForeman(null)}>
             <ArrowLeft className="h-5 w-5" />
           </Button>
           <div>
             <h2 className="text-xl font-bold">{detailForeman.name}</h2>
-            <p className="text-sm text-muted-foreground">{detailForeman.profession} · {detailForeman.phone}</p>
+            <p className="text-xs text-muted-foreground">{detailForeman.profession} · {detailForeman.phone}</p>
+          </div>
+          <div className="flex items-center gap-1 ml-2">
+            <Button variant="ghost" size="icon" className="h-8 w-8"><Pencil className="h-3.5 w-3.5" /></Button>
+            <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive"><Trash2 className="h-3.5 w-3.5" /></Button>
           </div>
           <div className="ml-auto flex items-center gap-4">
             <div className="text-right">
-              <p className="text-xs text-muted-foreground">Jami ish</p>
+              <p className="text-[10px] text-muted-foreground">Jami ish</p>
               <p className="text-sm font-bold">{formatCurrency(scoped.totalWork)}</p>
             </div>
             <div className="text-right">
-              <p className="text-xs text-muted-foreground">Avanslar</p>
+              <p className="text-[10px] text-muted-foreground">Avanslar</p>
               <p className="text-sm font-bold text-[hsl(var(--status-pending))]">{formatCurrency(scoped.totalAdvance)}</p>
             </div>
             <div className="text-right">
-              <p className="text-xs text-muted-foreground">Balans</p>
+              <p className="text-[10px] text-muted-foreground">Balans</p>
               <p className="text-sm font-bold text-[hsl(var(--status-delivered))]">{formatCurrency(scoped.balance)}</p>
-            </div>
-            <div className="text-right">
-              <p className="text-xs text-muted-foreground">Vazifalar</p>
-              <p className="text-sm font-bold">{scoped.taskCount}</p>
             </div>
           </div>
         </div>
 
-        {/* Projects table */}
-        <Card>
-          <CardContent className="p-0">
+        {/* Table 1: Ishlar (Work items) */}
+        <div>
+          <h3 className="text-sm font-semibold mb-2">Ishlar ro'yxati</h3>
+          <Card>
+            <CardContent className="p-0">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead className="w-[32px] text-center">#</TableHead>
+                    <TableHead>Obyekt</TableHead>
+                    <TableHead>Ish turi nomi</TableHead>
+                    <TableHead className="text-right">Jami summa</TableHead>
+                    <TableHead className="text-right">Olgan summa</TableHead>
+                    <TableHead className="text-right">Qolgan summa</TableHead>
+                    <TableHead>Izoh</TableHead>
+                    <TableHead className="w-[40px]"></TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {detailForeman.workItems.map((item, idx) => (
+                    <TableRow key={item.id}>
+                      <TableCell className="text-center text-muted-foreground text-xs">{idx + 1}</TableCell>
+                      <TableCell className="text-xs">{item.projectName}</TableCell>
+                      <TableCell className="text-xs font-medium">{item.workType}</TableCell>
+                      <TableCell className="text-right text-xs font-medium">{formatCurrency(item.totalAmount)}</TableCell>
+                      <TableCell className="text-right text-xs text-[hsl(var(--status-pending))]">{formatCurrency(item.receivedAmount)}</TableCell>
+                      <TableCell className="text-right text-xs font-semibold text-[hsl(var(--status-delivered))]">{formatCurrency(item.remainingAmount)}</TableCell>
+                      <TableCell className="text-xs text-muted-foreground">{item.comment}</TableCell>
+                      <TableCell>
+                        <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => setPaymentDetailItem(item)}>
+                          <Eye className="h-3.5 w-3.5" />
+                        </Button>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                  {detailForeman.workItems.length === 0 && (
+                    <TableRow><TableCell colSpan={8} className="text-center py-6 text-muted-foreground text-xs">Ma'lumot yo'q</TableCell></TableRow>
+                  )}
+                </TableBody>
+              </Table>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Table 2: Instrumentlar (Tool usage) */}
+        <div>
+          <h3 className="text-sm font-semibold mb-2">Instrumentlar</h3>
+          <Card>
+            <CardContent className="p-0">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead className="w-[32px] text-center">#</TableHead>
+                    <TableHead>Ish turi nomi</TableHead>
+                    <TableHead>Sana</TableHead>
+                    <TableHead>Instrument nomi</TableHead>
+                    <TableHead className="text-right">Miqdori</TableHead>
+                    <TableHead className="text-right">Narxi</TableHead>
+                    <TableHead className="text-right">Umumiy summa</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {detailForeman.toolItems.map((item, idx) => (
+                    <TableRow key={item.id}>
+                      <TableCell className="text-center text-muted-foreground text-xs">{idx + 1}</TableCell>
+                      <TableCell className="text-xs font-medium">{item.workType}</TableCell>
+                      <TableCell className="text-xs">{item.date}</TableCell>
+                      <TableCell className="text-xs">{item.toolName}</TableCell>
+                      <TableCell className="text-right text-xs">{item.quantity}</TableCell>
+                      <TableCell className="text-right text-xs">{formatCurrency(item.price)}</TableCell>
+                      <TableCell className="text-right text-xs font-semibold">{formatCurrency(item.totalAmount)}</TableCell>
+                    </TableRow>
+                  ))}
+                  {detailForeman.toolItems.length === 0 && (
+                    <TableRow><TableCell colSpan={7} className="text-center py-6 text-muted-foreground text-xs">Ma'lumot yo'q</TableCell></TableRow>
+                  )}
+                </TableBody>
+              </Table>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Payment detail dialog */}
+        <Dialog open={!!paymentDetailItem} onOpenChange={(open) => { if (!open) setPaymentDetailItem(null); }}>
+          <DialogContent className="max-w-md">
+            <DialogHeader>
+              <DialogTitle className="text-sm">{paymentDetailItem?.workType} — To'lovlar</DialogTitle>
+            </DialogHeader>
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead className="w-[40px] text-center">#</TableHead>
-                  <TableHead>Loyiha</TableHead>
-                  <TableHead className="text-center">Vazifalar</TableHead>
-                  <TableHead className="text-right">Jami ish</TableHead>
-                  <TableHead className="text-right">Avanslar</TableHead>
-                  <TableHead className="text-right">Balans</TableHead>
+                  <TableHead className="text-xs">Sana</TableHead>
+                  <TableHead className="text-right text-xs">Pul miqdori</TableHead>
+                  <TableHead className="text-xs">Izoh</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {detailForeman.projects
-                  .filter(p => projectIds.has(p.projectId))
-                  .map((project, idx) => (
-                    <TableRow key={project.projectId}>
-                      <TableCell className="text-center text-muted-foreground text-xs">{idx + 1}</TableCell>
-                      <TableCell className="font-medium">{project.projectName}</TableCell>
-                      <TableCell className="text-center">{project.taskCount}</TableCell>
-                      <TableCell className="text-right font-medium">{formatCurrency(project.totalWork)}</TableCell>
-                      <TableCell className="text-right text-[hsl(var(--status-pending))]">{formatCurrency(project.totalAdvance)}</TableCell>
-                      <TableCell className="text-right font-semibold text-[hsl(var(--status-delivered))]">{formatCurrency(project.totalWork - project.totalAdvance)}</TableCell>
-                    </TableRow>
-                  ))}
-                <TableRow className="bg-muted/30 font-semibold hover:bg-muted/40">
-                  <TableCell colSpan={3} className="text-right text-sm">Jami</TableCell>
-                  <TableCell className="text-right">{formatCurrency(scoped.totalWork)}</TableCell>
-                  <TableCell className="text-right text-[hsl(var(--status-pending))]">{formatCurrency(scoped.totalAdvance)}</TableCell>
-                  <TableCell className="text-right text-[hsl(var(--status-delivered))]">{formatCurrency(scoped.balance)}</TableCell>
-                </TableRow>
+                {paymentDetailItem?.payments.map((p, i) => (
+                  <TableRow key={i}>
+                    <TableCell className="text-xs">{p.date}</TableCell>
+                    <TableCell className="text-right text-xs font-medium">{formatCurrency(p.amount)}</TableCell>
+                    <TableCell className="text-xs text-muted-foreground">{p.comment}</TableCell>
+                  </TableRow>
+                ))}
+                {paymentDetailItem?.payments.length === 0 && (
+                  <TableRow><TableCell colSpan={3} className="text-center py-4 text-muted-foreground text-xs">To'lov yo'q</TableCell></TableRow>
+                )}
               </TableBody>
             </Table>
-          </CardContent>
-        </Card>
+          </DialogContent>
+        </Dialog>
       </div>
     );
   }
