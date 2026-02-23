@@ -1,5 +1,5 @@
 import { useState, useMemo } from 'react';
-import { Search, Users, Briefcase, DollarSign, Wallet, CalendarIcon, ArrowLeft, Plus, Phone, Eye, Pencil, Trash2 } from 'lucide-react';
+import { Search, Users, Briefcase, DollarSign, Wallet, CalendarIcon, ArrowLeft, Plus, Phone, Eye, Pencil, Trash2, Wrench } from 'lucide-react';
 import { format, subDays } from 'date-fns';
 import { Card, CardContent } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
@@ -131,6 +131,17 @@ export function ForemenReport({ data, selectedProject, onSelectProject }: Props)
               <p className="text-sm font-bold">{formatCurrency(detailForeman.toolItems.reduce((s, t) => s + t.totalAmount, 0))}</p>
             </div>
           </div>
+          {detailForeman.workItems.length >= 3 && (
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-8 w-8 ml-2"
+              title="Instrumentlarga o'tish"
+              onClick={() => document.getElementById('instrumentlar-section')?.scrollIntoView({ behavior: 'smooth' })}
+            >
+              <Wrench className="h-4 w-4" />
+            </Button>
+          )}
         </div>
 
         {/* Table 1: Ishlar (Work items) */}
@@ -178,7 +189,7 @@ export function ForemenReport({ data, selectedProject, onSelectProject }: Props)
         </div>
 
         {/* Table 2: Instrumentlar (Tool usage) */}
-        <div>
+        <div id="instrumentlar-section">
           <h3 className="text-sm font-semibold mb-2">Instrumentlar</h3>
           <Card>
             <CardContent className="p-0">
@@ -186,6 +197,7 @@ export function ForemenReport({ data, selectedProject, onSelectProject }: Props)
                 <TableHeader>
                   <TableRow>
                     <TableHead className="w-[32px] text-center">#</TableHead>
+                    <TableHead>Obyekt</TableHead>
                     <TableHead>Ish turi nomi</TableHead>
                     <TableHead>Sana</TableHead>
                     <TableHead>Instrument nomi</TableHead>
@@ -198,6 +210,7 @@ export function ForemenReport({ data, selectedProject, onSelectProject }: Props)
                   {detailForeman.toolItems.map((item, idx) => (
                     <TableRow key={item.id}>
                       <TableCell className="text-center text-muted-foreground text-xs">{idx + 1}</TableCell>
+                      <TableCell className="text-xs">{item.projectName}</TableCell>
                       <TableCell className="text-xs font-medium">{item.workType}</TableCell>
                       <TableCell className="text-xs">{item.date}</TableCell>
                       <TableCell className="text-xs">{item.toolName}</TableCell>
@@ -207,7 +220,7 @@ export function ForemenReport({ data, selectedProject, onSelectProject }: Props)
                     </TableRow>
                   ))}
                   {detailForeman.toolItems.length === 0 && (
-                    <TableRow><TableCell colSpan={7} className="text-center py-6 text-muted-foreground text-xs">Ma'lumot yo'q</TableCell></TableRow>
+                    <TableRow><TableCell colSpan={8} className="text-center py-6 text-muted-foreground text-xs">Ma'lumot yo'q</TableCell></TableRow>
                   )}
                 </TableBody>
               </Table>
