@@ -11,7 +11,7 @@ interface FinanceSidebarProps {
 const REPORTS = [
   { id: 'vendor-expenses' as const, label: 'Vendor Expenses', icon: Users, description: 'Per-project vendor breakdown' },
   { id: 'payment-requests' as const, label: "So'ralgan pullar", icon: Banknote, description: "Pul so'rovlari board" },
-  { id: 'foremen' as const, label: 'Foremen', icon: FileText, description: 'Work & advances by foreman' },
+  { id: 'foremen' as const, label: 'Birgadirlar', icon: FileText, description: 'Ish va avanslar' },
   { id: 'project-overview' as const, label: 'Project Overview', icon: Building2, description: 'Budget vs spending' },
 ];
 
