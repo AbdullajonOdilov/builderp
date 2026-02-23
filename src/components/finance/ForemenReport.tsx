@@ -83,9 +83,10 @@ export function ForemenReport({ data, selectedProject, onSelectProject }: Props)
       acc.totalWork += s.totalWork;
       acc.totalAdvance += s.totalAdvance;
       acc.balance += s.balance;
+      acc.toolsCost += f.toolItems.reduce((s, t) => s + t.totalAmount, 0);
       return acc;
     },
-    { totalWork: 0, totalAdvance: 0, balance: 0 }
+    { totalWork: 0, totalAdvance: 0, balance: 0, toolsCost: 0 }
   );
 
   const setPresetRange = (days: number) => {
@@ -295,6 +296,13 @@ export function ForemenReport({ data, selectedProject, onSelectProject }: Props)
             <div>
               <p className="text-[10px] text-muted-foreground">Qolgan pul</p>
               <p className="text-sm font-bold text-[hsl(var(--status-pending))]">{formatCurrency(summaryTotals.balance)}</p>
+            </div>
+          </div>
+          <div className="flex items-center gap-2">
+            <Briefcase className="h-4 w-4 text-muted-foreground" />
+            <div>
+              <p className="text-[10px] text-muted-foreground">Instrumentlar narxi</p>
+              <p className="text-sm font-bold">{formatCurrency(summaryTotals.toolsCost)}</p>
             </div>
           </div>
         </div>
