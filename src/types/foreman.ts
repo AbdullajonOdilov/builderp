@@ -17,6 +17,7 @@ export interface ForemanWorkItem {
 
 export interface ForemanToolItem {
   id: string;
+  projectName: string;
   workType: string;
   date: string;
   toolName: string;
@@ -49,8 +50,8 @@ const WORK_ITEMS_FM1: ForemanWorkItem[] = [
   { id: 'w2', projectName: 'Green Valley Residences', workType: 'Suvoq ishi', totalAmount: 85_000, receivedAmount: 30_000, remainingAmount: 55_000, comment: '1-2 qavat', payments: [{ date: '2025-01-20', amount: 30_000, comment: 'Avans' }] },
 ];
 const TOOL_ITEMS_FM1: ForemanToolItem[] = [
-  { id: 't1', workType: 'G\'isht terish', date: '2025-01-10', toolName: 'Sement', quantity: 50, price: 80, totalAmount: 4_000 },
-  { id: 't2', workType: 'Suvoq ishi', date: '2025-01-12', toolName: 'Qum', quantity: 30, price: 40, totalAmount: 1_200 },
+  { id: 't1', projectName: 'Sunrise Tower - Block A', workType: 'G\'isht terish', date: '2025-01-10', toolName: 'Sement', quantity: 50, price: 80, totalAmount: 4_000 },
+  { id: 't2', projectName: 'Green Valley Residences', workType: 'Suvoq ishi', date: '2025-01-12', toolName: 'Qum', quantity: 30, price: 40, totalAmount: 1_200 },
 ];
 
 export const MOCK_FOREMEN: Foreman[] = [
@@ -72,7 +73,7 @@ export const MOCK_FOREMEN: Foreman[] = [
       { id: 'w3', projectName: 'Sunrise Tower - Block A', workType: 'Elektr simlar tortish', totalAmount: 150_000, receivedAmount: 60_000, remainingAmount: 90_000, comment: '1-5 qavat', payments: [{ date: '2025-02-05', amount: 60_000, comment: 'Avans' }] },
     ],
     toolItems: [
-      { id: 't3', workType: 'Elektr simlar tortish', date: '2025-02-01', toolName: 'Kabel 2.5mm', quantity: 200, price: 15, totalAmount: 3_000 },
+      { id: 't3', projectName: 'Sunrise Tower - Block A', workType: 'Elektr simlar tortish', date: '2025-02-01', toolName: 'Kabel 2.5mm', quantity: 200, price: 15, totalAmount: 3_000 },
     ],
   },
   {
@@ -85,7 +86,7 @@ export const MOCK_FOREMEN: Foreman[] = [
       { id: 'w4', projectName: 'Green Valley Residences', workType: 'Truba o\'rnatish', totalAmount: 98_000, receivedAmount: 35_000, remainingAmount: 63_000, comment: 'Hammom', payments: [{ date: '2025-01-25', amount: 35_000, comment: 'Avans' }] },
     ],
     toolItems: [
-      { id: 't4', workType: 'Truba o\'rnatish', date: '2025-01-22', toolName: 'PPR truba 20mm', quantity: 100, price: 25, totalAmount: 2_500 },
+      { id: 't4', projectName: 'Green Valley Residences', workType: 'Truba o\'rnatish', date: '2025-01-22', toolName: 'PPR truba 20mm', quantity: 100, price: 25, totalAmount: 2_500 },
     ],
   },
   {
