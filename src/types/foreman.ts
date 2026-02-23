@@ -45,13 +45,48 @@ export interface Foreman {
   toolItems: ForemanToolItem[];
 }
 
-const WORK_ITEMS_FM1: ForemanWorkItem[] = [
-  { id: 'w1', projectName: 'Sunrise Tower - Block A', workType: 'G\'isht terish', totalAmount: 120_000, receivedAmount: 40_000, remainingAmount: 80_000, comment: '3-qavat', payments: [{ date: '2025-01-15', amount: 20_000, comment: 'Avans' }, { date: '2025-02-01', amount: 20_000, comment: 'Oraliq' }] },
-  { id: 'w2', projectName: 'Green Valley Residences', workType: 'Suvoq ishi', totalAmount: 85_000, receivedAmount: 30_000, remainingAmount: 55_000, comment: '1-2 qavat', payments: [{ date: '2025-01-20', amount: 30_000, comment: 'Avans' }] },
+const WORK_TYPES = [
+  "G'isht terish", "Suvoq ishi", "Plitka yotqizish", "Shpaklyovka", "Bo'yash",
+  "Laminat yotqizish", "Gipsokarton o'rnatish", "Elektr simlar tortish", "Truba o'rnatish",
+  "Derazalar o'rnatish", "Eshiklar o'rnatish", "Tom yopish", "Poydevor quyish",
+  "Armatora bog'lash", "Beton quyish", "Kafel yopishtirish", "Sanitariya texnikasi",
+  "Isitish tizimi", "Konditsioner o'rnatish", "Lift montaji", "Fasad ishlari",
+  "Ichki pardozlash", "Tashqi pardozlash", "Landshaft ishlari", "Elektr paneli",
+  "Yoritish o'rnatish", "Kanalizatsiya", "Suv ta'minoti", "Gaz tizimi", "Ventilyatsiya",
+  "Yong'inga qarshi tizim", "Kuzatuv kamerasi", "Interkom tizimi"
 ];
+
+const PROJECTS = ['Sunrise Tower - Block A', 'Green Valley Residences', 'Metro Business Park', 'Harbor Bridge Renovation'];
+
+function generateWorkItems(count: number): ForemanWorkItem[] {
+  return Array.from({ length: count }, (_, i) => {
+    const total = Math.floor(Math.random() * 200_000) + 30_000;
+    const received = Math.floor(Math.random() * total * 0.7);
+    const project = PROJECTS[i % PROJECTS.length];
+    return {
+      id: `w-gen-${i}`,
+      projectName: project,
+      workType: WORK_TYPES[i % WORK_TYPES.length],
+      totalAmount: total,
+      receivedAmount: received,
+      remainingAmount: total - received,
+      comment: `${Math.floor(Math.random() * 10) + 1}-qavat`,
+      payments: [
+        { date: '2025-01-15', amount: Math.floor(received * 0.6), comment: 'Avans' },
+        { date: '2025-02-01', amount: Math.floor(received * 0.4), comment: 'Oraliq' },
+      ],
+    };
+  });
+}
+
+const WORK_ITEMS_FM1: ForemanWorkItem[] = generateWorkItems(34);
+
 const TOOL_ITEMS_FM1: ForemanToolItem[] = [
-  { id: 't1', projectName: 'Sunrise Tower - Block A', workType: 'G\'isht terish', date: '2025-01-10', toolName: 'Sement', quantity: 50, price: 80, totalAmount: 4_000 },
+  { id: 't1', projectName: 'Sunrise Tower - Block A', workType: "G'isht terish", date: '2025-01-10', toolName: 'Sement', quantity: 50, price: 80, totalAmount: 4_000 },
   { id: 't2', projectName: 'Green Valley Residences', workType: 'Suvoq ishi', date: '2025-01-12', toolName: 'Qum', quantity: 30, price: 40, totalAmount: 1_200 },
+  { id: 't3', projectName: 'Metro Business Park', workType: 'Plitka yotqizish', date: '2025-01-18', toolName: 'Plitka klеyi', quantity: 20, price: 60, totalAmount: 1_200 },
+  { id: 't4', projectName: 'Sunrise Tower - Block A', workType: 'Gipsokarton', date: '2025-02-05', toolName: 'Profil 60x27', quantity: 100, price: 12, totalAmount: 1_200 },
+  { id: 't5', projectName: 'Green Valley Residences', workType: "Bo'yash", date: '2025-02-10', toolName: "Bo'yoq 10L", quantity: 15, price: 90, totalAmount: 1_350 },
 ];
 
 export const MOCK_FOREMEN: Foreman[] = [
