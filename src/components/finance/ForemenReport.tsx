@@ -89,9 +89,9 @@ export function ForemenReport({ data, selectedProject, onSelectProject }: Props)
       <div>
         <h2 className="text-lg font-semibold flex items-center gap-2">
           <Users className="h-5 w-5" />
-          Foremen Report
+          Birgadirlar hisoboti
         </h2>
-        <p className="text-sm text-muted-foreground">Work completed and advances paid to foremen</p>
+        <p className="text-sm text-muted-foreground">Bajarilgan ishlar va avanslar</p>
       </div>
 
       {/* Filters Row */}
@@ -173,52 +173,29 @@ export function ForemenReport({ data, selectedProject, onSelectProject }: Props)
         </div>
       </ProjectFilterRow>
 
-      {/* Summary Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <Card>
-          <CardContent className="p-4 flex items-center gap-3">
-            <div className="p-2 rounded-lg bg-primary/10">
-              <Users className="h-5 w-5 text-primary" />
-            </div>
-            <div>
-              <p className="text-xs text-muted-foreground">Foremen</p>
-              <p className="text-2xl font-bold">{filteredForemen.length}</p>
-            </div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="p-4 flex items-center gap-3">
-            <div className="p-2 rounded-lg bg-[hsl(var(--status-accepted)/0.1)]">
-              <Briefcase className="h-5 w-5 text-[hsl(var(--status-accepted))]" />
-            </div>
-            <div>
-              <p className="text-xs text-muted-foreground">Total Work</p>
-              <p className="text-2xl font-bold">{formatCurrency(summaryTotals.totalWork)}</p>
-            </div>
-          </CardContent>
-        </Card>
-        <Card className="border-[hsl(var(--status-pending)/0.3)]">
-          <CardContent className="p-4 flex items-center gap-3">
-            <div className="p-2 rounded-lg bg-[hsl(var(--status-pending)/0.1)]">
-              <DollarSign className="h-5 w-5 text-[hsl(var(--status-pending))]" />
-            </div>
-            <div>
-              <p className="text-xs text-muted-foreground">Total Advances</p>
-              <p className="text-2xl font-bold text-[hsl(var(--status-pending))]">{formatCurrency(summaryTotals.totalAdvance)}</p>
-            </div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="p-4 flex items-center gap-3">
-            <div className="p-2 rounded-lg bg-[hsl(var(--status-delivered)/0.1)]">
-              <Wallet className="h-5 w-5 text-[hsl(var(--status-delivered))]" />
-            </div>
-            <div>
-              <p className="text-xs text-muted-foreground">Balance</p>
-              <p className="text-2xl font-bold text-[hsl(var(--status-delivered))]">{formatCurrency(summaryTotals.balance)}</p>
-            </div>
-          </CardContent>
-        </Card>
+      {/* Inline Summary Stats */}
+      <div className="flex items-center gap-6 flex-wrap">
+        <div className="flex items-center gap-2">
+          <Briefcase className="h-4 w-4 text-[hsl(var(--status-accepted))]" />
+          <div>
+            <p className="text-[10px] text-muted-foreground">Jami ish</p>
+            <p className="text-sm font-bold">{formatCurrency(summaryTotals.totalWork)}</p>
+          </div>
+        </div>
+        <div className="flex items-center gap-2">
+          <DollarSign className="h-4 w-4 text-[hsl(var(--status-pending))]" />
+          <div>
+            <p className="text-[10px] text-muted-foreground">Avanslar</p>
+            <p className="text-sm font-bold text-[hsl(var(--status-pending))]">{formatCurrency(summaryTotals.totalAdvance)}</p>
+          </div>
+        </div>
+        <div className="flex items-center gap-2">
+          <Wallet className="h-4 w-4 text-[hsl(var(--status-delivered))]" />
+          <div>
+            <p className="text-[10px] text-muted-foreground">Balans</p>
+            <p className="text-sm font-bold text-[hsl(var(--status-delivered))]">{formatCurrency(summaryTotals.balance)}</p>
+          </div>
+        </div>
       </div>
 
       {/* Table */}
@@ -228,12 +205,13 @@ export function ForemenReport({ data, selectedProject, onSelectProject }: Props)
             <TableHeader>
               <TableRow>
                 <TableHead className="w-[40px] text-center">#</TableHead>
-                <TableHead>Foreman</TableHead>
-                <TableHead>Profession</TableHead>
-                <TableHead className="text-center">Tasks</TableHead>
-                <TableHead className="text-right">Total Work</TableHead>
-                <TableHead className="text-right">Advances</TableHead>
-                <TableHead className="text-right">Balance</TableHead>
+                <TableHead>Birgadir</TableHead>
+                <TableHead>Telefon</TableHead>
+                <TableHead>Kasb</TableHead>
+                <TableHead className="text-center">Vazifalar</TableHead>
+                <TableHead className="text-right">Jami ish</TableHead>
+                <TableHead className="text-right">Avanslar</TableHead>
+                <TableHead className="text-right">Balans</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -242,10 +220,8 @@ export function ForemenReport({ data, selectedProject, onSelectProject }: Props)
                 return (
                   <TableRow key={foreman.id}>
                     <TableCell className="text-center text-muted-foreground text-xs">{idx + 1}</TableCell>
-                    <TableCell>
-                      <div className="font-medium">{foreman.name}</div>
-                      <div className="text-xs text-muted-foreground">{foreman.phone}</div>
-                    </TableCell>
+                    <TableCell className="font-medium">{foreman.name}</TableCell>
+                    <TableCell className="text-xs text-muted-foreground">{foreman.phone}</TableCell>
                     <TableCell>
                       <Badge variant="secondary" className="text-xs">{foreman.profession}</Badge>
                     </TableCell>
@@ -258,12 +234,12 @@ export function ForemenReport({ data, selectedProject, onSelectProject }: Props)
               })}
               {filteredForemen.length === 0 && (
                 <TableRow>
-                  <TableCell colSpan={7} className="text-center py-8 text-muted-foreground">No foremen found</TableCell>
+                  <TableCell colSpan={8} className="text-center py-8 text-muted-foreground">Birgadir topilmadi</TableCell>
                 </TableRow>
               )}
               {filteredForemen.length > 0 && (
                 <TableRow className="bg-muted/30 font-semibold hover:bg-muted/40">
-                  <TableCell colSpan={4} className="text-right text-sm">Totals</TableCell>
+                  <TableCell colSpan={5} className="text-right text-sm">Jami</TableCell>
                   <TableCell className="text-right">{formatCurrency(summaryTotals.totalWork)}</TableCell>
                   <TableCell className="text-right text-[hsl(var(--status-pending))]">{formatCurrency(summaryTotals.totalAdvance)}</TableCell>
                   <TableCell className="text-right text-[hsl(var(--status-delivered))]">{formatCurrency(summaryTotals.balance)}</TableCell>
