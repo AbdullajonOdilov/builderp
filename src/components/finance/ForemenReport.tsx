@@ -15,6 +15,8 @@ import { ProjectFilterRow } from './ProjectFilterRow';
 import { MOCK_FOREMEN, Foreman, ForemanWorkItem } from '@/types/foreman';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { AddForemanDialog } from './AddForemanDialog';
+import { EditForemanDialog } from './EditForemanDialog';
+import { DeleteForemanDialog } from './DeleteForemanDialog';
 
 function formatCurrency(amount: number) {
   return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(amount);
@@ -35,6 +37,8 @@ export function ForemenReport({ data, selectedProject, onSelectProject }: Props)
   const [activeForeman, setActiveForeman] = useState<string | null>(null);
   const [paymentDetailItem, setPaymentDetailItem] = useState<ForemanWorkItem | null>(null);
   const [addDialogOpen, setAddDialogOpen] = useState(false);
+  const [editDialogOpen, setEditDialogOpen] = useState(false);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [datePickerStep, setDatePickerStep] = useState<'from' | 'to'>('from');
   const projectIds = new Set(data.map(p => p.projectId));
 
@@ -104,8 +108,8 @@ export function ForemenReport({ data, selectedProject, onSelectProject }: Props)
             <p className="text-xs text-muted-foreground">{detailForeman.profession} · {detailForeman.phone}</p>
           </div>
           <div className="flex items-center gap-1 ml-2">
-            <Button variant="ghost" size="icon" className="h-8 w-8"><Pencil className="h-3.5 w-3.5" /></Button>
-            <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive"><Trash2 className="h-3.5 w-3.5" /></Button>
+            <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => setEditDialogOpen(true)}><Pencil className="h-3.5 w-3.5" /></Button>
+            <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive" onClick={() => setDeleteDialogOpen(true)}><Trash2 className="h-3.5 w-3.5" /></Button>
           </div>
           <div className="ml-auto flex items-center gap-4">
             <div className="text-right">
@@ -234,6 +238,21 @@ export function ForemenReport({ data, selectedProject, onSelectProject }: Props)
             </Table>
           </DialogContent>
         </Dialog>
+
+        <EditForemanDialog
+          open={editDialogOpen}
+          onOpenChange={setEditDialogOpen}
+          foreman={detailForeman}
+        />
+        <DeleteForemanDialog
+          open={deleteDialogOpen}
+          onOpenChange={setDeleteDialogOpen}
+          foreman={detailForeman}
+          onConfirm={() => {
+            setDeleteDialogOpen(false);
+            setActiveForeman(null);
+          }}
+        />
       </div>
     );
   }
