@@ -96,8 +96,8 @@ export function ForemenReport({ data, selectedProjects, onSelectProjects }: Prop
   if (activeForeman && detailForeman) {
     const scoped = getProjectScoped(detailForeman);
     return (
-      <div className="space-y-6">
-        {/* Header with back, name, edit/delete, stats */}
+      <Tabs defaultValue="ishlar" className="space-y-4">
+        {/* Header with back, name, edit/delete, tabs, stats */}
         <div className="flex items-center gap-3">
           <Button variant="ghost" size="icon" onClick={() => setActiveForeman(null)}>
             <ArrowLeft className="h-5 w-5" />
@@ -110,6 +110,10 @@ export function ForemenReport({ data, selectedProjects, onSelectProjects }: Prop
             <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => setEditDialogOpen(true)}><Pencil className="h-3.5 w-3.5" /></Button>
             <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive" onClick={() => setDeleteDialogOpen(true)}><Trash2 className="h-3.5 w-3.5" /></Button>
           </div>
+          <TabsList className="ml-4">
+            <TabsTrigger value="ishlar">Ishlar</TabsTrigger>
+            <TabsTrigger value="instrumentlar">Instrumentlar</TabsTrigger>
+          </TabsList>
           <div className="ml-auto flex items-center gap-4">
             <div className="text-right">
               <p className="text-[10px] text-muted-foreground">Jami ish</p>
@@ -129,13 +133,6 @@ export function ForemenReport({ data, selectedProjects, onSelectProjects }: Prop
             </div>
           </div>
         </div>
-
-        {/* Tabs for Ishlar / Instrumentlar */}
-        <Tabs defaultValue="ishlar">
-          <TabsList>
-            <TabsTrigger value="ishlar">Ishlar</TabsTrigger>
-            <TabsTrigger value="instrumentlar">Instrumentlar</TabsTrigger>
-          </TabsList>
 
           <TabsContent value="ishlar">
             <Card>
@@ -216,7 +213,7 @@ export function ForemenReport({ data, selectedProjects, onSelectProjects }: Prop
               </CardContent>
             </Card>
           </TabsContent>
-        </Tabs>
+        
 
         {/* Payment detail dialog */}
         <Dialog open={!!paymentDetailItem} onOpenChange={(open) => { if (!open) setPaymentDetailItem(null); }}>
@@ -263,7 +260,7 @@ export function ForemenReport({ data, selectedProjects, onSelectProjects }: Prop
             setActiveForeman(null);
           }}
         />
-      </div>
+      </Tabs>
     );
   }
 
