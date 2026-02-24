@@ -1,7 +1,8 @@
 import { useState, useMemo } from 'react';
-import { Search, Users, Briefcase, DollarSign, Wallet, CalendarIcon, ArrowLeft, Plus, Phone, Eye, Pencil, Trash2, Wrench } from 'lucide-react';
+import { Search, Users, Briefcase, DollarSign, Wallet, CalendarIcon, ArrowLeft, Plus, Phone, Eye, Pencil, Trash2 } from 'lucide-react';
 import { format, subDays } from 'date-fns';
 import { Card, CardContent } from '@/components/ui/card';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -127,102 +128,95 @@ export function ForemenReport({ data, selectedProjects, onSelectProjects }: Prop
               <p className="text-sm font-bold">{formatCurrency(detailForeman.toolItems.reduce((s, t) => s + t.totalAmount, 0))}</p>
             </div>
           </div>
-          {detailForeman.workItems.length >= 3 && (
-            <Button
-              variant="ghost"
-              size="icon"
-              className="h-8 w-8 ml-2"
-              title="Instrumentlarga o'tish"
-              onClick={() => document.getElementById('instrumentlar-section')?.scrollIntoView({ behavior: 'smooth' })}
-            >
-              <Wrench className="h-4 w-4" />
-            </Button>
-          )}
         </div>
 
-        {/* Table 1: Ishlar (Work items) */}
-        <div>
-          <h3 className="text-sm font-semibold mb-2">Ishlar ro'yxati</h3>
-          <Card>
-            <CardContent className="p-0">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead className="w-[32px] text-center">#</TableHead>
-                    <TableHead>Obyekt</TableHead>
-                    <TableHead>Ish turi nomi</TableHead>
-                    <TableHead className="text-right">Jami summa</TableHead>
-                    <TableHead className="text-right">Olgan summa</TableHead>
-                    <TableHead className="text-right">Qolgan summa</TableHead>
-                    <TableHead>Izoh</TableHead>
-                    <TableHead className="w-[40px]"></TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {detailForeman.workItems.map((item, idx) => (
-                    <TableRow key={item.id}>
-                      <TableCell className="text-center text-muted-foreground text-xs">{idx + 1}</TableCell>
-                      <TableCell className="text-xs">{item.projectName}</TableCell>
-                      <TableCell className="text-xs font-medium">{item.workType}</TableCell>
-                      <TableCell className="text-right text-xs font-medium">{formatCurrency(item.totalAmount)}</TableCell>
-                      <TableCell className="text-right text-xs text-[hsl(var(--status-delivered))]">{formatCurrency(item.receivedAmount)}</TableCell>
-                      <TableCell className="text-right text-xs font-semibold text-[hsl(var(--status-pending))]">{formatCurrency(item.remainingAmount)}</TableCell>
-                      <TableCell className="text-xs text-muted-foreground">{item.comment}</TableCell>
-                      <TableCell>
-                        <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => setPaymentDetailItem(item)}>
-                          <Eye className="h-3.5 w-3.5" />
-                        </Button>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                  {detailForeman.workItems.length === 0 && (
-                    <TableRow><TableCell colSpan={8} className="text-center py-6 text-muted-foreground text-xs">Ma'lumot yo'q</TableCell></TableRow>
-                  )}
-                </TableBody>
-              </Table>
-            </CardContent>
-          </Card>
-        </div>
+        {/* Tabs for Ishlar / Instrumentlar */}
+        <Tabs defaultValue="ishlar">
+          <TabsList>
+            <TabsTrigger value="ishlar">Ishlar</TabsTrigger>
+            <TabsTrigger value="instrumentlar">Instrumentlar</TabsTrigger>
+          </TabsList>
 
-        {/* Table 2: Instrumentlar (Tool usage) */}
-        <div id="instrumentlar-section">
-          <h3 className="text-sm font-semibold mb-2">Instrumentlar</h3>
-          <Card>
-            <CardContent className="p-0">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead className="w-[32px] text-center">#</TableHead>
-                    <TableHead>Obyekt</TableHead>
-                    <TableHead>Ish turi nomi</TableHead>
-                    <TableHead>Sana</TableHead>
-                    <TableHead>Instrument nomi</TableHead>
-                    <TableHead className="text-right">Miqdori</TableHead>
-                    <TableHead className="text-right">Narxi</TableHead>
-                    <TableHead className="text-right">Umumiy summa</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {detailForeman.toolItems.map((item, idx) => (
-                    <TableRow key={item.id}>
-                      <TableCell className="text-center text-muted-foreground text-xs">{idx + 1}</TableCell>
-                      <TableCell className="text-xs">{item.projectName}</TableCell>
-                      <TableCell className="text-xs font-medium">{item.workType}</TableCell>
-                      <TableCell className="text-xs">{item.date}</TableCell>
-                      <TableCell className="text-xs">{item.toolName}</TableCell>
-                      <TableCell className="text-right text-xs">{item.quantity}</TableCell>
-                      <TableCell className="text-right text-xs">{formatCurrency(item.price)}</TableCell>
-                      <TableCell className="text-right text-xs font-semibold">{formatCurrency(item.totalAmount)}</TableCell>
+          <TabsContent value="ishlar">
+            <Card>
+              <CardContent className="p-0">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead className="w-[32px] text-center">#</TableHead>
+                      <TableHead>Obyekt</TableHead>
+                      <TableHead>Ish turi nomi</TableHead>
+                      <TableHead className="text-right">Jami summa</TableHead>
+                      <TableHead className="text-right">Olgan summa</TableHead>
+                      <TableHead className="text-right">Qolgan summa</TableHead>
+                      <TableHead>Izoh</TableHead>
+                      <TableHead className="w-[40px]"></TableHead>
                     </TableRow>
-                  ))}
-                  {detailForeman.toolItems.length === 0 && (
-                    <TableRow><TableCell colSpan={8} className="text-center py-6 text-muted-foreground text-xs">Ma'lumot yo'q</TableCell></TableRow>
-                  )}
-                </TableBody>
-              </Table>
-            </CardContent>
-          </Card>
-        </div>
+                  </TableHeader>
+                  <TableBody>
+                    {detailForeman.workItems.map((item, idx) => (
+                      <TableRow key={item.id}>
+                        <TableCell className="text-center text-muted-foreground text-xs">{idx + 1}</TableCell>
+                        <TableCell className="text-xs">{item.projectName}</TableCell>
+                        <TableCell className="text-xs font-medium">{item.workType}</TableCell>
+                        <TableCell className="text-right text-xs font-medium">{formatCurrency(item.totalAmount)}</TableCell>
+                        <TableCell className="text-right text-xs text-[hsl(var(--status-delivered))]">{formatCurrency(item.receivedAmount)}</TableCell>
+                        <TableCell className="text-right text-xs font-semibold text-[hsl(var(--status-pending))]">{formatCurrency(item.remainingAmount)}</TableCell>
+                        <TableCell className="text-xs text-muted-foreground">{item.comment}</TableCell>
+                        <TableCell>
+                          <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => setPaymentDetailItem(item)}>
+                            <Eye className="h-3.5 w-3.5" />
+                          </Button>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                    {detailForeman.workItems.length === 0 && (
+                      <TableRow><TableCell colSpan={8} className="text-center py-6 text-muted-foreground text-xs">Ma'lumot yo'q</TableCell></TableRow>
+                    )}
+                  </TableBody>
+                </Table>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="instrumentlar">
+            <Card>
+              <CardContent className="p-0">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead className="w-[32px] text-center">#</TableHead>
+                      <TableHead>Obyekt</TableHead>
+                      <TableHead>Ish turi nomi</TableHead>
+                      <TableHead>Sana</TableHead>
+                      <TableHead>Instrument nomi</TableHead>
+                      <TableHead className="text-right">Miqdori</TableHead>
+                      <TableHead className="text-right">Narxi</TableHead>
+                      <TableHead className="text-right">Umumiy summa</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {detailForeman.toolItems.map((item, idx) => (
+                      <TableRow key={item.id}>
+                        <TableCell className="text-center text-muted-foreground text-xs">{idx + 1}</TableCell>
+                        <TableCell className="text-xs">{item.projectName}</TableCell>
+                        <TableCell className="text-xs font-medium">{item.workType}</TableCell>
+                        <TableCell className="text-xs">{item.date}</TableCell>
+                        <TableCell className="text-xs">{item.toolName}</TableCell>
+                        <TableCell className="text-right text-xs">{item.quantity}</TableCell>
+                        <TableCell className="text-right text-xs">{formatCurrency(item.price)}</TableCell>
+                        <TableCell className="text-right text-xs font-semibold">{formatCurrency(item.totalAmount)}</TableCell>
+                      </TableRow>
+                    ))}
+                    {detailForeman.toolItems.length === 0 && (
+                      <TableRow><TableCell colSpan={8} className="text-center py-6 text-muted-foreground text-xs">Ma'lumot yo'q</TableCell></TableRow>
+                    )}
+                  </TableBody>
+                </Table>
+              </CardContent>
+            </Card>
+          </TabsContent>
+        </Tabs>
 
         {/* Payment detail dialog */}
         <Dialog open={!!paymentDetailItem} onOpenChange={(open) => { if (!open) setPaymentDetailItem(null); }}>
