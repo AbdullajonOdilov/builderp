@@ -157,29 +157,53 @@ function DetailDialog({ item, onClose }: { item: IshlarItem | null; onClose: () 
         </DialogHeader>
 
         <div className="px-5 py-4 space-y-4">
-          {/* Details grid */}
-          <div className="grid grid-cols-3 gap-x-6 gap-y-3">
+          {/* Row 1: Obyekt nomi, Bo'limi, Birlik narx, Umumiy summa */}
+          <div className="grid grid-cols-4 gap-x-6 gap-y-3">
             <Field label="Объект номи" value={item.projectName} />
             <Field label="Объект бўлими" value={item.sectionName} />
-            <Field label="Иш категорияси" value={item.category} />
             <Field label="Бирлик нархи" value={formatNum(item.unitPrice)} />
-            <div className="col-span-2">
-              <Field label="Умумий сумма" value={`${formatNum(item.totalPrice)} UZS`} bold />
-            </div>
+            <Field label="Умумий сумма" value={`${formatNum(item.totalPrice)} UZS`} bold />
           </div>
 
-          {/* Foreman + dates + quantity */}
+          {/* Row 2: Birgadir (select), Boshlanish sana, Tugash sana, Ish miqdori */}
           <div className="grid grid-cols-4 gap-4">
             <div>
               <p className="text-[10px] text-muted-foreground mb-1">Биргадир</p>
-              <Badge variant="outline" className="text-xs px-2 py-0.5 border-0 font-medium"
-                style={{ backgroundColor: item.foremanColor + '20', color: item.foremanColor }}>{item.foreman}</Badge>
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button variant="outline" size="sm" className="h-7 text-xs gap-1.5 justify-start w-full font-medium">
+                    <span className="w-4 h-4 rounded-full shrink-0 inline-block" style={{ backgroundColor: item.foremanColor }} />
+                    {item.foreman}
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-[240px] p-2 z-[200]" align="start">
+                  <p className="text-xs font-semibold px-2 py-1.5 border-b mb-1">Биргадирни танланг</p>
+                  {ISHLAR_FOREMEN.map(f => (
+                    <div key={f.id} className={cn(
+                      'flex items-center gap-2 px-2 py-2 rounded cursor-pointer text-xs hover:bg-accent',
+                      item.foreman === f.name && 'bg-accent'
+                    )}>
+                      <span className="w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-bold text-primary-foreground shrink-0" style={{ backgroundColor: f.color }}>
+                        {f.name[0]}
+                      </span>
+                      <span className="font-medium">{f.name}</span>
+                      {item.foreman === f.name && <span className="ml-auto text-primary">✓</span>}
+                    </div>
+                  ))}
+                </PopoverContent>
+              </Popover>
             </div>
-            <Field label="Бошланиш сана" value={item.startDate} />
-            <Field label="Тугаш сана" value={item.endDate} />
+            <div>
+              <p className="text-[10px] text-muted-foreground mb-0.5">Бошланиш сана</p>
+              <Input type="date" defaultValue="2026-01-19" className="h-7 text-xs" />
+            </div>
+            <div>
+              <p className="text-[10px] text-muted-foreground mb-0.5">Тугаш сана</p>
+              <Input type="date" defaultValue="2026-03-14" className="h-7 text-xs" />
+            </div>
             <div>
               <p className="text-[10px] text-muted-foreground mb-0.5">Иш миқдори</p>
-              <Input defaultValue={formatNum(item.totalQuantity)} className="h-7 text-xs w-24" />
+              <Input defaultValue={formatNum(item.totalQuantity)} className="h-7 text-xs" />
             </div>
           </div>
 
