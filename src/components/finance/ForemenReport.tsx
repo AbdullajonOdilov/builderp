@@ -422,7 +422,7 @@ export function ForemenReport({ data, selectedProject, onSelectProject }: Props)
                 <TableHead>Birgadir</TableHead>
                 <TableHead>Telefon</TableHead>
                 <TableHead>Kasb</TableHead>
-                <TableHead className="text-center">Vazifalar</TableHead>
+                <TableHead className="text-center">Ishlar soni</TableHead>
                 <TableHead className="text-right">Jami ish</TableHead>
                 <TableHead className="text-right">Olingan avanslar</TableHead>
                 <TableHead className="text-right">Qolgan pul</TableHead>
