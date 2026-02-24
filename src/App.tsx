@@ -1,3 +1,4 @@
+import { ThemeProvider } from "next-themes";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -19,31 +20,33 @@ import { OfflineBanner } from "./components/OfflineBanner";
 const queryClient = new QueryClient();
 
 const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <TooltipProvider>
-      <Toaster />
-      <Sonner />
-      <OfflineBanner />
-      <BrowserRouter>
-        <div className="min-h-screen bg-background">
-          <AppNavigation />
-          <Routes>
-            <Route path="/" element={<Navigate to="/buildings" replace />} />
-            <Route path="/buildings" element={<Buildings />} />
-            <Route path="/buildings/new" element={<CreateBuilding />} />
-            <Route path="/buildings/:buildingId" element={<BuildingView />} />
-            <Route path="/buildings/:buildingId/edit" element={<EditBuilding />} />
-            <Route path="/buildings/:buildingId/sections/:sectionId" element={<SectionView />} />
-            <Route path="/tasks" element={<Tasks />} />
-            <Route path="/finance" element={<Finance />} />
-            <Route path="/ishlar-doskasi" element={<IshlarDoskasi />} />
-            <Route path="/requests" element={<Index />} />
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-        </div>
-      </BrowserRouter>
-    </TooltipProvider>
-  </QueryClientProvider>
+  <ThemeProvider attribute="class" defaultTheme="dark" enableSystem={false}>
+    <QueryClientProvider client={queryClient}>
+      <TooltipProvider>
+        <Toaster />
+        <Sonner />
+        <OfflineBanner />
+        <BrowserRouter>
+          <div className="min-h-screen bg-background">
+            <AppNavigation />
+            <Routes>
+              <Route path="/" element={<Navigate to="/buildings" replace />} />
+              <Route path="/buildings" element={<Buildings />} />
+              <Route path="/buildings/new" element={<CreateBuilding />} />
+              <Route path="/buildings/:buildingId" element={<BuildingView />} />
+              <Route path="/buildings/:buildingId/edit" element={<EditBuilding />} />
+              <Route path="/buildings/:buildingId/sections/:sectionId" element={<SectionView />} />
+              <Route path="/tasks" element={<Tasks />} />
+              <Route path="/finance" element={<Finance />} />
+              <Route path="/ishlar-doskasi" element={<IshlarDoskasi />} />
+              <Route path="/requests" element={<Index />} />
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+          </div>
+        </BrowserRouter>
+      </TooltipProvider>
+    </QueryClientProvider>
+  </ThemeProvider>
 );
 
 export default App;
