@@ -147,8 +147,8 @@ function DetailDialog({ item, onClose }: { item: IshlarItem | null; onClose: () 
         {/* Header */}
         <DialogHeader className="px-5 pt-5 pb-3 border-b">
           <div className="flex items-center gap-2 flex-wrap">
-            <DialogTitle className="text-sm font-bold">{item.category}</DialogTitle>
-            <span className="text-sm font-semibold">{item.name}</span>
+            <Badge className="text-[10px] bg-primary/10 text-primary border-0">{item.category}</Badge>
+            <DialogTitle className="text-sm font-bold">{item.name}</DialogTitle>
             <Badge variant="outline" className="text-[10px]">({item.unit})</Badge>
             <Button variant="default" size="sm" className="h-7 text-xs ml-2 bg-[hsl(var(--status-delivered))] hover:bg-[hsl(var(--status-delivered))]/90">
               <Banknote className="h-3 w-3 mr-1" /> Пул бериш
@@ -158,15 +158,28 @@ function DetailDialog({ item, onClose }: { item: IshlarItem | null; onClose: () 
 
         <div className="px-5 py-4 space-y-4">
           {/* Details grid */}
-          <div className="grid grid-cols-4 gap-x-6 gap-y-3">
+          <div className="grid grid-cols-3 gap-x-6 gap-y-3">
             <Field label="Объект номи" value={item.projectName} />
             <Field label="Объект бўлими" value={item.sectionName} />
             <Field label="Иш категорияси" value={item.category} />
-            <Field label="Иш бирлиги" value={item.unit} />
-            <Field label="Иш миқдори" value={formatNum(item.totalQuantity)} />
             <Field label="Бирлик нархи" value={formatNum(item.unitPrice)} />
             <div className="col-span-2">
               <Field label="Умумий сумма" value={`${formatNum(item.totalPrice)} UZS`} bold />
+            </div>
+          </div>
+
+          {/* Foreman + dates + quantity */}
+          <div className="grid grid-cols-4 gap-4">
+            <div>
+              <p className="text-[10px] text-muted-foreground mb-1">Биргадир</p>
+              <Badge variant="outline" className="text-xs px-2 py-0.5 border-0 font-medium"
+                style={{ backgroundColor: item.foremanColor + '20', color: item.foremanColor }}>{item.foreman}</Badge>
+            </div>
+            <Field label="Бошланиш сана" value={item.startDate} />
+            <Field label="Тугаш сана" value={item.endDate} />
+            <div>
+              <p className="text-[10px] text-muted-foreground mb-0.5">Иш миқдори</p>
+              <Input defaultValue={formatNum(item.totalQuantity)} className="h-7 text-xs w-24" />
             </div>
           </div>
 
@@ -184,17 +197,6 @@ function DetailDialog({ item, onClose }: { item: IshlarItem | null; onClose: () 
               <span>Бажарилган миқдор: <strong>{formatNum(item.completedQuantity)} {item.unit}</strong></span>
               <span>Режа бўйича миқдор: <strong>{formatNum(item.plannedQuantity)} {item.unit}</strong></span>
             </div>
-          </div>
-
-          {/* Foreman + dates */}
-          <div className="grid grid-cols-3 gap-4">
-            <div>
-              <p className="text-[10px] text-muted-foreground mb-1">Биргадир</p>
-              <Badge variant="outline" className="text-xs px-2 py-0.5 border-0 font-medium"
-                style={{ backgroundColor: item.foremanColor + '20', color: item.foremanColor }}>{item.foreman}</Badge>
-            </div>
-            <Field label="Бошланиш сана" value={item.startDate} />
-            <Field label="Тугаш сана" value={item.endDate} />
           </div>
 
           {/* Comment */}
@@ -387,20 +389,6 @@ function KanbanCard({ item }: { item: IshlarItem }) {
         </div>
         <span className="text-xs text-muted-foreground whitespace-nowrap">{item.totalQuantity.toLocaleString()} {item.unit}</span>
       </div>
-      {item.status !== 'created' && (
-        <div className="space-y-0.5">
-          <div className="flex items-center justify-between text-[10px]">
-            <span className="text-muted-foreground">{item.quantity.toLocaleString()}/{item.totalQuantity.toLocaleString()} {item.unit}</span>
-            <span className="font-medium">{item.progress}%</span>
-          </div>
-          <div className="h-1.5 bg-muted rounded-full overflow-hidden">
-            <div className="h-full rounded-full transition-all" style={{
-              width: `${Math.min(item.progress, 100)}%`,
-              backgroundColor: item.progress >= 100 ? 'hsl(var(--status-delivered))' : 'hsl(var(--primary))'
-            }} />
-          </div>
-        </div>
-      )}
       <div className="flex items-center gap-2 text-[10px]">
         <span style={{ color: progressColor }} className="font-semibold">{item.budgetPercent}%</span>
         <span className="text-muted-foreground">— {item.budgetAmount} mln</span>
