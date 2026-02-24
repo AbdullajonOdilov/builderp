@@ -168,6 +168,10 @@ function DetailDialog({ item, onClose }: { item: IshlarItem | null; onClose: () 
           {/* Row 2: Birgadir (select), Boshlanish sana, Tugash sana, Ish miqdori */}
           <div className="grid grid-cols-4 gap-4">
             <div>
+              <p className="text-[10px] text-muted-foreground mb-0.5">Иш миқдори</p>
+              <Input defaultValue={formatNum(item.totalQuantity)} className="h-7 text-xs" />
+            </div>
+            <div>
               <p className="text-[10px] text-muted-foreground mb-1">Биргадир</p>
               <Popover>
                 <PopoverTrigger asChild>
@@ -200,10 +204,6 @@ function DetailDialog({ item, onClose }: { item: IshlarItem | null; onClose: () 
             <div>
               <p className="text-[10px] text-muted-foreground mb-0.5">Тугаш сана</p>
               <Input type="date" defaultValue="2026-03-14" className="h-7 text-xs" />
-            </div>
-            <div>
-              <p className="text-[10px] text-muted-foreground mb-0.5">Иш миқдори</p>
-              <Input defaultValue={formatNum(item.totalQuantity)} className="h-7 text-xs" />
             </div>
           </div>
 
