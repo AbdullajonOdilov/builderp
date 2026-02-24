@@ -1,5 +1,5 @@
 import { useState, useMemo, useCallback } from 'react';
-import { Search, CalendarIcon, RotateCcw, X, ChevronDown, ChevronUp, Banknote } from 'lucide-react';
+import { Search, CalendarIcon, RotateCcw, Banknote, ChevronDown, ChevronUp } from 'lucide-react';
 import { DragDropContext, Droppable, Draggable, DropResult } from '@hello-pangea/dnd';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -8,7 +8,7 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import { Checkbox } from '@/components/ui/checkbox';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { cn } from '@/lib/utils';
 import {
@@ -108,8 +108,8 @@ export function IshlarKanbanBoard() {
         )}
       </div>
 
-      {/* Detail Panel (top, collapsible) */}
-      {selectedItem && <DetailPanel item={selectedItem} onClose={() => setSelectedItem(null)} />}
+      {/* Detail Dialog */}
+      <DetailDialog item={selectedItem} onClose={() => setSelectedItem(null)} />
 
       {/* Kanban Board */}
       <DragDropContext onDragEnd={handleDragEnd}>
@@ -132,157 +132,168 @@ export function IshlarKanbanBoard() {
   );
 }
 
-/* ===== Detail Panel ===== */
-function DetailPanel({ item, onClose }: { item: IshlarItem; onClose: () => void }) {
-  const [resourcesOpen, setResourcesOpen] = useState(false);
+/* ===== Detail Dialog ===== */
+function DetailDialog({ item, onClose }: { item: IshlarItem | null; onClose: () => void }) {
+  const [resourcesOpen, setResourcesOpen] = useState(true);
   const [paymentsOpen, setPaymentsOpen] = useState(false);
+
+  if (!item) return null;
+
   const progressColor = item.budgetPercent > 100 ? 'hsl(var(--status-rejected))' : item.budgetPercent > 50 ? 'hsl(var(--status-pending))' : 'hsl(var(--status-delivered))';
 
   return (
-    <div className="px-6 pb-3 border-b bg-muted/30 animate-in slide-in-from-top-2 duration-200">
-      {/* Row 1: Title + key stats + close */}
-      <div className="flex items-center gap-4 py-2">
-        <div className="flex items-center gap-2 min-w-0">
-          <span className="font-bold text-sm truncate">{item.category}</span>
-          <span className="text-sm font-semibold truncate">{item.name}</span>
-          <Badge variant="outline" className="text-[10px] shrink-0">({item.unit})</Badge>
-          <Button variant="default" size="sm" className="h-7 text-xs shrink-0 ml-2 bg-[hsl(var(--status-delivered))] hover:bg-[hsl(var(--status-delivered))]/90">
-            <Banknote className="h-3 w-3 mr-1" /> Пул бериш
-          </Button>
-        </div>
+    <Dialog open={!!item} onOpenChange={open => { if (!open) onClose(); }}>
+      <DialogContent className="max-w-4xl max-h-[85vh] overflow-y-auto p-0">
+        {/* Header */}
+        <DialogHeader className="px-5 pt-5 pb-3 border-b">
+          <div className="flex items-center gap-2 flex-wrap">
+            <DialogTitle className="text-sm font-bold">{item.category}</DialogTitle>
+            <span className="text-sm font-semibold">{item.name}</span>
+            <Badge variant="outline" className="text-[10px]">({item.unit})</Badge>
+            <Button variant="default" size="sm" className="h-7 text-xs ml-2 bg-[hsl(var(--status-delivered))] hover:bg-[hsl(var(--status-delivered))]/90">
+              <Banknote className="h-3 w-3 mr-1" /> Пул бериш
+            </Button>
+          </div>
+        </DialogHeader>
 
-        <div className="ml-auto flex items-center gap-6 shrink-0">
-          {/* Stats */}
-          <div className="flex items-center gap-4 text-xs">
-            <div className="text-right">
-              <p className="text-[10px] text-muted-foreground">Объект</p>
-              <p className="font-medium">{item.projectName}</p>
-            </div>
-            <div className="text-right">
-              <p className="text-[10px] text-muted-foreground">Бўлим</p>
-              <p className="font-medium">{item.sectionName}</p>
-            </div>
-            <div className="text-right">
-              <p className="text-[10px] text-muted-foreground">Иш миқдори</p>
-              <p className="font-medium">{formatNum(item.totalQuantity)} {item.unit}</p>
-            </div>
-            <div className="text-right">
-              <p className="text-[10px] text-muted-foreground">Бирлик нархи</p>
-              <p className="font-medium">{formatNum(item.unitPrice)}</p>
-            </div>
-            <div className="text-right">
-              <p className="text-[10px] text-muted-foreground">Умумий сумма</p>
-              <p className="font-bold">{formatNum(item.totalPrice)} UZS</p>
-            </div>
-            <div className="text-right">
-              <p className="text-[10px] text-muted-foreground">Бажарилиш</p>
-              <div className="flex items-center gap-1.5">
-                <div className="w-16 h-1.5 bg-muted rounded-full overflow-hidden">
-                  <div className="h-full rounded-full" style={{
-                    width: `${Math.min(item.progress, 100)}%`,
-                    backgroundColor: item.progress >= 100 ? 'hsl(var(--status-delivered))' : 'hsl(var(--primary))'
-                  }} />
-                </div>
-                <span className="font-bold" style={{ color: progressColor }}>{item.budgetPercent}%</span>
-              </div>
-            </div>
-            <div className="text-right">
-              <p className="text-[10px] text-muted-foreground">Биргадир</p>
-              <Badge variant="outline" className="text-[10px] px-1.5 py-0 h-5 border-0 font-medium"
-                style={{ backgroundColor: item.foremanColor + '20', color: item.foremanColor }}>{item.foreman}</Badge>
-            </div>
-            <div className="text-right">
-              <p className="text-[10px] text-muted-foreground">Сана</p>
-              <p className="font-medium text-[11px]">{item.startDate} – {item.endDate}</p>
+        <div className="px-5 py-4 space-y-4">
+          {/* Details grid */}
+          <div className="grid grid-cols-4 gap-x-6 gap-y-3">
+            <Field label="Объект номи" value={item.projectName} />
+            <Field label="Объект бўлими" value={item.sectionName} />
+            <Field label="Иш категорияси" value={item.category} />
+            <Field label="Иш бирлиги" value={item.unit} />
+            <Field label="Иш миқдори" value={formatNum(item.totalQuantity)} />
+            <Field label="Бирлик нархи" value={formatNum(item.unitPrice)} />
+            <div className="col-span-2">
+              <Field label="Умумий сумма" value={`${formatNum(item.totalPrice)} UZS`} bold />
             </div>
           </div>
-          <Button variant="ghost" size="icon" className="h-7 w-7" onClick={onClose}>
-            <X className="h-4 w-4" />
-          </Button>
+
+          {/* Progress */}
+          <div className="border rounded-lg p-3 space-y-2">
+            <p className="text-[10px] font-medium text-muted-foreground uppercase tracking-wider">Бажарилиш</p>
+            <div className="h-2 bg-muted rounded-full overflow-hidden">
+              <div className="h-full rounded-full transition-all" style={{
+                width: `${Math.min(item.progress, 100)}%`,
+                backgroundColor: item.progress >= 100 ? 'hsl(var(--status-delivered))' : 'hsl(var(--primary))'
+              }} />
+            </div>
+            <div className="flex items-center justify-between text-xs">
+              <span>Бажарилган фоиз: <strong style={{ color: progressColor }}>{item.budgetPercent}%</strong></span>
+              <span>Бажарилган миқдор: <strong>{formatNum(item.completedQuantity)} {item.unit}</strong></span>
+              <span>Режа бўйича миқдор: <strong>{formatNum(item.plannedQuantity)} {item.unit}</strong></span>
+            </div>
+          </div>
+
+          {/* Foreman + dates */}
+          <div className="grid grid-cols-3 gap-4">
+            <div>
+              <p className="text-[10px] text-muted-foreground mb-1">Биргадир</p>
+              <Badge variant="outline" className="text-xs px-2 py-0.5 border-0 font-medium"
+                style={{ backgroundColor: item.foremanColor + '20', color: item.foremanColor }}>{item.foreman}</Badge>
+            </div>
+            <Field label="Бошланиш сана" value={item.startDate} />
+            <Field label="Тугаш сана" value={item.endDate} />
+          </div>
+
+          {/* Comment */}
+          {item.comment && (
+            <div>
+              <p className="text-[10px] text-muted-foreground mb-1">Изоҳ</p>
+              <p className="text-xs border rounded-md px-3 py-2 bg-muted/30">{item.comment}</p>
+            </div>
+          )}
+
+          {/* Resources collapsible */}
+          <Collapsible open={resourcesOpen} onOpenChange={setResourcesOpen}>
+            <CollapsibleTrigger asChild>
+              <Button variant="ghost" size="sm" className="h-8 text-xs gap-1 px-2 w-full justify-start border-b rounded-none">
+                {resourcesOpen ? <ChevronUp className="h-3 w-3" /> : <ChevronDown className="h-3 w-3" />}
+                ⚙ Ресурслар ({item.resources.length})
+              </Button>
+            </CollapsibleTrigger>
+            <CollapsibleContent>
+              <div className="border rounded-md overflow-hidden mt-1">
+                <Table>
+                  <TableHeader>
+                    <TableRow className="h-7">
+                      <TableHead className="text-[10px] px-2">Номи</TableHead>
+                      <TableHead className="text-[10px] px-2">Код</TableHead>
+                      <TableHead className="text-[10px] px-2">Бирлик</TableHead>
+                      <TableHead className="text-[10px] px-2 text-right">Омборда</TableHead>
+                      <TableHead className="text-[10px] px-2 text-right">Режада</TableHead>
+                      <TableHead className="text-[10px] px-2 text-right">Ишлатилган</TableHead>
+                      <TableHead className="text-[10px] px-2 text-right">Қолган</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {item.resources.map(r => (
+                      <TableRow key={r.id} className="h-7">
+                        <TableCell className="text-xs px-2 py-1">{r.name}</TableCell>
+                        <TableCell className="text-xs px-2 py-1 text-muted-foreground">{r.code}</TableCell>
+                        <TableCell className="text-xs px-2 py-1">{r.unit}</TableCell>
+                        <TableCell className="text-xs px-2 py-1 text-right">{formatNum(r.inStock)}</TableCell>
+                        <TableCell className="text-xs px-2 py-1 text-right">{formatNum(r.planned)}</TableCell>
+                        <TableCell className="text-xs px-2 py-1 text-right">{formatNum(r.used)}</TableCell>
+                        <TableCell className="text-xs px-2 py-1 text-right font-medium">{formatNum(r.remaining)}</TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </div>
+            </CollapsibleContent>
+          </Collapsible>
+
+          {/* Payments collapsible */}
+          <Collapsible open={paymentsOpen} onOpenChange={setPaymentsOpen}>
+            <CollapsibleTrigger asChild>
+              <Button variant="ghost" size="sm" className="h-8 text-xs gap-1 px-2 w-full justify-start border-b rounded-none">
+                {paymentsOpen ? <ChevronUp className="h-3 w-3" /> : <ChevronDown className="h-3 w-3" />}
+                💰 Олинган аванслар: <span className="text-[hsl(var(--status-delivered))] font-semibold ml-1">{formatNum(item.advanceReceived)} сўм</span>
+                <span className="ml-3">Қолган сумма: <span className="text-[hsl(var(--status-pending))] font-semibold">{formatNum(item.remainingPayment)} сўм</span></span>
+              </Button>
+            </CollapsibleTrigger>
+            <CollapsibleContent>
+              <div className="border rounded-md overflow-hidden mt-1">
+                <Table>
+                  <TableHeader>
+                    <TableRow className="h-7">
+                      <TableHead className="text-[10px] px-2">Берилган сана</TableHead>
+                      <TableHead className="text-[10px] px-2 text-right">Пул миқдори (UZS)</TableHead>
+                      <TableHead className="text-[10px] px-2">Изоҳ</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {item.payments.length === 0 ? (
+                      <TableRow><TableCell colSpan={3} className="text-center text-xs py-2 text-muted-foreground">Тўлов йўқ</TableCell></TableRow>
+                    ) : item.payments.map((p, i) => (
+                      <TableRow key={i} className="h-7">
+                        <TableCell className="text-xs px-2 py-1">{p.date}</TableCell>
+                        <TableCell className="text-xs px-2 py-1 text-right font-medium">{formatNum(p.amount)}</TableCell>
+                        <TableCell className="text-xs px-2 py-1 text-muted-foreground">{p.comment || '—'}</TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </div>
+            </CollapsibleContent>
+          </Collapsible>
         </div>
-      </div>
-
-      {/* Row 2: Collapsible sections */}
-      <div className="flex gap-4">
-        {/* Resources */}
-        <Collapsible open={resourcesOpen} onOpenChange={setResourcesOpen} className="flex-1">
-          <CollapsibleTrigger asChild>
-            <Button variant="ghost" size="sm" className="h-7 text-xs gap-1 px-2">
-              {resourcesOpen ? <ChevronUp className="h-3 w-3" /> : <ChevronDown className="h-3 w-3" />}
-              Ресурслар ({item.resources.length})
-            </Button>
-          </CollapsibleTrigger>
-          <CollapsibleContent>
-            <div className="mt-1 border rounded-md overflow-hidden">
-              <Table>
-                <TableHeader>
-                  <TableRow className="h-7">
-                    <TableHead className="text-[10px] px-2">Номи</TableHead>
-                    <TableHead className="text-[10px] px-2">Код</TableHead>
-                    <TableHead className="text-[10px] px-2">Бирлик</TableHead>
-                    <TableHead className="text-[10px] px-2 text-right">Омборда</TableHead>
-                    <TableHead className="text-[10px] px-2 text-right">Режада</TableHead>
-                    <TableHead className="text-[10px] px-2 text-right">Ишлатилган</TableHead>
-                    <TableHead className="text-[10px] px-2 text-right">Қолган</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {item.resources.map(r => (
-                    <TableRow key={r.id} className="h-7">
-                      <TableCell className="text-xs px-2 py-1">{r.name}</TableCell>
-                      <TableCell className="text-xs px-2 py-1 text-muted-foreground">{r.code}</TableCell>
-                      <TableCell className="text-xs px-2 py-1">{r.unit}</TableCell>
-                      <TableCell className="text-xs px-2 py-1 text-right">{formatNum(r.inStock)}</TableCell>
-                      <TableCell className="text-xs px-2 py-1 text-right">{formatNum(r.planned)}</TableCell>
-                      <TableCell className="text-xs px-2 py-1 text-right">{formatNum(r.used)}</TableCell>
-                      <TableCell className="text-xs px-2 py-1 text-right font-medium">{formatNum(r.remaining)}</TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </div>
-          </CollapsibleContent>
-        </Collapsible>
-
-        {/* Payments */}
-        <Collapsible open={paymentsOpen} onOpenChange={setPaymentsOpen} className="w-[400px] shrink-0">
-          <CollapsibleTrigger asChild>
-            <Button variant="ghost" size="sm" className="h-7 text-xs gap-1 px-2">
-              {paymentsOpen ? <ChevronUp className="h-3 w-3" /> : <ChevronDown className="h-3 w-3" />}
-              Олинган авансс: <span className="text-[hsl(var(--status-delivered))] font-semibold ml-1">{formatNum(item.advanceReceived)} сўм</span>
-              <span className="ml-2">Қолган сумма: <span className="text-[hsl(var(--status-pending))] font-semibold">{formatNum(item.remainingPayment)} сўм</span></span>
-            </Button>
-          </CollapsibleTrigger>
-          <CollapsibleContent>
-            <div className="mt-1 border rounded-md overflow-hidden">
-              <Table>
-                <TableHeader>
-                  <TableRow className="h-7">
-                    <TableHead className="text-[10px] px-2">Берилган сана</TableHead>
-                    <TableHead className="text-[10px] px-2 text-right">Пул миқдори (UZS)</TableHead>
-                    <TableHead className="text-[10px] px-2">Изоҳ</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {item.payments.length === 0 ? (
-                    <TableRow><TableCell colSpan={3} className="text-center text-xs py-2 text-muted-foreground">Тўлов йўқ</TableCell></TableRow>
-                  ) : item.payments.map((p, i) => (
-                    <TableRow key={i} className="h-7">
-                      <TableCell className="text-xs px-2 py-1">{p.date}</TableCell>
-                      <TableCell className="text-xs px-2 py-1 text-right font-medium">{formatNum(p.amount)}</TableCell>
-                      <TableCell className="text-xs px-2 py-1 text-muted-foreground">{p.comment || '—'}</TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </div>
-          </CollapsibleContent>
-        </Collapsible>
-      </div>
-    </div>
+      </DialogContent>
+    </Dialog>
   );
 }
 
+/* ===== Field helper ===== */
+function Field({ label, value, bold }: { label: string; value: string; bold?: boolean }) {
+  return (
+    <div>
+      <p className="text-[10px] text-muted-foreground mb-0.5">{label}</p>
+      <p className={cn('text-xs', bold ? 'font-bold' : 'font-medium')}>{value}</p>
+    </div>
+  );
+}
 /* ===== Multi-select filter ===== */
 function MultiFilter({ label, selected, onSelect, options, width }: {
   label: string; selected: string[]; onSelect: (v: string[]) => void; options: string[]; width: string;
