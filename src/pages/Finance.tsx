@@ -9,14 +9,14 @@ import { VendorFormData } from '@/components/finance/VendorFormDialog';
 
 export default function Finance() {
   const [activeReport, setActiveReport] = useState<FinanceReportType>('vendor-expenses');
-  const [selectedProject, setSelectedProject] = useState<string>('all');
+  const [selectedProjects, setSelectedProjects] = useState<string[]>([]);
   const [projects, setProjects] = useState<ProjectVendorExpense[]>(MOCK_PROJECT_VENDOR_EXPENSES);
 
   const filteredProjects = useMemo(() =>
-    selectedProject === 'all'
+    selectedProjects.length === 0
       ? projects
-      : projects.filter(p => p.projectId === selectedProject),
-    [selectedProject, projects]
+      : projects.filter(p => selectedProjects.includes(p.projectId)),
+    [selectedProjects, projects]
   );
 
   const handleAddVendor = (data: VendorFormData) => {
@@ -63,7 +63,7 @@ export default function Finance() {
         />
       );
       case 'project-overview': return <ProjectOverviewReport data={filteredProjects} />;
-      case 'foremen': return <ForemenReport data={filteredProjects} selectedProject={selectedProject} onSelectProject={setSelectedProject} />;
+      case 'foremen': return <ForemenReport data={filteredProjects} selectedProjects={selectedProjects} onSelectProjects={setSelectedProjects} />;
       case 'payment-requests': return <PaymentRequestsBoard />;
     }
   };

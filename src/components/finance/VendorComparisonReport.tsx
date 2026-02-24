@@ -21,11 +21,11 @@ interface AggregatedVendor {
 
 interface Props {
   data: ProjectVendorExpense[];
-  selectedProject: string;
-  onSelectProject: (value: string) => void;
+  selectedProjects: string[];
+  onSelectProjects: (value: string[]) => void;
 }
 
-export function VendorComparisonReport({ data, selectedProject, onSelectProject }: Props) {
+export function VendorComparisonReport({ data, selectedProjects, onSelectProjects }: Props) {
   const vendorMap = new Map<string, AggregatedVendor>();
   data.forEach(project => {
     project.vendors.forEach(v => {
@@ -45,7 +45,7 @@ export function VendorComparisonReport({ data, selectedProject, onSelectProject 
 
   return (
     <div className="space-y-4">
-      <ProjectFilterRow selectedProject={selectedProject} onSelectProject={onSelectProject} />
+      <ProjectFilterRow selectedProjects={selectedProjects} onSelectProjects={onSelectProjects} />
       <h2 className="text-lg font-semibold">Vendor Comparison</h2>
       <Card>
         <CardContent className="p-0">

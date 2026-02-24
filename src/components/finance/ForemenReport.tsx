@@ -25,11 +25,11 @@ function formatCurrency(amount: number) {
 
 interface Props {
   data: ProjectVendorExpense[];
-  selectedProject: string;
-  onSelectProject: (value: string) => void;
+  selectedProjects: string[];
+  onSelectProjects: (value: string[]) => void;
 }
 
-export function ForemenReport({ data, selectedProject, onSelectProject }: Props) {
+export function ForemenReport({ data, selectedProjects, onSelectProjects }: Props) {
   const [search, setSearch] = useState('');
   const [selectedProfessions, setSelectedProfessions] = useState<string[]>([]);
   
@@ -318,7 +318,7 @@ export function ForemenReport({ data, selectedProject, onSelectProject }: Props)
       </div>
 
       {/* Filters Row */}
-      <ProjectFilterRow selectedProject={selectedProject} onSelectProject={onSelectProject}>
+      <ProjectFilterRow selectedProjects={selectedProjects} onSelectProjects={onSelectProjects}>
         <div className="space-y-1">
           <label className="text-xs font-medium text-muted-foreground">Search</label>
           <div className="relative">
