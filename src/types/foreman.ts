@@ -71,10 +71,15 @@ function generateWorkItems(count: number): ForemanWorkItem[] {
       receivedAmount: received,
       remainingAmount: total - received,
       comment: `${Math.floor(Math.random() * 10) + 1}-qavat`,
-      payments: [
-        { date: '2025-01-15', amount: Math.floor(received * 0.6), comment: 'Avans' },
-        { date: '2025-02-01', amount: Math.floor(received * 0.4), comment: 'Oraliq' },
-      ],
+      payments: Array.from({ length: Math.floor(Math.random() * 15) + 25 }, (_, j) => {
+        const payDate = new Date(2024, 6 + Math.floor(j / 4), 1 + (j * 3) % 28);
+        const comments = ['Avans', 'Oraliq', 'Yakuniy', 'Qo\'shimcha', 'Ish haqi', 'Material uchun', 'Transport', 'Bonus', 'Ustama', 'To\'lov'];
+        return {
+          date: payDate.toISOString().slice(0, 10),
+          amount: Math.floor(Math.random() * 50_000) + 5_000,
+          comment: comments[j % comments.length],
+        };
+      }),
     };
   });
 }
