@@ -312,7 +312,7 @@ function ResourceRequestDialog({ open, onClose, checkedItems }: {
 
         <DialogFooter className="mt-4">
           <Button variant="outline" onClick={onClose}>Бекор қилиш</Button>
-          <Button onClick={() => setShowConfirm(true)}>Юбориш</Button>
+          <Button onClick={() => setShowConfirm(true)} className={requestedResources.length === 0 ? 'text-destructive' : ''}>Keyingisi</Button>
         </DialogFooter>
 
         {/* Confirmation Dialog */}
