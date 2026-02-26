@@ -10,6 +10,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { cn } from '@/lib/utils';
@@ -206,6 +207,9 @@ function ResourceRequestDialog({ open, onClose, checkedItems }: {
     setAmounts(zeroed);
   };
 
+  const [showConfirm, setShowConfirm] = useState(false);
+  const requestedResources = aggregatedResources.filter(r => (amounts[r.id] ?? r.remaining) > 0);
+
   return (
     <Dialog open={open} onOpenChange={v => { if (!v) onClose(); }}>
       <DialogContent className="max-w-3xl max-h-[85vh] overflow-y-auto">
@@ -308,8 +312,52 @@ function ResourceRequestDialog({ open, onClose, checkedItems }: {
 
         <DialogFooter className="mt-4">
           <Button variant="outline" onClick={onClose}>Бекор қилиш</Button>
-          <Button onClick={onClose}>Юбориш</Button>
+          <Button onClick={() => setShowConfirm(true)}>Юбориш</Button>
         </DialogFooter>
+
+        {/* Confirmation Dialog */}
+        <AlertDialog open={showConfirm} onOpenChange={setShowConfirm}>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle className="text-sm">Ресурс сўровини тасдиқлаш</AlertDialogTitle>
+              <AlertDialogDescription asChild>
+                <div className="text-xs space-y-2">
+                  <p>Қуйидаги ресурслар сўралмоқда:</p>
+                  <div className="border rounded-md overflow-hidden">
+                    <Table>
+                      <TableHeader>
+                        <TableRow>
+                          <TableHead className="text-[10px] px-2">Ресурс номи</TableHead>
+                          <TableHead className="text-[10px] px-2 text-right">Бирлик</TableHead>
+                          <TableHead className="text-[10px] px-2 text-right">Сўралаётган миқдор</TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        {requestedResources.length === 0 ? (
+                          <TableRow>
+                            <TableCell colSpan={3} className="text-center text-xs text-muted-foreground py-4">
+                              Ҳеч қандай ресурс танланмаган
+                            </TableCell>
+                          </TableRow>
+                        ) : requestedResources.map(r => (
+                          <TableRow key={r.id}>
+                            <TableCell className="px-2 py-1.5 text-xs font-medium">{r.name}</TableCell>
+                            <TableCell className="px-2 py-1.5 text-xs text-right">{r.unit}</TableCell>
+                            <TableCell className="px-2 py-1.5 text-xs text-right font-semibold">{formatNum(amounts[r.id])}</TableCell>
+                          </TableRow>
+                        ))}
+                      </TableBody>
+                    </Table>
+                  </div>
+                </div>
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel>Орқага</AlertDialogCancel>
+              <AlertDialogAction onClick={() => { setShowConfirm(false); onClose(); }} disabled={requestedResources.length === 0}>Юбориш</AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
       </DialogContent>
     </Dialog>
   );
