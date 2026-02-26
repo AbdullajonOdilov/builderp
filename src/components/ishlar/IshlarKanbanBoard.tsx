@@ -294,7 +294,7 @@ function ResourceRequestDialog({ open, onClose, checkedItems }: {
                           const num = parseInt(e.target.value.replace(/\s/g, ''), 10);
                           setAmount(r.id, isNaN(num) ? 0 : num);
                         }}
-                        className="h-8 text-xs text-right w-24"
+                        className={`h-8 text-xs text-right w-24 ${(amounts[r.id] ?? r.remaining) === 0 ? 'text-destructive' : ''}`}
                       />
                     </div>
                   </TableCell>
@@ -312,7 +312,7 @@ function ResourceRequestDialog({ open, onClose, checkedItems }: {
 
         <DialogFooter className="mt-4">
           <Button variant="outline" onClick={onClose}>Бекор қилиш</Button>
-          <Button onClick={() => setShowConfirm(true)} className={requestedResources.length === 0 ? 'text-destructive' : ''}>Keyingisi</Button>
+          <Button onClick={() => setShowConfirm(true)}>Keyingisi</Button>
         </DialogFooter>
 
         {/* Confirmation Dialog */}
