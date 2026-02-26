@@ -27,8 +27,8 @@ const COLUMNS: { id: IshlarStatus; label: string; color: string }[] = [
 
 const VENDORS = ['Assalom Sohil', 'BarkamolStroy', 'Qurilish Markazi', 'TepaStroy'];
 
-function formatNum(n: number) {
-  return n.toLocaleString('ru-RU');
+function formatNum(n: number | undefined | null) {
+  return (n ?? 0).toLocaleString('ru-RU');
 }
 
 export function IshlarKanbanBoard() {
