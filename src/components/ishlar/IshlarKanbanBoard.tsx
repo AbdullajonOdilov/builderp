@@ -266,10 +266,10 @@ function ResourceRequestDialog({ open, onClose, checkedItems }: {
                   </TableCell>
                 </TableRow>
               ) : aggregatedResources.map(r => (
-                <TableRow key={r.id} className={amounts[r.id] === 0 ? 'opacity-40' : ''}>
+                <TableRow key={r.id} className={amounts[r.id] === 0 ? 'text-destructive' : ''}>
                   <TableCell className="px-3 py-2">
                     <p className="text-xs font-medium">{r.name}</p>
-                    <p className="text-[10px] text-muted-foreground">{r.code}</p>
+                    <p className={`text-[10px] ${amounts[r.id] === 0 ? 'text-destructive/70' : 'text-muted-foreground'}`}>{r.code}</p>
                   </TableCell>
                   <TableCell className="text-xs px-2">{r.unit}</TableCell>
                   <TableCell className="text-xs px-2 text-right">{formatNum(r.planned)}</TableCell>
@@ -294,7 +294,7 @@ function ResourceRequestDialog({ open, onClose, checkedItems }: {
                           const num = parseInt(e.target.value.replace(/\s/g, ''), 10);
                           setAmount(r.id, isNaN(num) ? 0 : num);
                         }}
-                        className={`h-8 text-xs text-right w-24 ${(amounts[r.id] ?? r.remaining) === 0 ? 'text-destructive' : ''}`}
+                        className={`h-8 text-xs text-right w-24 ${amounts[r.id] === 0 ? 'text-destructive' : ''}`}
                       />
                     </div>
                   </TableCell>
