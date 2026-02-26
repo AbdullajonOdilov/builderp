@@ -1,5 +1,5 @@
 import { useState, useMemo, useCallback } from 'react';
-import { Search, CalendarIcon, RotateCcw, Banknote, ChevronDown, ChevronUp, PackagePlus } from 'lucide-react';
+import { Search, CalendarIcon, RotateCcw, Banknote, ChevronDown, ChevronUp, PackagePlus, XCircle } from 'lucide-react';
 import { DragDropContext, Droppable, Draggable, DropResult } from '@hello-pangea/dnd';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -187,6 +187,25 @@ function ResourceRequestDialog({ open, onClose, checkedItems }: {
     return Array.from(map.values());
   }, [checkedItems]);
 
+  const [amounts, setAmounts] = useState<Record<string, number>>({});
+
+  // Initialize amounts when resources change
+  useMemo(() => {
+    const init: Record<string, number> = {};
+    aggregatedResources.forEach(r => { init[r.id] = r.remaining; });
+    setAmounts(init);
+  }, [aggregatedResources]);
+
+  const setAmount = (id: string, val: number) => {
+    setAmounts(prev => ({ ...prev, [id]: val }));
+  };
+
+  const zeroAll = () => {
+    const zeroed: Record<string, number> = {};
+    aggregatedResources.forEach(r => { zeroed[r.id] = 0; });
+    setAmounts(zeroed);
+  };
+
   return (
     <Dialog open={open} onOpenChange={v => { if (!v) onClose(); }}>
       <DialogContent className="max-w-3xl max-h-[85vh] overflow-y-auto">
@@ -226,7 +245,12 @@ function ResourceRequestDialog({ open, onClose, checkedItems }: {
                 <TableHead className="text-[10px] px-2 text-right">Режада қолди</TableHead>
                 <TableHead className="text-[10px] px-2 text-right">Омборда мавжуд</TableHead>
                 <TableHead className="text-[10px] px-2 text-right">
-                  <span className="text-destructive">Сўралаётган миқдор *</span>
+                  <div className="flex items-center justify-end gap-1">
+                    <span className="text-destructive">Сўралаётган миқдор *</span>
+                    <Button variant="ghost" size="icon" className="h-5 w-5 text-muted-foreground hover:text-destructive" title="Ҳаммасини нуллаш" onClick={zeroAll}>
+                      <XCircle className="h-3.5 w-3.5" />
+                    </Button>
+                  </div>
                 </TableHead>
               </TableRow>
             </TableHeader>
@@ -238,7 +262,7 @@ function ResourceRequestDialog({ open, onClose, checkedItems }: {
                   </TableCell>
                 </TableRow>
               ) : aggregatedResources.map(r => (
-                <TableRow key={r.id}>
+                <TableRow key={r.id} className={amounts[r.id] === 0 ? 'opacity-40' : ''}>
                   <TableCell className="px-3 py-2">
                     <p className="text-xs font-medium">{r.name}</p>
                     <p className="text-[10px] text-muted-foreground">{r.code}</p>
@@ -249,11 +273,26 @@ function ResourceRequestDialog({ open, onClose, checkedItems }: {
                   <TableCell className="text-xs px-2 text-right">{formatNum(r.planned - r.used)}</TableCell>
                   <TableCell className="text-xs px-2 text-right">{formatNum(r.inStock)}</TableCell>
                   <TableCell className="px-2 py-1">
-                    <Input
-                      type="text"
-                      defaultValue={formatNum(r.remaining)}
-                      className="h-8 text-xs text-right w-28 ml-auto"
-                    />
+                    <div className="flex items-center gap-1 justify-end">
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-7 w-7 shrink-0 text-muted-foreground hover:text-destructive"
+                        title="Нуллаш"
+                        onClick={() => setAmount(r.id, amounts[r.id] === 0 ? r.remaining : 0)}
+                      >
+                        <XCircle className="h-3.5 w-3.5" />
+                      </Button>
+                      <Input
+                        type="text"
+                        value={formatNum(amounts[r.id] ?? r.remaining)}
+                        onChange={e => {
+                          const num = parseInt(e.target.value.replace(/\s/g, ''), 10);
+                          setAmount(r.id, isNaN(num) ? 0 : num);
+                        }}
+                        className="h-8 text-xs text-right w-24"
+                      />
+                    </div>
                   </TableCell>
                 </TableRow>
               ))}
