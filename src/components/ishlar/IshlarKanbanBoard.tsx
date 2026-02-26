@@ -317,7 +317,7 @@ function ResourceRequestDialog({ open, onClose, checkedItems }: {
 
         {/* Confirmation Dialog */}
         <AlertDialog open={showConfirm} onOpenChange={setShowConfirm}>
-          <AlertDialogContent>
+          <AlertDialogContent className="max-w-2xl">
             <AlertDialogHeader>
               <AlertDialogTitle className="text-sm">Ресурс сўровини тасдиқлаш</AlertDialogTitle>
               <AlertDialogDescription asChild>
@@ -328,21 +328,32 @@ function ResourceRequestDialog({ open, onClose, checkedItems }: {
                       <TableHeader>
                         <TableRow>
                           <TableHead className="text-[10px] px-2">Ресурс номи</TableHead>
-                          <TableHead className="text-[10px] px-2 text-right">Бирлик</TableHead>
-                          <TableHead className="text-[10px] px-2 text-right">Сўралаётган миқдор</TableHead>
+                          <TableHead className="text-[10px] px-2">Бирлик</TableHead>
+                          <TableHead className="text-[10px] px-2 text-right">Режа</TableHead>
+                          <TableHead className="text-[10px] px-2 text-right">Омборда</TableHead>
+                          <TableHead className="text-[10px] px-2 text-right">Ишлатилган</TableHead>
+                          <TableHead className="text-[10px] px-2 text-right">Қолдиқ</TableHead>
+                          <TableHead className="text-[10px] px-2 text-right">Сўралаётган</TableHead>
                         </TableRow>
                       </TableHeader>
                       <TableBody>
                         {requestedResources.length === 0 ? (
                           <TableRow>
-                            <TableCell colSpan={3} className="text-center text-xs text-muted-foreground py-4">
+                            <TableCell colSpan={7} className="text-center text-xs text-muted-foreground py-4">
                               Ҳеч қандай ресурс танланмаган
                             </TableCell>
                           </TableRow>
                         ) : requestedResources.map(r => (
                           <TableRow key={r.id}>
-                            <TableCell className="px-2 py-1.5 text-xs font-medium">{r.name}</TableCell>
-                            <TableCell className="px-2 py-1.5 text-xs text-right">{r.unit}</TableCell>
+                            <TableCell className="px-2 py-1.5">
+                              <p className="text-xs font-medium">{r.name}</p>
+                              <p className="text-[10px] text-muted-foreground">{r.code}</p>
+                            </TableCell>
+                            <TableCell className="px-2 py-1.5 text-xs">{r.unit}</TableCell>
+                            <TableCell className="px-2 py-1.5 text-xs text-right">{formatNum(r.planned)}</TableCell>
+                            <TableCell className="px-2 py-1.5 text-xs text-right">{formatNum(r.inStock)}</TableCell>
+                            <TableCell className="px-2 py-1.5 text-xs text-right">{formatNum(r.used)}</TableCell>
+                            <TableCell className="px-2 py-1.5 text-xs text-right">{formatNum(r.remaining)}</TableCell>
                             <TableCell className="px-2 py-1.5 text-xs text-right font-semibold">{formatNum(amounts[r.id])}</TableCell>
                           </TableRow>
                         ))}
