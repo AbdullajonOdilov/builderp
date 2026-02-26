@@ -1,4 +1,5 @@
 import { useState, useMemo } from 'react';
+import { ScrollArea } from '@/components/ui/scroll-area';
 import { Search, Users, Briefcase, DollarSign, Wallet, CalendarIcon, ArrowLeft, Plus, Phone, Eye, Pencil, Trash2 } from 'lucide-react';
 import { format, subDays } from 'date-fns';
 import { Card, CardContent } from '@/components/ui/card';
@@ -217,31 +218,33 @@ export function ForemenReport({ data, selectedProjects, onSelectProjects }: Prop
 
         {/* Payment detail dialog */}
         <Dialog open={!!paymentDetailItem} onOpenChange={(open) => { if (!open) setPaymentDetailItem(null); }}>
-          <DialogContent className="max-w-md">
+          <DialogContent className="max-w-md max-h-[80vh] flex flex-col">
             <DialogHeader>
               <DialogTitle className="text-sm">{paymentDetailItem?.workType} — To'lovlar</DialogTitle>
             </DialogHeader>
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead className="text-xs">Sana</TableHead>
-                  <TableHead className="text-right text-xs">Pul miqdori</TableHead>
-                  <TableHead className="text-xs">Izoh</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {paymentDetailItem?.payments.map((p, i) => (
-                  <TableRow key={i}>
-                    <TableCell className="text-xs">{p.date}</TableCell>
-                    <TableCell className="text-right text-xs font-medium">{formatCurrency(p.amount)}</TableCell>
-                    <TableCell className="text-xs text-muted-foreground">{p.comment}</TableCell>
+            <ScrollArea className="flex-1 overflow-auto max-h-[60vh]">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead className="text-xs">Sana</TableHead>
+                    <TableHead className="text-right text-xs">Pul miqdori</TableHead>
+                    <TableHead className="text-xs">Izoh</TableHead>
                   </TableRow>
-                ))}
-                {paymentDetailItem?.payments.length === 0 && (
-                  <TableRow><TableCell colSpan={3} className="text-center py-4 text-muted-foreground text-xs">To'lov yo'q</TableCell></TableRow>
-                )}
-              </TableBody>
-            </Table>
+                </TableHeader>
+                <TableBody>
+                  {paymentDetailItem?.payments.map((p, i) => (
+                    <TableRow key={i}>
+                      <TableCell className="text-xs">{p.date}</TableCell>
+                      <TableCell className="text-right text-xs font-medium">{formatCurrency(p.amount)}</TableCell>
+                      <TableCell className="text-xs text-muted-foreground">{p.comment}</TableCell>
+                    </TableRow>
+                  ))}
+                  {paymentDetailItem?.payments.length === 0 && (
+                    <TableRow><TableCell colSpan={3} className="text-center py-4 text-muted-foreground text-xs">To'lov yo'q</TableCell></TableRow>
+                  )}
+                </TableBody>
+              </Table>
+            </ScrollArea>
           </DialogContent>
         </Dialog>
 
