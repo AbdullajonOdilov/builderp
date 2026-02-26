@@ -171,6 +171,8 @@ function ResourceRequestDialog({ open, onClose, checkedItems }: {
 }) {
   const [step, setStep] = useState<1 | 2>(1);
   const [comment, setComment] = useState('');
+  const [vendor, setVendor] = useState(VENDORS[0]);
+  const [deliveryDate, setDeliveryDate] = useState(new Date().toISOString().slice(0, 10));
 
   // Aggregate resources from all checked items
   const aggregatedResources = useMemo(() => {
@@ -246,7 +248,7 @@ function ResourceRequestDialog({ open, onClose, checkedItems }: {
             <div className="grid grid-cols-2 gap-4 mt-2">
               <div className="space-y-1">
                 <label className="text-xs font-medium">Манба</label>
-                <Select defaultValue={VENDORS[0]}>
+                <Select value={vendor} onValueChange={setVendor}>
                   <SelectTrigger className="h-9">
                     <SelectValue />
                   </SelectTrigger>
@@ -259,7 +261,7 @@ function ResourceRequestDialog({ open, onClose, checkedItems }: {
               </div>
               <div className="space-y-1">
                 <label className="text-xs font-medium">Кутилаётган етказиб бериш санаси</label>
-                <Input type="date" defaultValue={new Date().toISOString().slice(0, 10)} className="h-9" />
+                <Input type="date" value={deliveryDate} onChange={e => setDeliveryDate(e.target.value)} className="h-9" />
               </div>
             </div>
 
@@ -338,7 +340,18 @@ function ResourceRequestDialog({ open, onClose, checkedItems }: {
 
         {step === 2 && (
           <>
-            <div className="border rounded-md overflow-hidden mt-2">
+            <div className="grid grid-cols-2 gap-4 mt-2 p-3 rounded-md bg-muted/50">
+              <div className="space-y-0.5">
+                <label className="text-[10px] font-medium text-muted-foreground uppercase tracking-wider">Манба</label>
+                <p className="text-sm font-medium">{vendor}</p>
+              </div>
+              <div className="space-y-0.5">
+                <label className="text-[10px] font-medium text-muted-foreground uppercase tracking-wider">Етказиб бериш санаси</label>
+                <p className="text-sm font-medium">{deliveryDate}</p>
+              </div>
+            </div>
+
+            <div className="border rounded-md overflow-hidden mt-4">
               <Table>
                 <TableHeader>
                   <TableRow>
