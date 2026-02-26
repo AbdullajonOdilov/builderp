@@ -434,15 +434,14 @@ function DetailDialog({ item, onClose }: { item: IshlarItem | null; onClose: () 
             <Field label="Объект номи" value={item.projectName} />
             <Field label="Объект бўлими" value={item.sectionName} />
             <Field label="Бирлик нархи" value={formatNum(item.unitPrice)} />
-            <Field label="Умумий сумма" value={`${formatNum(item.totalPrice)} UZS`} bold />
+            <div>
+              <p className="text-[10px] text-muted-foreground mb-0.5">Бошланиш сана</p>
+              <Input type="date" defaultValue="2026-01-19" className="h-7 text-xs" />
+            </div>
           </div>
 
           {/* Row 2 */}
           <div className="grid grid-cols-4 gap-4">
-            <div>
-              <p className="text-[10px] text-muted-foreground mb-0.5">Иш миқдори</p>
-              <Input defaultValue={formatNum(item.totalQuantity)} className="h-7 text-xs" />
-            </div>
             <div>
               <p className="text-[10px] text-muted-foreground mb-1">Биргадир</p>
               <Popover>
@@ -470,9 +469,10 @@ function DetailDialog({ item, onClose }: { item: IshlarItem | null; onClose: () 
               </Popover>
             </div>
             <div>
-              <p className="text-[10px] text-muted-foreground mb-0.5">Бошланиш сана</p>
-              <Input type="date" defaultValue="2026-01-19" className="h-7 text-xs" />
+              <p className="text-[10px] text-muted-foreground mb-0.5">Иш миқдори</p>
+              <Input defaultValue={formatNum(item.totalQuantity)} className="h-7 text-xs" />
             </div>
+            <Field label="Умумий сумма" value={`${formatNum(item.totalPrice)} UZS`} bold />
             <div>
               <p className="text-[10px] text-muted-foreground mb-0.5">Тугаш сана</p>
               <Input type="date" defaultValue="2026-03-14" className="h-7 text-xs" />
