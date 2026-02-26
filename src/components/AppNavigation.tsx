@@ -1,7 +1,11 @@
-import { Building2, ClipboardList, DollarSign, HardHat, ListTodo, Kanban } from 'lucide-react';
+import { Building2, ClipboardList, DollarSign, HardHat, ListTodo, Kanban, Moon, Sun } from 'lucide-react';
 import { NavLink } from './NavLink';
+import { useTheme } from 'next-themes';
+import { Button } from './ui/button';
 
 export function AppNavigation() {
+  const { theme, setTheme } = useTheme();
+
   return (
     <header className="sticky top-0 z-50 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-b">
       <div className="container flex h-14 items-center justify-between">
@@ -56,6 +60,9 @@ export function AppNavigation() {
             </NavLink>
           </nav>
         </div>
+        <Button variant="ghost" size="icon" className="h-9 w-9" onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}>
+          {theme === 'dark' ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
+        </Button>
       </div>
     </header>
   );

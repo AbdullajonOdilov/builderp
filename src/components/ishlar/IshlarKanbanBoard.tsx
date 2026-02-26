@@ -2,6 +2,7 @@ import { useState, useMemo, useCallback } from 'react';
 import { Search, CalendarIcon, RotateCcw, Banknote, ChevronDown, ChevronUp } from 'lucide-react';
 import { DragDropContext, Droppable, Draggable, DropResult } from '@hello-pangea/dnd';
 import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
@@ -207,6 +208,12 @@ function DetailDialog({ item, onClose }: { item: IshlarItem | null; onClose: () 
             </div>
           </div>
 
+          {/* Comment */}
+          <div>
+            <p className="text-[10px] text-muted-foreground mb-0.5">Изоҳ</p>
+            <Textarea defaultValue={item.comment} placeholder="Изоҳ ёзинг..." className="text-xs min-h-[60px] resize-none" />
+          </div>
+
           {/* Progress */}
           <div className="border rounded-lg p-3 space-y-2">
             <p className="text-[10px] font-medium text-muted-foreground uppercase tracking-wider">Бажарилиш</p>
@@ -223,13 +230,6 @@ function DetailDialog({ item, onClose }: { item: IshlarItem | null; onClose: () 
             </div>
           </div>
 
-          {/* Comment */}
-          {item.comment && (
-            <div>
-              <p className="text-[10px] text-muted-foreground mb-1">Изоҳ</p>
-              <p className="text-xs border rounded-md px-3 py-2 bg-muted/30">{item.comment}</p>
-            </div>
-          )}
 
           {/* Resources collapsible */}
           <Collapsible open={resourcesOpen} onOpenChange={setResourcesOpen}>
