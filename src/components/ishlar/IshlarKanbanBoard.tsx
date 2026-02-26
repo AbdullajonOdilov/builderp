@@ -1,5 +1,5 @@
 import { useState, useMemo, useCallback } from 'react';
-import { Search, CalendarIcon, RotateCcw, Banknote, ChevronDown, ChevronUp } from 'lucide-react';
+import { Search, CalendarIcon, RotateCcw, Banknote, ChevronDown, ChevronUp, PackagePlus } from 'lucide-react';
 import { DragDropContext, Droppable, Draggable, DropResult } from '@hello-pangea/dnd';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -9,11 +9,12 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import { Checkbox } from '@/components/ui/checkbox';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { cn } from '@/lib/utils';
 import {
-  IshlarItem, IshlarStatus, MOCK_ISHLAR, ISHLAR_PROJECTS, ISHLAR_CATEGORIES, ISHLAR_FOREMEN,
+  IshlarItem, IshlarStatus, IshlarResource, MOCK_ISHLAR, ISHLAR_PROJECTS, ISHLAR_CATEGORIES, ISHLAR_FOREMEN,
 } from '@/types/ishlar';
 
 const COLUMNS: { id: IshlarStatus; label: string; color: string }[] = [
@@ -22,6 +23,8 @@ const COLUMNS: { id: IshlarStatus; label: string; color: string }[] = [
   { id: 'completed', label: 'ЯКУНЛАНДИ', color: 'hsl(var(--status-delivered))' },
   { id: 'archived', label: 'АРХИВ', color: 'hsl(var(--muted-foreground))' },
 ];
+
+const VENDORS = ['Assalom Sohil', 'BarkamolStroy', 'Qurilish Markazi', 'TepaStroy'];
 
 function formatNum(n: number) {
   return n.toLocaleString('ru-RU');
@@ -36,6 +39,16 @@ export function IshlarKanbanBoard() {
   const [dateFrom, setDateFrom] = useState('');
   const [dateTo, setDateTo] = useState('');
   const [selectedItem, setSelectedItem] = useState<IshlarItem | null>(null);
+  const [checkedIds, setCheckedIds] = useState<Set<string>>(new Set());
+  const [resourceRequestOpen, setResourceRequestOpen] = useState(false);
+
+  const toggleChecked = useCallback((id: string) => {
+    setCheckedIds(prev => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id); else next.add(id);
+      return next;
+    });
+  }, []);
 
   const filtered = useMemo(() => {
     let result = items;
@@ -72,11 +85,20 @@ export function IshlarKanbanBoard() {
     setSelectedItem(prev => prev?.id === item.id ? null : item);
   };
 
+  // Gather resources from checked items
+  const checkedItems = useMemo(() => items.filter(i => checkedIds.has(i.id)), [items, checkedIds]);
+
   return (
     <div className="h-[calc(100vh-56px)] flex flex-col">
       {/* Title */}
-      <div className="px-6 pt-4 pb-2">
+      <div className="px-6 pt-4 pb-2 flex items-center justify-between">
         <h1 className="text-lg font-bold">Ишлар доскаси</h1>
+        {checkedIds.size > 0 && (
+          <Button size="sm" className="h-9 gap-2" onClick={() => setResourceRequestOpen(true)}>
+            <PackagePlus className="h-4 w-4" />
+            Ресурс сўраш ({checkedIds.size})
+          </Button>
+        )}
       </div>
 
       {/* Filters Row */}
@@ -112,6 +134,13 @@ export function IshlarKanbanBoard() {
       {/* Detail Dialog */}
       <DetailDialog item={selectedItem} onClose={() => setSelectedItem(null)} />
 
+      {/* Resource Request Dialog */}
+      <ResourceRequestDialog
+        open={resourceRequestOpen}
+        onClose={() => setResourceRequestOpen(false)}
+        checkedItems={checkedItems}
+      />
+
       {/* Kanban Board */}
       <DragDropContext onDragEnd={handleDragEnd}>
         <div className="flex-1 overflow-x-auto px-6 pb-4">
@@ -124,12 +153,126 @@ export function IshlarKanbanBoard() {
                 totalAll={items.filter(i => i.status === col.id).length}
                 selectedId={selectedItem?.id}
                 onCardClick={handleCardClick}
+                checkedIds={checkedIds}
+                onToggleChecked={toggleChecked}
               />
             ))}
           </div>
         </div>
       </DragDropContext>
     </div>
+  );
+}
+
+/* ===== Resource Request Dialog ===== */
+function ResourceRequestDialog({ open, onClose, checkedItems }: {
+  open: boolean; onClose: () => void; checkedItems: IshlarItem[];
+}) {
+  // Aggregate resources from all checked items
+  const aggregatedResources = useMemo(() => {
+    const map = new Map<string, IshlarResource & { planned: number; used: number }>();
+    checkedItems.forEach(item => {
+      item.resources.forEach(r => {
+        const existing = map.get(r.name);
+        if (existing) {
+          existing.planned += r.planned;
+          existing.used += r.used;
+          existing.inStock += r.inStock;
+          existing.remaining += r.remaining;
+        } else {
+          map.set(r.name, { ...r });
+        }
+      });
+    });
+    return Array.from(map.values());
+  }, [checkedItems]);
+
+  return (
+    <Dialog open={open} onOpenChange={v => { if (!v) onClose(); }}>
+      <DialogContent className="max-w-3xl max-h-[85vh] overflow-y-auto">
+        <DialogHeader>
+          <DialogTitle className="text-base font-bold">Материал сўраш</DialogTitle>
+          <p className="text-sm text-muted-foreground">Ҳар бир материал учун сўралган миқдорни киритинг.</p>
+        </DialogHeader>
+
+        <div className="grid grid-cols-2 gap-4 mt-2">
+          <div className="space-y-1">
+            <label className="text-xs font-medium">Манба</label>
+            <Select defaultValue={VENDORS[0]}>
+              <SelectTrigger className="h-9">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {VENDORS.map(v => (
+                  <SelectItem key={v} value={v}>{v}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+          <div className="space-y-1">
+            <label className="text-xs font-medium">Кутилаётган етказиб бериш санаси</label>
+            <Input type="date" defaultValue={new Date().toISOString().slice(0, 10)} className="h-9" />
+          </div>
+        </div>
+
+        <div className="border rounded-md overflow-hidden mt-4">
+          <Table>
+            <TableHeader>
+              <TableRow className="h-8">
+                <TableHead className="text-[10px] px-3">Материал</TableHead>
+                <TableHead className="text-[10px] px-2">Бирлик</TableHead>
+                <TableHead className="text-[10px] px-2 text-right">Режада жами</TableHead>
+                <TableHead className="text-[10px] px-2 text-right">Ишлатилган</TableHead>
+                <TableHead className="text-[10px] px-2 text-right">Режада қолди</TableHead>
+                <TableHead className="text-[10px] px-2 text-right">Омборда мавжуд</TableHead>
+                <TableHead className="text-[10px] px-2 text-right">
+                  <span className="text-destructive">Сўралаётган миқдор *</span>
+                </TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {aggregatedResources.length === 0 ? (
+                <TableRow>
+                  <TableCell colSpan={7} className="text-center text-xs py-4 text-muted-foreground">
+                    Танланган ишларда ресурс топилмади
+                  </TableCell>
+                </TableRow>
+              ) : aggregatedResources.map(r => (
+                <TableRow key={r.id}>
+                  <TableCell className="px-3 py-2">
+                    <p className="text-xs font-medium">{r.name}</p>
+                    <p className="text-[10px] text-muted-foreground">{r.code}</p>
+                  </TableCell>
+                  <TableCell className="text-xs px-2">{r.unit}</TableCell>
+                  <TableCell className="text-xs px-2 text-right">{formatNum(r.planned)}</TableCell>
+                  <TableCell className="text-xs px-2 text-right">{formatNum(r.used)}</TableCell>
+                  <TableCell className="text-xs px-2 text-right">{formatNum(r.planned - r.used)}</TableCell>
+                  <TableCell className="text-xs px-2 text-right">{formatNum(r.inStock)}</TableCell>
+                  <TableCell className="px-2 py-1">
+                    <Input
+                      type="text"
+                      defaultValue={formatNum(r.remaining)}
+                      className="h-8 text-xs text-right w-28 ml-auto"
+                    />
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </div>
+
+        {/* Comment */}
+        <div className="mt-4 space-y-1">
+          <label className="text-sm font-medium">Изоҳ</label>
+          <Textarea placeholder="Сўров учун қўшимча маълумот киритинг..." className="min-h-[80px] resize-none text-sm" />
+        </div>
+
+        <DialogFooter className="mt-4">
+          <Button variant="outline" onClick={onClose}>Бекор қилиш</Button>
+          <Button onClick={onClose}>Юбориш</Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
   );
 }
 
@@ -158,7 +301,7 @@ function DetailDialog({ item, onClose }: { item: IshlarItem | null; onClose: () 
         </DialogHeader>
 
         <div className="px-5 py-4 space-y-4">
-          {/* Row 1: Obyekt nomi, Bo'limi, Birlik narx, Umumiy summa */}
+          {/* Row 1 */}
           <div className="grid grid-cols-4 gap-x-6 gap-y-3">
             <Field label="Объект номи" value={item.projectName} />
             <Field label="Объект бўлими" value={item.sectionName} />
@@ -166,7 +309,7 @@ function DetailDialog({ item, onClose }: { item: IshlarItem | null; onClose: () 
             <Field label="Умумий сумма" value={`${formatNum(item.totalPrice)} UZS`} bold />
           </div>
 
-          {/* Row 2: Birgadir (select), Boshlanish sana, Tugash sana, Ish miqdori */}
+          {/* Row 2 */}
           <div className="grid grid-cols-4 gap-4">
             <div>
               <p className="text-[10px] text-muted-foreground mb-0.5">Иш миқдори</p>
@@ -229,7 +372,6 @@ function DetailDialog({ item, onClose }: { item: IshlarItem | null; onClose: () 
               <span>Режа бўйича миқдор: <strong>{formatNum(item.plannedQuantity)} {item.unit}</strong></span>
             </div>
           </div>
-
 
           {/* Resources collapsible */}
           <Collapsible open={resourcesOpen} onOpenChange={setResourcesOpen}>
@@ -351,12 +493,14 @@ function MultiFilter({ label, selected, onSelect, options, width }: {
 }
 
 /* ===== Kanban Column ===== */
-function KanbanColumn({ column, items, totalAll, selectedId, onCardClick }: {
+function KanbanColumn({ column, items, totalAll, selectedId, onCardClick, checkedIds, onToggleChecked }: {
   column: { id: IshlarStatus; label: string; color: string };
   items: IshlarItem[];
   totalAll: number;
   selectedId?: string;
   onCardClick: (item: IshlarItem) => void;
+  checkedIds: Set<string>;
+  onToggleChecked: (id: string) => void;
 }) {
   return (
     <div className="w-96 flex flex-col shrink-0">
@@ -380,14 +524,24 @@ function KanbanColumn({ column, items, totalAll, selectedId, onCardClick }: {
                       ref={provided.innerRef}
                       {...provided.draggableProps}
                       {...provided.dragHandleProps}
-                      onClick={() => onCardClick(item)}
                       className={cn(
-                        'rounded-lg border bg-card p-3 shadow-sm transition-all cursor-pointer',
+                        'rounded-lg border bg-card p-3 shadow-sm transition-all',
                         snapshot.isDragging && 'shadow-lg ring-2 ring-primary/20',
-                        selectedId === item.id && 'ring-2 ring-primary border-primary'
+                        selectedId === item.id && 'ring-2 ring-primary border-primary',
+                        checkedIds.has(item.id) && 'border-primary/50 bg-primary/5'
                       )}
                     >
-                      <KanbanCard item={item} />
+                      <div className="flex items-start gap-2">
+                        <Checkbox
+                          checked={checkedIds.has(item.id)}
+                          onCheckedChange={() => onToggleChecked(item.id)}
+                          onClick={(e) => e.stopPropagation()}
+                          className="mt-0.5 shrink-0"
+                        />
+                        <div className="flex-1 min-w-0 cursor-pointer" onClick={() => onCardClick(item)}>
+                          <KanbanCard item={item} />
+                        </div>
+                      </div>
                     </div>
                   )}
                 </Draggable>
