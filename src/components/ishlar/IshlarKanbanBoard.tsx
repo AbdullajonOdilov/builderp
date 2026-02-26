@@ -169,6 +169,9 @@ export function IshlarKanbanBoard() {
 function ResourceRequestDialog({ open, onClose, checkedItems }: {
   open: boolean; onClose: () => void; checkedItems: IshlarItem[];
 }) {
+  const [step, setStep] = useState<1 | 2>(1);
+  const [comment, setComment] = useState('');
+
   // Aggregate resources from all checked items
   const aggregatedResources = useMemo(() => {
     const map = new Map<string, IshlarResource & { planned: number; used: number }>();
@@ -190,7 +193,6 @@ function ResourceRequestDialog({ open, onClose, checkedItems }: {
 
   const [amounts, setAmounts] = useState<Record<string, number>>({});
 
-  // Initialize amounts when resources change
   useMemo(() => {
     const init: Record<string, number> = {};
     aggregatedResources.forEach(r => { init[r.id] = r.remaining; });
@@ -207,168 +209,183 @@ function ResourceRequestDialog({ open, onClose, checkedItems }: {
     setAmounts(zeroed);
   };
 
-  const [showConfirm, setShowConfirm] = useState(false);
   const requestedResources = aggregatedResources.filter(r => (amounts[r.id] ?? r.remaining) > 0);
 
+  // Reset step when dialog closes
+  const handleClose = () => {
+    setStep(1);
+    setComment('');
+    onClose();
+  };
+
   return (
-    <Dialog open={open} onOpenChange={v => { if (!v) onClose(); }}>
+    <Dialog open={open} onOpenChange={v => { if (!v) handleClose(); }}>
       <DialogContent className="max-w-3xl max-h-[85vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle className="text-base font-bold">Материал сўраш</DialogTitle>
-          <p className="text-sm text-muted-foreground">Ҳар бир материал учун сўралган миқдорни киритинг.</p>
+          <div className="flex items-center gap-3">
+            <DialogTitle className="text-base font-bold">Материал сўраш</DialogTitle>
+            <div className="flex items-center gap-2 ml-auto mr-6">
+              <div className={cn("flex items-center gap-1.5 text-xs font-medium", step === 1 ? "text-primary" : "text-muted-foreground")}>
+                <span className={cn("flex items-center justify-center w-5 h-5 rounded-full text-[10px] font-bold", step === 1 ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground")}>1</span>
+                Танлаш
+              </div>
+              <span className="text-muted-foreground">→</span>
+              <div className={cn("flex items-center gap-1.5 text-xs font-medium", step === 2 ? "text-primary" : "text-muted-foreground")}>
+                <span className={cn("flex items-center justify-center w-5 h-5 rounded-full text-[10px] font-bold", step === 2 ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground")}>2</span>
+                Юбориш
+              </div>
+            </div>
+          </div>
+          <p className="text-sm text-muted-foreground">
+            {step === 1 ? 'Ҳар бир материал учун сўралган миқдорни киритинг.' : 'Сўровни текшириб, изоҳ қўшиб юборинг.'}
+          </p>
         </DialogHeader>
 
-        <div className="grid grid-cols-2 gap-4 mt-2">
-          <div className="space-y-1">
-            <label className="text-xs font-medium">Манба</label>
-            <Select defaultValue={VENDORS[0]}>
-              <SelectTrigger className="h-9">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                {VENDORS.map(v => (
-                  <SelectItem key={v} value={v}>{v}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-          <div className="space-y-1">
-            <label className="text-xs font-medium">Кутилаётган етказиб бериш санаси</label>
-            <Input type="date" defaultValue={new Date().toISOString().slice(0, 10)} className="h-9" />
-          </div>
-        </div>
+        {step === 1 && (
+          <>
+            <div className="grid grid-cols-2 gap-4 mt-2">
+              <div className="space-y-1">
+                <label className="text-xs font-medium">Манба</label>
+                <Select defaultValue={VENDORS[0]}>
+                  <SelectTrigger className="h-9">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {VENDORS.map(v => (
+                      <SelectItem key={v} value={v}>{v}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-1">
+                <label className="text-xs font-medium">Кутилаётган етказиб бериш санаси</label>
+                <Input type="date" defaultValue={new Date().toISOString().slice(0, 10)} className="h-9" />
+              </div>
+            </div>
 
-        <div className="border rounded-md overflow-hidden mt-4">
-          <Table>
-            <TableHeader>
-              <TableRow className="h-8">
-                <TableHead className="text-[10px] px-3">Материал</TableHead>
-                <TableHead className="text-[10px] px-2">Бирлик</TableHead>
-                <TableHead className="text-[10px] px-2 text-right">Режада жами</TableHead>
-                <TableHead className="text-[10px] px-2 text-right">Ишлатилган</TableHead>
-                <TableHead className="text-[10px] px-2 text-right">Режада қолди</TableHead>
-                <TableHead className="text-[10px] px-2 text-right">Омборда мавжуд</TableHead>
-                <TableHead className="text-[10px] px-2 text-right">
-                  <div className="flex items-center justify-end gap-1">
-                    <span className="text-destructive">Сўралаётган миқдор *</span>
-                    <Button variant="ghost" size="icon" className="h-5 w-5 text-muted-foreground hover:text-destructive" title="Ҳаммасини нуллаш" onClick={zeroAll}>
-                      <XCircle className="h-3.5 w-3.5" />
-                    </Button>
-                  </div>
-                </TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {aggregatedResources.length === 0 ? (
-                <TableRow>
-                  <TableCell colSpan={7} className="text-center text-xs py-4 text-muted-foreground">
-                    Танланган ишларда ресурс топилмади
-                  </TableCell>
-                </TableRow>
-              ) : aggregatedResources.map(r => (
-                <TableRow key={r.id} className={amounts[r.id] === 0 ? 'text-destructive' : ''}>
-                  <TableCell className="px-3 py-2">
-                    <p className="text-xs font-medium">{r.name}</p>
-                    <p className={`text-[10px] ${amounts[r.id] === 0 ? 'text-destructive/70' : 'text-muted-foreground'}`}>{r.code}</p>
-                  </TableCell>
-                  <TableCell className="text-xs px-2">{r.unit}</TableCell>
-                  <TableCell className="text-xs px-2 text-right">{formatNum(r.planned)}</TableCell>
-                  <TableCell className="text-xs px-2 text-right">{formatNum(r.used)}</TableCell>
-                  <TableCell className="text-xs px-2 text-right">{formatNum(r.planned - r.used)}</TableCell>
-                  <TableCell className="text-xs px-2 text-right">{formatNum(r.inStock)}</TableCell>
-                  <TableCell className="px-2 py-1">
-                    <div className="flex items-center gap-1 justify-end">
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        className="h-7 w-7 shrink-0 text-muted-foreground hover:text-destructive"
-                        title="Нуллаш"
-                        onClick={() => setAmount(r.id, amounts[r.id] === 0 ? r.remaining : 0)}
-                      >
-                        <XCircle className="h-3.5 w-3.5" />
-                      </Button>
-                      <Input
-                        type="text"
-                        value={formatNum(amounts[r.id] ?? r.remaining)}
-                        onChange={e => {
-                          const num = parseInt(e.target.value.replace(/\s/g, ''), 10);
-                          setAmount(r.id, isNaN(num) ? 0 : num);
-                        }}
-                        className={`h-8 text-xs text-right w-24 ${amounts[r.id] === 0 ? 'text-destructive' : ''}`}
-                      />
-                    </div>
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </div>
+            <div className="border rounded-md overflow-hidden mt-4">
+              <Table>
+                <TableHeader>
+                  <TableRow className="h-8">
+                    <TableHead className="text-[10px] px-3">Материал</TableHead>
+                    <TableHead className="text-[10px] px-2">Бирлик</TableHead>
+                    <TableHead className="text-[10px] px-2 text-right">Режада жами</TableHead>
+                    <TableHead className="text-[10px] px-2 text-right">Ишлатилган</TableHead>
+                    <TableHead className="text-[10px] px-2 text-right">Режада қолди</TableHead>
+                    <TableHead className="text-[10px] px-2 text-right">Омборда мавжуд</TableHead>
+                    <TableHead className="text-[10px] px-2 text-right">
+                      <div className="flex items-center justify-end gap-1">
+                        <span className="text-destructive">Сўралаётган миқдор *</span>
+                        <Button variant="ghost" size="icon" className="h-5 w-5 text-muted-foreground hover:text-destructive" title="Ҳаммасини нуллаш" onClick={zeroAll}>
+                          <XCircle className="h-3.5 w-3.5" />
+                        </Button>
+                      </div>
+                    </TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {aggregatedResources.length === 0 ? (
+                    <TableRow>
+                      <TableCell colSpan={7} className="text-center text-xs py-4 text-muted-foreground">
+                        Танланган ишларда ресурс топилмади
+                      </TableCell>
+                    </TableRow>
+                  ) : aggregatedResources.map(r => (
+                    <TableRow key={r.id} className={amounts[r.id] === 0 ? 'text-destructive' : ''}>
+                      <TableCell className="px-3 py-2">
+                        <p className="text-xs font-medium">{r.name}</p>
+                        <p className={`text-[10px] ${amounts[r.id] === 0 ? 'text-destructive/70' : 'text-muted-foreground'}`}>{r.code}</p>
+                      </TableCell>
+                      <TableCell className="text-xs px-2">{r.unit}</TableCell>
+                      <TableCell className="text-xs px-2 text-right">{formatNum(r.planned)}</TableCell>
+                      <TableCell className="text-xs px-2 text-right">{formatNum(r.used)}</TableCell>
+                      <TableCell className="text-xs px-2 text-right">{formatNum(r.planned - r.used)}</TableCell>
+                      <TableCell className="text-xs px-2 text-right">{formatNum(r.inStock)}</TableCell>
+                      <TableCell className="px-2 py-1">
+                        <div className="flex items-center gap-1 justify-end">
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-7 w-7 shrink-0 text-muted-foreground hover:text-destructive"
+                            title="Нуллаш"
+                            onClick={() => setAmount(r.id, amounts[r.id] === 0 ? r.remaining : 0)}
+                          >
+                            <XCircle className="h-3.5 w-3.5" />
+                          </Button>
+                          <Input
+                            type="text"
+                            value={formatNum(amounts[r.id] ?? r.remaining)}
+                            onChange={e => {
+                              const num = parseInt(e.target.value.replace(/\s/g, ''), 10);
+                              setAmount(r.id, isNaN(num) ? 0 : num);
+                            }}
+                            className={`h-8 text-xs text-right w-24 ${amounts[r.id] === 0 ? 'text-destructive' : ''}`}
+                          />
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
 
-        {/* Comment */}
-        <div className="mt-4 space-y-1">
-          <label className="text-sm font-medium">Изоҳ</label>
-          <Textarea placeholder="Сўров учун қўшимча маълумот киритинг..." className="min-h-[80px] resize-none text-sm" />
-        </div>
+            <DialogFooter className="mt-4">
+              <Button variant="outline" onClick={handleClose}>Бекор қилиш</Button>
+              <Button onClick={() => setStep(2)} disabled={requestedResources.length === 0}>Keyingisi</Button>
+            </DialogFooter>
+          </>
+        )}
 
-        <DialogFooter className="mt-4">
-          <Button variant="outline" onClick={onClose}>Бекор қилиш</Button>
-          <Button onClick={() => setShowConfirm(true)}>Keyingisi</Button>
-        </DialogFooter>
+        {step === 2 && (
+          <>
+            <div className="border rounded-md overflow-hidden mt-2">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead className="text-[10px] px-2">Ресурс номи</TableHead>
+                    <TableHead className="text-[10px] px-2">Бирлик</TableHead>
+                    <TableHead className="text-[10px] px-2 text-right">Режа</TableHead>
+                    <TableHead className="text-[10px] px-2 text-right">Омборда</TableHead>
+                    <TableHead className="text-[10px] px-2 text-right">Ишлатилган</TableHead>
+                    <TableHead className="text-[10px] px-2 text-right">Қолдиқ</TableHead>
+                    <TableHead className="text-[10px] px-2 text-right">Сўралаётган</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {requestedResources.map(r => (
+                    <TableRow key={r.id}>
+                      <TableCell className="px-2 py-1.5">
+                        <p className="text-xs font-medium">{r.name}</p>
+                        <p className="text-[10px] text-muted-foreground">{r.code}</p>
+                      </TableCell>
+                      <TableCell className="px-2 py-1.5 text-xs">{r.unit}</TableCell>
+                      <TableCell className="px-2 py-1.5 text-xs text-right">{formatNum(r.planned)}</TableCell>
+                      <TableCell className="px-2 py-1.5 text-xs text-right">{formatNum(r.inStock)}</TableCell>
+                      <TableCell className="px-2 py-1.5 text-xs text-right">{formatNum(r.used)}</TableCell>
+                      <TableCell className="px-2 py-1.5 text-xs text-right">{formatNum(r.remaining)}</TableCell>
+                      <TableCell className="px-2 py-1.5 text-xs text-right font-semibold">{formatNum(amounts[r.id])}</TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
 
-        {/* Confirmation Dialog */}
-        <AlertDialog open={showConfirm} onOpenChange={setShowConfirm}>
-          <AlertDialogContent className="max-w-2xl">
-            <AlertDialogHeader>
-              <AlertDialogTitle className="text-sm">Ресурс сўровини тасдиқлаш</AlertDialogTitle>
-              <AlertDialogDescription asChild>
-                <div className="text-xs space-y-2">
-                  <p>Қуйидаги ресурслар сўралмоқда:</p>
-                  <div className="border rounded-md overflow-hidden">
-                    <Table>
-                      <TableHeader>
-                        <TableRow>
-                          <TableHead className="text-[10px] px-2">Ресурс номи</TableHead>
-                          <TableHead className="text-[10px] px-2">Бирлик</TableHead>
-                          <TableHead className="text-[10px] px-2 text-right">Режа</TableHead>
-                          <TableHead className="text-[10px] px-2 text-right">Омборда</TableHead>
-                          <TableHead className="text-[10px] px-2 text-right">Ишлатилган</TableHead>
-                          <TableHead className="text-[10px] px-2 text-right">Қолдиқ</TableHead>
-                          <TableHead className="text-[10px] px-2 text-right">Сўралаётган</TableHead>
-                        </TableRow>
-                      </TableHeader>
-                      <TableBody>
-                        {requestedResources.length === 0 ? (
-                          <TableRow>
-                            <TableCell colSpan={7} className="text-center text-xs text-muted-foreground py-4">
-                              Ҳеч қандай ресурс танланмаган
-                            </TableCell>
-                          </TableRow>
-                        ) : requestedResources.map(r => (
-                          <TableRow key={r.id}>
-                            <TableCell className="px-2 py-1.5">
-                              <p className="text-xs font-medium">{r.name}</p>
-                              <p className="text-[10px] text-muted-foreground">{r.code}</p>
-                            </TableCell>
-                            <TableCell className="px-2 py-1.5 text-xs">{r.unit}</TableCell>
-                            <TableCell className="px-2 py-1.5 text-xs text-right">{formatNum(r.planned)}</TableCell>
-                            <TableCell className="px-2 py-1.5 text-xs text-right">{formatNum(r.inStock)}</TableCell>
-                            <TableCell className="px-2 py-1.5 text-xs text-right">{formatNum(r.used)}</TableCell>
-                            <TableCell className="px-2 py-1.5 text-xs text-right">{formatNum(r.remaining)}</TableCell>
-                            <TableCell className="px-2 py-1.5 text-xs text-right font-semibold">{formatNum(amounts[r.id])}</TableCell>
-                          </TableRow>
-                        ))}
-                      </TableBody>
-                    </Table>
-                  </div>
-                </div>
-              </AlertDialogDescription>
-            </AlertDialogHeader>
-            <AlertDialogFooter>
-              <AlertDialogCancel>Орқага</AlertDialogCancel>
-              <AlertDialogAction onClick={() => { setShowConfirm(false); onClose(); }} disabled={requestedResources.length === 0}>Юбориш</AlertDialogAction>
-            </AlertDialogFooter>
-          </AlertDialogContent>
-        </AlertDialog>
+            <div className="mt-4 space-y-1">
+              <label className="text-sm font-medium">Изоҳ</label>
+              <Textarea
+                placeholder="Сўров учун қўшимча маълумот киритинг..."
+                className="min-h-[80px] resize-none text-sm"
+                value={comment}
+                onChange={e => setComment(e.target.value)}
+              />
+            </div>
+
+            <DialogFooter className="mt-4">
+              <Button variant="outline" onClick={() => setStep(1)}>Орқага</Button>
+              <Button onClick={handleClose}>Юбориш</Button>
+            </DialogFooter>
+          </>
+        )}
       </DialogContent>
     </Dialog>
   );
