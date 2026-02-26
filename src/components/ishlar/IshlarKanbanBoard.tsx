@@ -1,4 +1,4 @@
-import { useState, useMemo, useCallback } from 'react';
+import React, { useState, useMemo, useCallback } from 'react';
 import { Search, CalendarIcon, RotateCcw, Banknote, ChevronDown, ChevronUp, PackagePlus, XCircle } from 'lucide-react';
 import { DragDropContext, Droppable, Draggable, DropResult } from '@hello-pangea/dnd';
 import { Input } from '@/components/ui/input';
@@ -408,6 +408,10 @@ function ResourceRequestDialog({ open, onClose, checkedItems }: {
 function DetailDialog({ item, onClose }: { item: IshlarItem | null; onClose: () => void }) {
   const [resourcesOpen, setResourcesOpen] = useState(true);
   const [paymentsOpen, setPaymentsOpen] = useState(false);
+  const [quantity, setQuantity] = useState(item?.totalQuantity ?? 0);
+
+  // Recalc when item changes
+  React.useEffect(() => { if (item) setQuantity(item.totalQuantity); }, [item]);
 
   if (!item) return null;
 
@@ -422,9 +426,7 @@ function DetailDialog({ item, onClose }: { item: IshlarItem | null; onClose: () 
             <Badge className="text-[10px] bg-primary/10 text-primary border-0">{item.category}</Badge>
             <DialogTitle className="text-sm font-bold">{item.name}</DialogTitle>
             <Badge variant="outline" className="text-[10px]">({item.unit})</Badge>
-            <Button variant="default" size="sm" className="h-7 text-xs ml-2 bg-[hsl(var(--status-delivered))] hover:bg-[hsl(var(--status-delivered))]/90">
-              <Banknote className="h-3 w-3 mr-1" /> Пул бериш
-            </Button>
+            
           </div>
         </DialogHeader>
 
@@ -470,9 +472,9 @@ function DetailDialog({ item, onClose }: { item: IshlarItem | null; onClose: () 
             </div>
             <div>
               <p className="text-[10px] text-muted-foreground mb-0.5">Иш миқдори</p>
-              <Input defaultValue={formatNum(item.totalQuantity)} className="h-7 text-xs" />
+              <Input value={formatNum(quantity)} onChange={e => setQuantity(Number(e.target.value.replace(/\s/g, '')) || 0)} className="h-7 text-xs" />
             </div>
-            <Field label="Умумий сумма" value={`${formatNum(item.totalPrice)} UZS`} bold />
+            <Field label="Умумий сумма" value={`${formatNum(item.unitPrice * quantity)} UZS`} bold />
             <div>
               <p className="text-[10px] text-muted-foreground mb-0.5">Тугаш сана</p>
               <Input type="date" defaultValue="2026-03-14" className="h-7 text-xs" />
