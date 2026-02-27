@@ -706,11 +706,16 @@ export function LittleSupplierDashboard({ requests, onUpdateStatus }: LittleSupp
                   <div className="grid grid-cols-2 gap-3">
                     <div className="space-y-1">
                       <label className="text-xs font-medium">Ta'minotchi birligi</label>
-                      <Input
-                        placeholder="masalan: tonna"
-                        value={supplierUnit}
-                        onChange={(e) => setSupplierUnit(e.target.value)}
-                      />
+                      <Select value={supplierUnit} onValueChange={setSupplierUnit}>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Birlikni tanlang" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {['dona', 'kg', 'tonna', 'metr', 'm²', 'm³', 'litr', 'pochka', 'qop', 'rulonlar', 'komplekt', 'bo\'lak'].map(u => (
+                            <SelectItem key={u} value={u}>{u}</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
                     </div>
                     <div className="space-y-1">
                       <label className="text-xs font-medium">Konvertatsiya stavkasi</label>
