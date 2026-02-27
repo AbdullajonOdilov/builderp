@@ -16,7 +16,7 @@ import { BuildingBreadcrumbs } from '@/components/buildings/BuildingBreadcrumbs'
 import { useBuildings } from '@/hooks/useBuildings';
 import { useTasks } from '@/hooks/useTasks';
 import { BuildingDocument } from '@/types/building';
-import { MOCK_PROJECT_VENDOR_EXPENSES } from '@/types/finance';
+import { cn } from '@/lib/utils';
 import { cn } from '@/lib/utils';
 import {
   Dialog,
