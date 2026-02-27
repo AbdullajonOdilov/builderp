@@ -443,17 +443,6 @@ function DetailDialog({ item, onClose }: { item: IshlarItem | null; onClose: () 
               <div className="pt-3 space-y-4">
                 {/* Row 1 */}
                 <div className="grid grid-cols-4 gap-x-6 gap-y-3">
-                  <Field label="Объект номи" value={item.projectName} />
-                  <Field label="Объект бўлими" value={item.sectionName} />
-                  <Field label="Бирлик нархи" value={formatNum(item.unitPrice)} />
-                  <div>
-                    <p className="text-[10px] text-muted-foreground mb-0.5">Бошланиш сана</p>
-                    <Input type="date" defaultValue="2026-01-19" className="h-7 text-xs" />
-                  </div>
-                </div>
-
-                {/* Row 2 */}
-                <div className="grid grid-cols-4 gap-4">
                   <div>
                     <p className="text-[10px] text-muted-foreground mb-1">Биргадир</p>
                     <Popover>
@@ -485,6 +474,17 @@ function DetailDialog({ item, onClose }: { item: IshlarItem | null; onClose: () 
                     <Input value={formatNum(quantity)} onChange={e => setQuantity(Number(e.target.value.replace(/\s/g, '')) || 0)} className="h-7 text-xs" />
                   </div>
                   <Field label="Умумий сумма" value={`${formatNum(item.unitPrice * quantity)} UZS`} bold />
+                  <div>
+                    <p className="text-[10px] text-muted-foreground mb-0.5">Бошланиш сана</p>
+                    <Input type="date" defaultValue="2026-01-19" className="h-7 text-xs" />
+                  </div>
+                </div>
+
+                {/* Row 2 */}
+                <div className="grid grid-cols-4 gap-4">
+                  <Field label="Объект номи" value={item.projectName} />
+                  <Field label="Объект бўлими" value={item.sectionName} />
+                  <Field label="Бирлик нархи" value={formatNum(item.unitPrice)} />
                   <div>
                     <p className="text-[10px] text-muted-foreground mb-0.5">Тугаш сана</p>
                     <Input type="date" defaultValue="2026-03-14" className="h-7 text-xs" />
