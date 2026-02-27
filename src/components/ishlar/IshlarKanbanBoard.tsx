@@ -454,6 +454,7 @@ function DetailDialog({ item, onClose }: { item: IshlarItem | null; onClose: () 
 
                 {/* Row 2 */}
                 <div className="grid grid-cols-4 gap-4">
+                  <Field label="Объект бўлими" value={item.sectionName} />
                   <div>
                     <p className="text-[10px] text-muted-foreground mb-1">Биргадир</p>
                     <Popover>
@@ -480,7 +481,6 @@ function DetailDialog({ item, onClose }: { item: IshlarItem | null; onClose: () 
                       </PopoverContent>
                     </Popover>
                   </div>
-                  <Field label="Объект бўлими" value={item.sectionName} />
                   <div>
                     <p className="text-[10px] text-muted-foreground mb-0.5">Бошланиш сана</p>
                     <Input type="date" defaultValue="2026-01-19" className="h-7 text-xs" />
