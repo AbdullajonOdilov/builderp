@@ -6,7 +6,7 @@ import { DocumentUpload } from '@/components/buildings/DocumentUpload';
 import { BuildingBreadcrumbs } from '@/components/buildings/BuildingBreadcrumbs';
 import { useBuildings } from '@/hooks/useBuildings';
 import { BuildingDocument } from '@/types/building';
-import { FileText } from 'lucide-react';
+import { FileText, ClipboardList } from 'lucide-react';
 import { toast } from 'sonner';
 
 const SectionView = () => {
