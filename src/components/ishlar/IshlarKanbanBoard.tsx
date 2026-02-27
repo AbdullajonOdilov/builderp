@@ -410,9 +410,10 @@ function DetailDialog({ item, onClose }: { item: IshlarItem | null; onClose: () 
   const [resourcesOpen, setResourcesOpen] = useState(true);
   const [paymentsOpen, setPaymentsOpen] = useState(false);
   const [quantity, setQuantity] = useState(item?.totalQuantity ?? 0);
+  const [unitPrice, setUnitPrice] = useState(item?.unitPrice ?? 0);
 
   // Recalc when item changes
-  React.useEffect(() => { if (item) setQuantity(item.totalQuantity); }, [item]);
+  React.useEffect(() => { if (item) { setQuantity(item.totalQuantity); setUnitPrice(item.unitPrice); } }, [item]);
 
   if (!item) return null;
 
