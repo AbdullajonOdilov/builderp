@@ -5,7 +5,8 @@ import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
-import { Search, Filter, Building2, X, Check, Plus } from 'lucide-react';
+import { Search, Filter, Building2, X, Check, Plus, ArrowRightLeft } from 'lucide-react';
+import { Switch } from '@/components/ui/switch';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Checkbox } from '@/components/ui/checkbox';
 import { ResourceIcon } from './ResourceIcon';
@@ -266,6 +267,11 @@ export function LittleSupplierDashboard({ requests, onUpdateStatus }: LittleSupp
   const [givenQuantity, setGivenQuantity] = useState<number>(0);
   const [unitPrice, setUnitPrice] = useState<number>(0);
   
+  // Unit conversion state
+  const [useConversion, setUseConversion] = useState(false);
+  const [supplierUnit, setSupplierUnit] = useState('');
+  const [conversionRate, setConversionRate] = useState<number>(1); // 1 supplier unit = X original units
+  
   // Add vendor dialog state
   const [showAddVendorDialog, setShowAddVendorDialog] = useState(false);
   const [newVendorName, setNewVendorName] = useState('');
@@ -278,10 +284,16 @@ export function LittleSupplierDashboard({ requests, onUpdateStatus }: LittleSupp
     return requests.find(r => r.id === pendingRequest.id);
   }, [pendingRequest, requests]);
 
-  // Calculate total price
+  // Calculate total price (in supplier units)
   const totalPrice = useMemo(() => {
     return givenQuantity * unitPrice;
   }, [givenQuantity, unitPrice]);
+
+  // Calculate equivalent in original units
+  const equivalentInOriginalUnit = useMemo(() => {
+    if (!useConversion) return givenQuantity;
+    return givenQuantity * conversionRate;
+  }, [givenQuantity, conversionRate, useConversion]);
 
   const statusOptions = [
     { value: 'pending', label: 'Pending' },
@@ -390,6 +402,9 @@ export function LittleSupplierDashboard({ requests, onUpdateStatus }: LittleSupp
       setSelectedVendor('');
       setGivenQuantity(request?.quantity || 0);
       setUnitPrice(100); // Default price
+      setUseConversion(false);
+      setSupplierUnit('');
+      setConversionRate(1);
       setShowVendorDialog(true);
       return;
     }
@@ -419,6 +434,9 @@ export function LittleSupplierDashboard({ requests, onUpdateStatus }: LittleSupp
     setSelectedVendor('');
     setGivenQuantity(0);
     setUnitPrice(0);
+    setUseConversion(false);
+    setSupplierUnit('');
+    setConversionRate(1);
   };
 
   const handleVendorCancel = () => {
@@ -427,6 +445,9 @@ export function LittleSupplierDashboard({ requests, onUpdateStatus }: LittleSupp
     setSelectedVendor('');
     setGivenQuantity(0);
     setUnitPrice(0);
+    setUseConversion(false);
+    setSupplierUnit('');
+    setConversionRate(1);
   };
 
   const handleAddVendor = () => {
@@ -663,20 +684,71 @@ export function LittleSupplierDashboard({ requests, onUpdateStatus }: LittleSupp
                 </div>
               </div>
 
+              {/* Unit Conversion Toggle */}
+              <div className="flex items-center justify-between p-3 rounded-lg border bg-muted/30">
+                <div className="flex items-center gap-2">
+                  <ArrowRightLeft className="h-4 w-4 text-muted-foreground" />
+                  <span className="text-sm font-medium">Birlik konvertatsiyasi</span>
+                </div>
+                <Switch checked={useConversion} onCheckedChange={(checked) => {
+                  setUseConversion(checked);
+                  if (!checked) {
+                    setSupplierUnit('');
+                    setConversionRate(1);
+                    setGivenQuantity(currentRequest.quantity);
+                  }
+                }} />
+              </div>
+
+              {/* Conversion Fields */}
+              {useConversion && (
+                <div className="space-y-3 p-3 rounded-lg border border-dashed border-primary/30 bg-primary/5">
+                  <div className="grid grid-cols-2 gap-3">
+                    <div className="space-y-1">
+                      <label className="text-xs font-medium">Ta'minotchi birligi</label>
+                      <Input
+                        placeholder="masalan: tonna"
+                        value={supplierUnit}
+                        onChange={(e) => setSupplierUnit(e.target.value)}
+                      />
+                    </div>
+                    <div className="space-y-1">
+                      <label className="text-xs font-medium">Konvertatsiya stavkasi</label>
+                      <Input
+                        type="number"
+                        value={conversionRate}
+                        onChange={(e) => setConversionRate(Number(e.target.value) || 0)}
+                        min={0}
+                        step="any"
+                      />
+                    </div>
+                  </div>
+                  <div className="text-xs text-muted-foreground bg-background rounded p-2 text-center">
+                    1 <span className="font-semibold">{supplierUnit || '?'}</span> = {conversionRate.toLocaleString()} <span className="font-semibold">{currentRequest.unit}</span>
+                    {givenQuantity > 0 && (
+                      <span className="block mt-1 text-primary font-medium">
+                        {givenQuantity.toLocaleString()} {supplierUnit || '?'} = {equivalentInOriginalUnit.toLocaleString()} {currentRequest.unit}
+                      </span>
+                    )}
+                  </div>
+                </div>
+              )}
+
               {/* Quantity and Price */}
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <label className="text-sm font-medium">Given Quantity</label>
+                  <label className="text-sm font-medium">
+                    Miqdori {useConversion && supplierUnit ? `(${supplierUnit})` : ''}
+                  </label>
                   <Input
                     type="number"
                     value={givenQuantity}
                     onChange={(e) => setGivenQuantity(Number(e.target.value))}
                     min={0}
-                    max={currentRequest.quantity}
                   />
                 </div>
                 <div className="space-y-2">
-                  <label className="text-sm font-medium">Unit Price</label>
+                  <label className="text-sm font-medium">Birlik narx</label>
                   <Input
                     type="number"
                     value={unitPrice}
@@ -687,11 +759,19 @@ export function LittleSupplierDashboard({ requests, onUpdateStatus }: LittleSupp
                 </div>
               </div>
 
+              {/* Equivalent display when conversion is on */}
+              {useConversion && givenQuantity > 0 && (
+                <div className="flex items-center justify-between p-2 rounded bg-muted/50 text-xs">
+                  <span className="text-muted-foreground">So'ralgan miqdor teng:</span>
+                  <span className="font-medium">{equivalentInOriginalUnit.toLocaleString()} {currentRequest.unit} / {currentRequest.quantity} {currentRequest.unit} so'ralgan</span>
+                </div>
+              )}
+
               {/* Total */}
               <div className="flex items-center justify-between p-3 rounded-lg bg-primary/5 border border-primary/20">
-                <span className="text-sm font-medium">Total Price</span>
+                <span className="text-sm font-medium">Jami narx</span>
                 <span className="text-lg font-bold text-primary">
-                  ${totalPrice.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                  {totalPrice.toLocaleString()} UZS
                 </span>
               </div>
             </div>
