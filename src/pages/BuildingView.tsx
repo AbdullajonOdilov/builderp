@@ -212,7 +212,7 @@ const BuildingView = () => {
               <p className="text-xs text-muted-foreground">Beriladigan pullar</p>
             </div>
             <p className="text-xl font-bold text-amber-600">${(building.pendingMoney || 0).toLocaleString()}</p>
-            <p className="text-xs text-muted-foreground mt-1">{vendorStats.count} kontragentga</p>
+            <p className="text-xs text-muted-foreground mt-1">Kutilmoqda</p>
           </Card>
 
           <Card className="p-4">
