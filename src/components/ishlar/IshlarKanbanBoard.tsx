@@ -422,16 +422,15 @@ function DetailDialog({ item, onClose }: { item: IshlarItem | null; onClose: () 
     <Dialog open={!!item} onOpenChange={open => { if (!open) onClose(); }}>
       <DialogContent className="max-w-4xl max-h-[85vh] overflow-y-auto p-0">
         {/* Header */}
-        <DialogHeader className="px-5 pt-5 pb-3 border-b">
+        <DialogHeader className="px-4 pt-3 pb-2 border-b">
           <div className="flex items-center gap-2 flex-wrap">
             <Badge className="text-[10px] bg-primary/10 text-primary border-0">{item.category}</Badge>
             <DialogTitle className="text-sm font-bold">{item.name}</DialogTitle>
             <Badge variant="outline" className="text-[10px]">({item.unit})</Badge>
-            
           </div>
         </DialogHeader>
 
-        <div className="px-5 py-4 space-y-4">
+        <div className="px-4 py-2 space-y-1">
           {/* Core info collapsible */}
           <Collapsible open={coreInfoOpen} onOpenChange={setCoreInfoOpen}>
             <CollapsibleTrigger asChild>
