@@ -449,8 +449,11 @@ function DetailDialog({ item, onClose }: { item: IshlarItem | null; onClose: () 
                     <p className="text-[10px] text-muted-foreground mb-0.5">Иш миқдори</p>
                     <Input value={formatNum(quantity)} onChange={e => setQuantity(Number(e.target.value.replace(/\s/g, '')) || 0)} className="h-7 text-xs" />
                   </div>
-                  <Field label="Бирлик нархи" value={formatNum(item.unitPrice)} />
-                  <Field label="Умумий сумма" value={`${formatNum(item.unitPrice * quantity)} UZS`} bold />
+                  <div>
+                    <p className="text-[10px] text-muted-foreground mb-0.5">Бирлик нархи</p>
+                    <Input value={formatNum(unitPrice)} onChange={e => setUnitPrice(Number(e.target.value.replace(/\s/g, '')) || 0)} className="h-7 text-xs" />
+                  </div>
+                  <Field label="Умумий сумма" value={`${formatNum(unitPrice * quantity)} UZS`} bold />
                 </div>
 
                 {/* Row 2 */}
