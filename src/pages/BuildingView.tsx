@@ -59,13 +59,6 @@ const BuildingView = () => {
     return { totalTasks, totalSubResources, totalTaskBudget };
   }, [buildingTasks]);
 
-  const vendorStats = useMemo(() => {
-    const allVendors = MOCK_PROJECT_VENDOR_EXPENSES.flatMap(p => p.vendors);
-    const uniqueVendors = new Set(allVendors.map(v => v.vendorId));
-    const totalPaid = allVendors.reduce((s, v) => s + v.totalPaid, 0);
-    const totalPending = allVendors.reduce((s, v) => s + v.totalPending, 0);
-    return { count: uniqueVendors.size, totalPaid, totalPending };
-  }, []);
 
   if (!building) {
     return (
