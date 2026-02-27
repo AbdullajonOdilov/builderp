@@ -180,62 +180,20 @@ const BuildingView = () => {
           </div>
         </Card>
 
-        {/* Dashboard Stats */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
-          <Card className="p-4">
-            <div className="flex items-center gap-2 mb-2">
-              <div className="p-1.5 rounded-md bg-primary/10">
-                <ClipboardList className="h-4 w-4 text-primary" />
-              </div>
-              <p className="text-xs text-muted-foreground">Ishlar summasi</p>
-            </div>
-            <p className="text-xl font-bold">${taskStats.totalTaskBudget.toLocaleString()}</p>
-            <p className="text-xs text-muted-foreground mt-1">{taskStats.totalTasks} ish · {taskStats.totalSubResources} resurs</p>
-          </Card>
-
-          <Card className="p-4">
-            <div className="flex items-center gap-2 mb-2">
-              <div className="p-1.5 rounded-md bg-green-500/10">
-                <TrendingUp className="h-4 w-4 text-green-600" />
-              </div>
-              <p className="text-xs text-muted-foreground">Olingan pullar</p>
-            </div>
-            <p className="text-xl font-bold text-green-600">${building.usedMoney.toLocaleString()}</p>
-            <p className="text-xs text-muted-foreground mt-1">{completePercentage.toFixed(0)}% byudjetdan</p>
-          </Card>
-
-          <Card className="p-4">
-            <div className="flex items-center gap-2 mb-2">
-              <div className="p-1.5 rounded-md bg-amber-500/10">
-                <Wallet className="h-4 w-4 text-amber-600" />
-              </div>
-              <p className="text-xs text-muted-foreground">Beriladigan pullar</p>
-            </div>
-            <p className="text-xl font-bold text-amber-600">${(building.pendingMoney || 0).toLocaleString()}</p>
-            <p className="text-xs text-muted-foreground mt-1">Kutilmoqda</p>
-          </Card>
-
-          <Card className="p-4">
-            <div className="flex items-center gap-2 mb-2">
-              <div className="p-1.5 rounded-md" style={{ backgroundColor: leftMoney >= 0 ? 'hsl(var(--primary) / 0.1)' : 'hsl(var(--destructive) / 0.1)' }}>
-                <DollarSign className={`h-4 w-4 ${leftMoney >= 0 ? 'text-primary' : 'text-destructive'}`} />
-              </div>
-              <p className="text-xs text-muted-foreground">Qolgan pullar</p>
-            </div>
-            <p className={`text-xl font-bold ${leftMoney >= 0 ? 'text-primary' : 'text-destructive'}`}>${leftMoney.toLocaleString()}</p>
-            <div className="flex items-center gap-2 mt-1">
-              <Progress 
-                value={Math.min(completePercentage, 100)} 
-                className="h-1.5 flex-1"
-                indicatorClassName={
-                  completePercentage >= 90 ? 'bg-green-500' : 
-                  completePercentage >= 20 ? 'bg-amber-500' : 
-                  'bg-red-500'
-                }
-              />
-              <span className="text-[10px] text-muted-foreground">{completePercentage.toFixed(0)}%</span>
-            </div>
-          </Card>
+        {/* Action Buttons */}
+        <div className="flex gap-3 mb-6">
+          <Button variant="outline" className="gap-2" onClick={() => navigate(`/buildings/${building.id}/smeta`)}>
+            <ClipboardList className="h-4 w-4" />
+            Smeta
+          </Button>
+          <Button variant="outline" className="gap-2" onClick={() => navigate('/ishlar-doskasi')}>
+            <CalendarIcon className="h-4 w-4" />
+            Ishlar doskasi
+          </Button>
+          <Button variant="outline" className="gap-2">
+            <DollarSign className="h-4 w-4" />
+            Resurslar
+          </Button>
         </div>
 
         {/* Sections */}
