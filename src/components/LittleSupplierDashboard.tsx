@@ -401,6 +401,9 @@ export function LittleSupplierDashboard({ requests, onUpdateStatus }: LittleSupp
       setSelectedVendor('');
       setGivenQuantity(request?.quantity || 0);
       setUnitPrice(100); // Default price
+      setUseConversion(false);
+      setSupplierUnit('');
+      setConversionRate(1);
       setShowVendorDialog(true);
       return;
     }
