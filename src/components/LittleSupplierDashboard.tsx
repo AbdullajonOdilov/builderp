@@ -266,22 +266,12 @@ export function LittleSupplierDashboard({ requests, onUpdateStatus }: LittleSupp
   const [givenQuantity, setGivenQuantity] = useState<number>(0);
   const [unitPrice, setUnitPrice] = useState<number>(0);
   
+  // Unit conversion state
+  const [useConversion, setUseConversion] = useState(false);
+  const [supplierUnit, setSupplierUnit] = useState('');
+  const [conversionRate, setConversionRate] = useState<number>(1); // 1 supplier unit = X original units
+  
   // Add vendor dialog state
-  const [showAddVendorDialog, setShowAddVendorDialog] = useState(false);
-  const [newVendorName, setNewVendorName] = useState('');
-  const [newVendorContact, setNewVendorContact] = useState('');
-  const [newVendorPhone, setNewVendorPhone] = useState('');
-
-  // Get the current request being assigned
-  const currentRequest = useMemo(() => {
-    if (!pendingRequest) return null;
-    return requests.find(r => r.id === pendingRequest.id);
-  }, [pendingRequest, requests]);
-
-  // Calculate total price
-  const totalPrice = useMemo(() => {
-    return givenQuantity * unitPrice;
-  }, [givenQuantity, unitPrice]);
 
   const statusOptions = [
     { value: 'pending', label: 'Pending' },
