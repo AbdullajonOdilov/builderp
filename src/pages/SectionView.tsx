@@ -6,7 +6,7 @@ import { DocumentUpload } from '@/components/buildings/DocumentUpload';
 import { BuildingBreadcrumbs } from '@/components/buildings/BuildingBreadcrumbs';
 import { useBuildings } from '@/hooks/useBuildings';
 import { BuildingDocument } from '@/types/building';
-import { FileText } from 'lucide-react';
+import { FileText, ClipboardList } from 'lucide-react';
 import { toast } from 'sonner';
 
 const SectionView = () => {
@@ -51,11 +51,17 @@ const SectionView = () => {
         />
 
         {/* Header */}
-        <div className="mb-8">
-          <h1 className="text-2xl font-bold">{section.name}</h1>
-          <p className="text-muted-foreground">
-            {section.documents.length} {section.documents.length === 1 ? 'document' : 'documents'}
-          </p>
+        <div className="flex items-center justify-between mb-8">
+          <div>
+            <h1 className="text-2xl font-bold">{section.name}</h1>
+            <p className="text-muted-foreground">
+              {section.documents.length} {section.documents.length === 1 ? 'document' : 'documents'}
+            </p>
+          </div>
+          <Button variant="outline" className="gap-2" onClick={() => navigate(`/buildings/${building.id}/sections/${section.id}/smeta`)}>
+            <ClipboardList className="h-4 w-4" />
+            Smeta
+          </Button>
         </div>
 
         {/* Documents */}
