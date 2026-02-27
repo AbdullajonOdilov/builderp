@@ -406,6 +406,7 @@ export function LittleSupplierDashboard({ requests, onUpdateStatus }: LittleSupp
       setUseConversion(false);
       setSupplierUnit('');
       setConversionRate(1);
+      setVendorComment('');
       setShowVendorDialog(true);
       return;
     }
