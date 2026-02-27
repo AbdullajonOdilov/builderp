@@ -439,6 +439,7 @@ export function LittleSupplierDashboard({ requests, onUpdateStatus }: LittleSupp
     setUseConversion(false);
     setSupplierUnit('');
     setConversionRate(1);
+    setVendorComment('');
   };
 
   const handleVendorCancel = () => {
@@ -450,6 +451,7 @@ export function LittleSupplierDashboard({ requests, onUpdateStatus }: LittleSupp
     setUseConversion(false);
     setSupplierUnit('');
     setConversionRate(1);
+    setVendorComment('');
   };
 
   const handleAddVendor = () => {
