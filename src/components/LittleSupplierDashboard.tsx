@@ -433,6 +433,9 @@ export function LittleSupplierDashboard({ requests, onUpdateStatus }: LittleSupp
     setSelectedVendor('');
     setGivenQuantity(0);
     setUnitPrice(0);
+    setUseConversion(false);
+    setSupplierUnit('');
+    setConversionRate(1);
   };
 
   const handleVendorCancel = () => {
