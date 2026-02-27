@@ -406,6 +406,7 @@ function ResourceRequestDialog({ open, onClose, checkedItems }: {
 
 /* ===== Detail Dialog ===== */
 function DetailDialog({ item, onClose }: { item: IshlarItem | null; onClose: () => void }) {
+  const [coreInfoOpen, setCoreInfoOpen] = useState(true);
   const [resourcesOpen, setResourcesOpen] = useState(true);
   const [paymentsOpen, setPaymentsOpen] = useState(false);
   const [quantity, setQuantity] = useState(item?.totalQuantity ?? 0);
