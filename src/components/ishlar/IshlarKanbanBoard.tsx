@@ -431,77 +431,90 @@ function DetailDialog({ item, onClose }: { item: IshlarItem | null; onClose: () 
         </DialogHeader>
 
         <div className="px-5 py-4 space-y-4">
-          {/* Row 1 */}
-          <div className="grid grid-cols-4 gap-x-6 gap-y-3">
-            <Field label="Объект номи" value={item.projectName} />
-            <Field label="Объект бўлими" value={item.sectionName} />
-            <Field label="Бирлик нархи" value={formatNum(item.unitPrice)} />
-            <div>
-              <p className="text-[10px] text-muted-foreground mb-0.5">Бошланиш сана</p>
-              <Input type="date" defaultValue="2026-01-19" className="h-7 text-xs" />
-            </div>
-          </div>
+          {/* Core info collapsible */}
+          <Collapsible open={coreInfoOpen} onOpenChange={setCoreInfoOpen}>
+            <CollapsibleTrigger asChild>
+              <Button variant="ghost" size="sm" className="h-8 text-xs gap-1 px-2 w-full justify-start border-b rounded-none">
+                {coreInfoOpen ? <ChevronUp className="h-3 w-3" /> : <ChevronDown className="h-3 w-3" />}
+                📋 Асосий маълумотлар
+              </Button>
+            </CollapsibleTrigger>
+            <CollapsibleContent>
+              <div className="pt-3 space-y-4">
+                {/* Row 1 */}
+                <div className="grid grid-cols-4 gap-x-6 gap-y-3">
+                  <Field label="Объект номи" value={item.projectName} />
+                  <Field label="Объект бўлими" value={item.sectionName} />
+                  <Field label="Бирлик нархи" value={formatNum(item.unitPrice)} />
+                  <div>
+                    <p className="text-[10px] text-muted-foreground mb-0.5">Бошланиш сана</p>
+                    <Input type="date" defaultValue="2026-01-19" className="h-7 text-xs" />
+                  </div>
+                </div>
 
-          {/* Row 2 */}
-          <div className="grid grid-cols-4 gap-4">
-            <div>
-              <p className="text-[10px] text-muted-foreground mb-1">Биргадир</p>
-              <Popover>
-                <PopoverTrigger asChild>
-                  <Button variant="outline" size="sm" className="h-7 text-xs gap-1.5 justify-start w-full font-medium">
-                    <span className="w-4 h-4 rounded-full shrink-0 inline-block" style={{ backgroundColor: item.foremanColor }} />
-                    {item.foreman}
-                  </Button>
-                </PopoverTrigger>
-                <PopoverContent className="w-[240px] p-2 z-[200]" align="start">
-                  <p className="text-xs font-semibold px-2 py-1.5 border-b mb-1">Биргадирни танланг</p>
-                  {ISHLAR_FOREMEN.map(f => (
-                    <div key={f.id} className={cn(
-                      'flex items-center gap-2 px-2 py-2 rounded cursor-pointer text-xs hover:bg-accent',
-                      item.foreman === f.name && 'bg-accent'
-                    )}>
-                      <span className="w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-bold text-primary-foreground shrink-0" style={{ backgroundColor: f.color }}>
-                        {f.name[0]}
-                      </span>
-                      <span className="font-medium">{f.name}</span>
-                      {item.foreman === f.name && <span className="ml-auto text-primary">✓</span>}
-                    </div>
-                  ))}
-                </PopoverContent>
-              </Popover>
-            </div>
-            <div>
-              <p className="text-[10px] text-muted-foreground mb-0.5">Иш миқдори</p>
-              <Input value={formatNum(quantity)} onChange={e => setQuantity(Number(e.target.value.replace(/\s/g, '')) || 0)} className="h-7 text-xs" />
-            </div>
-            <Field label="Умумий сумма" value={`${formatNum(item.unitPrice * quantity)} UZS`} bold />
-            <div>
-              <p className="text-[10px] text-muted-foreground mb-0.5">Тугаш сана</p>
-              <Input type="date" defaultValue="2026-03-14" className="h-7 text-xs" />
-            </div>
-          </div>
+                {/* Row 2 */}
+                <div className="grid grid-cols-4 gap-4">
+                  <div>
+                    <p className="text-[10px] text-muted-foreground mb-1">Биргадир</p>
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <Button variant="outline" size="sm" className="h-7 text-xs gap-1.5 justify-start w-full font-medium">
+                          <span className="w-4 h-4 rounded-full shrink-0 inline-block" style={{ backgroundColor: item.foremanColor }} />
+                          {item.foreman}
+                        </Button>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-[240px] p-2 z-[200]" align="start">
+                        <p className="text-xs font-semibold px-2 py-1.5 border-b mb-1">Биргадирни танланг</p>
+                        {ISHLAR_FOREMEN.map(f => (
+                          <div key={f.id} className={cn(
+                            'flex items-center gap-2 px-2 py-2 rounded cursor-pointer text-xs hover:bg-accent',
+                            item.foreman === f.name && 'bg-accent'
+                          )}>
+                            <span className="w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-bold text-primary-foreground shrink-0" style={{ backgroundColor: f.color }}>
+                              {f.name[0]}
+                            </span>
+                            <span className="font-medium">{f.name}</span>
+                            {item.foreman === f.name && <span className="ml-auto text-primary">✓</span>}
+                          </div>
+                        ))}
+                      </PopoverContent>
+                    </Popover>
+                  </div>
+                  <div>
+                    <p className="text-[10px] text-muted-foreground mb-0.5">Иш миқдори</p>
+                    <Input value={formatNum(quantity)} onChange={e => setQuantity(Number(e.target.value.replace(/\s/g, '')) || 0)} className="h-7 text-xs" />
+                  </div>
+                  <Field label="Умумий сумма" value={`${formatNum(item.unitPrice * quantity)} UZS`} bold />
+                  <div>
+                    <p className="text-[10px] text-muted-foreground mb-0.5">Тугаш сана</p>
+                    <Input type="date" defaultValue="2026-03-14" className="h-7 text-xs" />
+                  </div>
+                </div>
 
-          {/* Comment */}
-          <div>
-            <p className="text-[10px] text-muted-foreground mb-0.5">Изоҳ</p>
-            <Textarea defaultValue={item.comment} placeholder="Изоҳ ёзинг..." className="text-xs min-h-[60px] resize-none" />
-          </div>
+                {/* Comment */}
+                <div>
+                  <p className="text-[10px] text-muted-foreground mb-0.5">Изоҳ</p>
+                  <Textarea defaultValue={item.comment} placeholder="Изоҳ ёзинг..." className="text-xs min-h-[60px] resize-none" />
+                </div>
 
-          {/* Progress */}
-          <div className="border rounded-lg p-3 space-y-2">
-            <p className="text-[10px] font-medium text-muted-foreground uppercase tracking-wider">Бажарилиш</p>
-            <div className="h-2 bg-muted rounded-full overflow-hidden">
-              <div className="h-full rounded-full transition-all" style={{
-                width: `${Math.min(item.progress, 100)}%`,
-                backgroundColor: item.progress >= 100 ? 'hsl(var(--status-delivered))' : 'hsl(var(--primary))'
-              }} />
-            </div>
-            <div className="flex items-center justify-between text-xs">
-              <span>Бажарилган фоиз: <strong style={{ color: progressColor }}>{item.budgetPercent}%</strong></span>
-              <span>Бажарилган миқдор: <strong>{formatNum(item.completedQuantity)} {item.unit}</strong></span>
-              <span>Режа бўйича миқдор: <strong>{formatNum(item.plannedQuantity)} {item.unit}</strong></span>
-            </div>
-          </div>
+                {/* Progress */}
+                <div className="border rounded-lg p-3 space-y-2">
+                  <p className="text-[10px] font-medium text-muted-foreground uppercase tracking-wider">Бажарилиш</p>
+                  <div className="h-2 bg-muted rounded-full overflow-hidden">
+                    <div className="h-full rounded-full transition-all" style={{
+                      width: `${Math.min(item.progress, 100)}%`,
+                      backgroundColor: item.progress >= 100 ? 'hsl(var(--status-delivered))' : 'hsl(var(--primary))'
+                    }} />
+                  </div>
+                  <div className="flex items-center justify-between text-xs">
+                    <span>Бажарилган фоиз: <strong style={{ color: progressColor }}>{item.budgetPercent}%</strong></span>
+                    <span>Бажарилган миқдор: <strong>{formatNum(item.completedQuantity)} {item.unit}</strong></span>
+                    <span>Режа бўйича миқдор: <strong>{formatNum(item.plannedQuantity)} {item.unit}</strong></span>
+                  </div>
+                </div>
+              </div>
+            </CollapsibleContent>
+          </Collapsible>
 
           {/* Resources collapsible */}
           <Collapsible open={resourcesOpen} onOpenChange={setResourcesOpen}>
