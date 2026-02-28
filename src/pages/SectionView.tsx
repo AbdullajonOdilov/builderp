@@ -58,10 +58,16 @@ const SectionView = () => {
               {section.documents.length} {section.documents.length === 1 ? 'document' : 'documents'}
             </p>
           </div>
-          <Button variant="outline" className="gap-2" onClick={() => navigate(`/buildings/${building.id}/sections/${section.id}/smeta`)}>
-            <ClipboardList className="h-4 w-4" />
-            Smeta
-          </Button>
+          <div className="flex gap-2">
+            <Button className="gap-2">
+              <Upload className="h-4 w-4" />
+              Smeta faylini yuklash
+            </Button>
+            <Button variant="outline" className="gap-2" onClick={() => navigate(`/buildings/${building.id}/sections/${section.id}/smeta`)}>
+              <ClipboardList className="h-4 w-4" />
+              Smeta
+            </Button>
+          </div>
         </div>
 
         {/* Documents */}
