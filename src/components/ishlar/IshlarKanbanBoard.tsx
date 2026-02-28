@@ -499,12 +499,12 @@ function DetailDialog({ item, onClose }: { item: IshlarItem | null; onClose: () 
                 <div className="grid grid-cols-[1fr_2fr] gap-3">
                   <div>
                     <p className="text-[10px] text-muted-foreground mb-0.5">Изоҳ</p>
-                    <Textarea defaultValue={item.comment} placeholder="Изоҳ ёзинг..." className="text-xs min-h-[40px] max-h-[80px] overflow-y-auto resize-none" />
+                    <Textarea defaultValue={item.comment} placeholder="Изоҳ ёзинг..." className="text-xs h-full overflow-y-auto resize-none" />
                   </div>
                   <div className="border rounded-lg p-3 space-y-2">
                     <div className="flex items-center justify-between">
                       <p className="text-[10px] font-medium text-muted-foreground uppercase tracking-wider">Бажарилиш</p>
-                      <span className="text-xs font-semibold" style={{ color: progressColor }}>{item.budgetPercent}%</span>
+                      <span className="text-xs">Бажарилган фоиз: <strong style={{ color: progressColor }}>{item.budgetPercent}%</strong></span>
                     </div>
                     <div className="h-2 bg-muted rounded-full overflow-hidden">
                       <div className="h-full rounded-full transition-all" style={{
