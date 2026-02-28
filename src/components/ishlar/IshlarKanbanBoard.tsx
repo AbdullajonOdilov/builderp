@@ -495,25 +495,25 @@ function DetailDialog({ item, onClose }: { item: IshlarItem | null; onClose: () 
                   </div>
                 </div>
 
-                {/* Comment */}
-                <div>
-                  <p className="text-[10px] text-muted-foreground mb-0.5">Изоҳ</p>
-                  <Textarea defaultValue={item.comment} placeholder="Изоҳ ёзинг..." className="text-xs min-h-[60px] resize-none" />
-                </div>
-
-                {/* Progress */}
-                <div className="border rounded-lg p-3 space-y-2">
-                  <p className="text-[10px] font-medium text-muted-foreground uppercase tracking-wider">Бажарилиш</p>
-                  <div className="h-2 bg-muted rounded-full overflow-hidden">
-                    <div className="h-full rounded-full transition-all" style={{
-                      width: `${Math.min(item.progress, 100)}%`,
-                      backgroundColor: item.progress >= 100 ? 'hsl(var(--status-delivered))' : 'hsl(var(--primary))'
-                    }} />
+                {/* Comment + Progress in one row */}
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <p className="text-[10px] text-muted-foreground mb-0.5">Изоҳ</p>
+                    <Textarea defaultValue={item.comment} placeholder="Изоҳ ёзинг..." className="text-xs min-h-[40px] max-h-[80px] overflow-y-auto resize-none" />
                   </div>
-                  <div className="flex items-center justify-between text-xs">
-                    <span>Бажарилган фоиз: <strong style={{ color: progressColor }}>{item.budgetPercent}%</strong></span>
-                    <span>Бажарилган миқдор: <strong>{formatNum(item.completedQuantity)} {item.unit}</strong></span>
-                    <span>Режа бўйича миқдор: <strong>{formatNum(item.plannedQuantity)} {item.unit}</strong></span>
+                  <div className="border rounded-lg p-3 space-y-2">
+                    <p className="text-[10px] font-medium text-muted-foreground uppercase tracking-wider">Бажарилиш</p>
+                    <div className="h-2 bg-muted rounded-full overflow-hidden">
+                      <div className="h-full rounded-full transition-all" style={{
+                        width: `${Math.min(item.progress, 100)}%`,
+                        backgroundColor: item.progress >= 100 ? 'hsl(var(--status-delivered))' : 'hsl(var(--primary))'
+                      }} />
+                    </div>
+                    <div className="flex flex-col gap-0.5 text-xs">
+                      <span>Бажарилган фоиз: <strong style={{ color: progressColor }}>{item.budgetPercent}%</strong></span>
+                      <span>Бажарилган миқдор: <strong>{formatNum(item.completedQuantity)} {item.unit}</strong></span>
+                      <span>Режа бўйича миқдор: <strong>{formatNum(item.plannedQuantity)} {item.unit}</strong></span>
+                    </div>
                   </div>
                 </div>
               </div>
