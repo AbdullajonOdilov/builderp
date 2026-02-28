@@ -49,11 +49,17 @@ export function AppNavigation() {
             </NavLink>
           </nav>
         </div>
-        {isEnabled('feature_dark_mode') && (
-          <Button variant="ghost" size="icon" className="h-9 w-9" onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}>
-            {theme === 'dark' ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
+        <div className="flex items-center gap-1">
+          {isEnabled('feature_dark_mode') && (
+            <Button variant="ghost" size="icon" className="h-9 w-9" onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}>
+              {theme === 'dark' ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
+            </Button>
+          )}
+          <Button variant="ghost" size="sm" className="gap-2 text-muted-foreground hover:text-foreground">
+            <LogOut className="h-4 w-4" />
+            Чиқиш
           </Button>
-        )}
+        </div>
       </div>
     </header>
   );
