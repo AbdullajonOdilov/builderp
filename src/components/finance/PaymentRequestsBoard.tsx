@@ -104,11 +104,19 @@ export function PaymentRequestsBoard() {
   const [requests] = useState<PaymentRequestItem[]>(MOCK_PAYMENT_REQUESTS);
   const [selectedRequest, setSelectedRequest] = useState<PaymentRequestItem | null>(null);
 
+  const [conversionOpen, setConversionOpen] = useState(false);
+
   return (
     <div className="space-y-4">
-      <h2 className="text-lg font-bold">So'ralgan pullar</h2>
+      <div className="flex items-center justify-between">
+        <h2 className="text-lg font-bold">So'ralgan pullar</h2>
+        <Button variant="outline" size="sm" onClick={() => setConversionOpen(true)}>
+          <ArrowLeftRight className="h-4 w-4 mr-1.5" />
+          Конвертация
+        </Button>
+      </div>
 
-      <div className="grid grid-cols-3 gap-4">
+      <CurrencyConversionDialog open={conversionOpen} onClose={() => setConversionOpen(false)} />
         {COLUMNS.map(col => {
           const items = requests.filter(r => r.status === col.key);
           return (
