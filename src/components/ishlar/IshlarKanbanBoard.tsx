@@ -502,7 +502,10 @@ function DetailDialog({ item, onClose }: { item: IshlarItem | null; onClose: () 
                     <Textarea defaultValue={item.comment} placeholder="Изоҳ ёзинг..." className="text-xs min-h-[40px] max-h-[80px] overflow-y-auto resize-none" />
                   </div>
                   <div className="border rounded-lg p-3 space-y-2">
-                    <p className="text-[10px] font-medium text-muted-foreground uppercase tracking-wider">Бажарилиш</p>
+                    <div className="flex items-center justify-between">
+                      <p className="text-[10px] font-medium text-muted-foreground uppercase tracking-wider">Бажарилиш</p>
+                      <span className="text-xs font-semibold" style={{ color: progressColor }}>{item.budgetPercent}%</span>
+                    </div>
                     <div className="h-2 bg-muted rounded-full overflow-hidden">
                       <div className="h-full rounded-full transition-all" style={{
                         width: `${Math.min(item.progress, 100)}%`,
@@ -510,7 +513,6 @@ function DetailDialog({ item, onClose }: { item: IshlarItem | null; onClose: () 
                       }} />
                     </div>
                     <div className="flex flex-col gap-0.5 text-xs">
-                      <span>Бажарилган фоиз: <strong style={{ color: progressColor }}>{item.budgetPercent}%</strong></span>
                       <span>Бажарилган миқдор: <strong>{formatNum(item.completedQuantity)} {item.unit}</strong></span>
                       <span>Режа бўйича миқдор: <strong>{formatNum(item.plannedQuantity)} {item.unit}</strong></span>
                     </div>
