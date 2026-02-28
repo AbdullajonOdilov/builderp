@@ -1,4 +1,4 @@
-import { Building2, ClipboardList, DollarSign, HardHat, ListTodo, Kanban, Moon, Sun, Flag } from 'lucide-react';
+import { Building2, ClipboardList, DollarSign, HardHat, ListTodo, Kanban, Moon, Sun, Flag, LogOut } from 'lucide-react';
 import { NavLink } from './NavLink';
 import { useTheme } from 'next-themes';
 import { Button } from './ui/button';
