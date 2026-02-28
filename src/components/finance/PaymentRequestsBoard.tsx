@@ -1,8 +1,11 @@
 import { useState } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { ArrowLeftRight } from 'lucide-react';
+import { CurrencyConversionDialog } from './CurrencyConversionDialog';
 
 function fmt(amount: number) {
   return new Intl.NumberFormat('uz-UZ').format(amount);
@@ -101,9 +104,19 @@ export function PaymentRequestsBoard() {
   const [requests] = useState<PaymentRequestItem[]>(MOCK_PAYMENT_REQUESTS);
   const [selectedRequest, setSelectedRequest] = useState<PaymentRequestItem | null>(null);
 
+  const [conversionOpen, setConversionOpen] = useState(false);
+
   return (
     <div className="space-y-4">
-      <h2 className="text-lg font-bold">So'ralgan pullar</h2>
+      <div className="flex items-center justify-between">
+        <h2 className="text-lg font-bold">So'ralgan pullar</h2>
+        <Button variant="outline" size="sm" onClick={() => setConversionOpen(true)}>
+          <ArrowLeftRight className="h-4 w-4 mr-1.5" />
+          Конвертация
+        </Button>
+      </div>
+
+      <CurrencyConversionDialog open={conversionOpen} onClose={() => setConversionOpen(false)} />
 
       <div className="grid grid-cols-3 gap-4">
         {COLUMNS.map(col => {
