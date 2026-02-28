@@ -496,7 +496,7 @@ function DetailDialog({ item, onClose }: { item: IshlarItem | null; onClose: () 
                 </div>
 
                 {/* Comment + Progress in one row */}
-                <div className="grid grid-cols-2 gap-3">
+                <div className="grid grid-cols-[1fr_2fr] gap-3">
                   <div>
                     <p className="text-[10px] text-muted-foreground mb-0.5">Изоҳ</p>
                     <Textarea defaultValue={item.comment} placeholder="Изоҳ ёзинг..." className="text-xs min-h-[40px] max-h-[80px] overflow-y-auto resize-none" />
@@ -512,7 +512,7 @@ function DetailDialog({ item, onClose }: { item: IshlarItem | null; onClose: () 
                         backgroundColor: item.progress >= 100 ? 'hsl(var(--status-delivered))' : 'hsl(var(--primary))'
                       }} />
                     </div>
-                    <div className="flex flex-col gap-0.5 text-xs">
+                    <div className="flex items-center justify-between text-xs">
                       <span>Бажарилган миқдор: <strong>{formatNum(item.completedQuantity)} {item.unit}</strong></span>
                       <span>Режа бўйича миқдор: <strong>{formatNum(item.plannedQuantity)} {item.unit}</strong></span>
                     </div>
