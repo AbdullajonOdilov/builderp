@@ -117,6 +117,8 @@ export function PaymentRequestsBoard() {
       </div>
 
       <CurrencyConversionDialog open={conversionOpen} onClose={() => setConversionOpen(false)} />
+
+      <div className="grid grid-cols-3 gap-4">
         {COLUMNS.map(col => {
           const items = requests.filter(r => r.status === col.key);
           return (
