@@ -445,6 +445,7 @@ export function LittleSupplierDashboard({ requests, onUpdateStatus }: LittleSupp
   const handleVendorConfirm = () => {
     if (!pendingRequest || !selectedVendor) return;
     
+    const vendor = vendors.find(v => v.id === selectedVendor);
     setVendorAssignments(prev => ({
       ...prev,
       [pendingRequest.id]: selectedVendor,
@@ -452,6 +453,20 @@ export function LittleSupplierDashboard({ requests, onUpdateStatus }: LittleSupp
     setPriceAssignments(prev => ({
       ...prev,
       [pendingRequest.id]: totalPrice,
+    }));
+    setAssignmentDetails(prev => ({
+      ...prev,
+      [pendingRequest.id]: {
+        vendorId: selectedVendor,
+        vendorName: vendor?.name || '',
+        givenQuantity,
+        unitPrice,
+        totalPrice,
+        useConversion,
+        supplierUnit,
+        conversionRate,
+        comment: vendorComment,
+      },
     }));
     onUpdateStatus(pendingRequest.id, 'selected');
     setShowVendorDialog(false);
