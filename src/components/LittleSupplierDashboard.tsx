@@ -744,7 +744,7 @@ export function LittleSupplierDashboard({ requests, onUpdateStatus }: LittleSupp
                     1 <span className="font-semibold">{currentRequest.unit}</span> = {conversionRate.toLocaleString()} <span className="font-semibold">{supplierUnit || '?'}</span>
                     {givenQuantity > 0 && (
                       <span className="block mt-1 text-primary font-medium">
-                        {givenQuantity.toLocaleString()} {supplierUnit || '?'} = {equivalentInOriginalUnit.toLocaleString()} {currentRequest.unit}
+                        {equivalentInOriginalUnit.toLocaleString()} {currentRequest.unit} = {givenQuantity.toLocaleString()} {supplierUnit || '?'}
                       </span>
                     )}
                   </div>
