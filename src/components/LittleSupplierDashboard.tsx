@@ -700,6 +700,8 @@ export function LittleSupplierDashboard({ requests, onUpdateStatus }: LittleSupp
                     setSupplierUnit('');
                     setConversionRate(1);
                     setGivenQuantity(currentRequest.quantity);
+                  } else {
+                    setGivenQuantity(currentRequest.quantity * conversionRate);
                   }
                 }} />
               </div>
@@ -726,7 +728,13 @@ export function LittleSupplierDashboard({ requests, onUpdateStatus }: LittleSupp
                       <Input
                         type="number"
                         value={conversionRate}
-                        onChange={(e) => setConversionRate(Number(e.target.value) || 0)}
+                        onChange={(e) => {
+                          const newRate = Number(e.target.value) || 0;
+                          setConversionRate(newRate);
+                          if (currentRequest) {
+                            setGivenQuantity(currentRequest.quantity * newRate);
+                          }
+                        }}
                         min={0}
                         step="any"
                       />
