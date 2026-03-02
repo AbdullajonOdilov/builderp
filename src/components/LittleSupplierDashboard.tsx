@@ -278,6 +278,10 @@ export function LittleSupplierDashboard({ requests, onUpdateStatus }: LittleSupp
   const [vendorAssignments, setVendorAssignments] = useState<Record<string, string>>({});
   const [priceAssignments, setPriceAssignments] = useState<Record<string, number>>({});
   const [vendors, setVendors] = useState<Vendor[]>(VENDORS);
+  const [assignmentDetails, setAssignmentDetails] = useState<Record<string, AssignmentDetail>>({});
+  
+  // Detail dialog state
+  const [detailRequest, setDetailRequest] = useState<ResourceRequest | null>(null);
   
   // Vendor selection dialog state
   const [showVendorDialog, setShowVendorDialog] = useState(false);
@@ -289,7 +293,7 @@ export function LittleSupplierDashboard({ requests, onUpdateStatus }: LittleSupp
   // Unit conversion state
   const [useConversion, setUseConversion] = useState(false);
   const [supplierUnit, setSupplierUnit] = useState('');
-  const [conversionRate, setConversionRate] = useState<number>(1); // 1 supplier unit = X original units
+  const [conversionRate, setConversionRate] = useState<number>(1);
   const [vendorComment, setVendorComment] = useState('');
   
   // Add vendor dialog state
