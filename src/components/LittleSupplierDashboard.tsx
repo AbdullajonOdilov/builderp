@@ -36,6 +36,18 @@ const LITTLE_SUPPLIER_COLUMNS = [
 
 type ColumnId = 'pending' | 'selected' | 'delivered';
 
+interface AssignmentDetail {
+  vendorId: string;
+  vendorName: string;
+  givenQuantity: number;
+  unitPrice: number;
+  totalPrice: number;
+  useConversion: boolean;
+  supplierUnit: string;
+  conversionRate: number;
+  comment: string;
+}
+
 interface LittleSupplierDashboardProps {
   requests: ResourceRequest[];
   onUpdateStatus: (id: string, status: 'pending' | 'selected' | 'delivered' | 'declined') => void;
@@ -46,21 +58,24 @@ interface RequestCardProps {
   columnId: ColumnId;
   vendorName?: string;
   totalPrice?: number;
+  onClick?: () => void;
 }
 
-function RequestCard({ request, columnId, vendorName, totalPrice }: RequestCardProps) {
+function RequestCard({ request, columnId, vendorName, totalPrice, onClick }: RequestCardProps) {
   const isDone = columnId === 'delivered';
   const isAssigned = columnId === 'selected';
   const showQuantities = isDone || isAssigned;
 
   return (
     <Card
-      className="p-2.5 mb-2 cursor-grab hover:shadow-md transition-shadow bg-card"
-      draggable
+      className={cn("p-2.5 mb-2 hover:shadow-md transition-shadow bg-card", onClick ? "cursor-pointer" : "cursor-grab")}
+      draggable={!onClick}
       onDragStart={(e) => {
+        if (onClick) return;
         e.dataTransfer.setData('requestId', request.id);
         e.dataTransfer.setData('sourceColumn', columnId);
       }}
+      onClick={onClick}
     >
       <div className="flex items-center justify-between gap-2">
         <div className="flex items-center gap-2 min-w-0">
