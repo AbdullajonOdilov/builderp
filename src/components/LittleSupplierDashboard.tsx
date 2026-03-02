@@ -780,13 +780,33 @@ export function LittleSupplierDashboard({ requests, onUpdateStatus }: LittleSupp
                       />
                     </div>
                   </div>
-                  <div className="text-xs text-muted-foreground bg-background rounded p-2 text-center">
-                    1 <span className="font-semibold">{currentRequest.unit}</span> = {conversionRate.toLocaleString()} <span className="font-semibold">{supplierUnit || '?'}</span>
-                    {givenQuantity > 0 && (
-                      <span className="block mt-1 text-primary font-medium">
-                        {equivalentInOriginalUnit.toLocaleString()} {currentRequest.unit} = {givenQuantity.toLocaleString()} {supplierUnit || '?'}
-                      </span>
-                    )}
+                  <div className="flex items-center gap-3 bg-background rounded p-2">
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="rounded-full border border-primary/30 text-primary hover:text-primary hover:bg-primary/10 shrink-0"
+                      onClick={() => {
+                        // Swap: use supplier unit as new original, and original as new supplier
+                        const oldSupplierUnit = supplierUnit;
+                        const oldRate = conversionRate;
+                        setSupplierUnit(currentRequest.unit);
+                        if (oldRate > 0) {
+                          const newRate = 1 / oldRate;
+                          setConversionRate(newRate);
+                          setGivenQuantity(currentRequest.quantity * newRate);
+                        }
+                      }}
+                    >
+                      <ArrowRightLeft className="h-4 w-4" />
+                    </Button>
+                    <div className="text-xs text-muted-foreground text-center flex-1">
+                      1 <span className="font-semibold">{currentRequest.unit}</span> = {conversionRate.toLocaleString()} <span className="font-semibold">{supplierUnit || '?'}</span>
+                      {givenQuantity > 0 && (
+                        <span className="block mt-1 text-primary font-medium">
+                          {equivalentInOriginalUnit.toLocaleString()} {currentRequest.unit} = {givenQuantity.toLocaleString()} {supplierUnit || '?'}
+                        </span>
+                      )}
+                    </div>
                   </div>
                 </div>
               )}
@@ -832,17 +852,6 @@ export function LittleSupplierDashboard({ requests, onUpdateStatus }: LittleSupp
                 </span>
               </div>
 
-              {/* Comment */}
-              <div className="space-y-2">
-                <label className="text-sm font-medium">Izoh</label>
-                <textarea
-                  className="flex w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 min-h-[60px] resize-none"
-                  value={vendorComment}
-                  onChange={(e) => setVendorComment(e.target.value)}
-                  placeholder="Izoh qo'shing..."
-                  rows={2}
-                />
-              </div>
             </div>
           )}
 
