@@ -292,8 +292,8 @@ export function LittleSupplierDashboard({ requests, onUpdateStatus }: LittleSupp
 
   // Calculate equivalent in original units
   const equivalentInOriginalUnit = useMemo(() => {
-    if (!useConversion) return givenQuantity;
-    return givenQuantity * conversionRate;
+    if (!useConversion || conversionRate === 0) return givenQuantity;
+    return givenQuantity / conversionRate;
   }, [givenQuantity, conversionRate, useConversion]);
 
   const statusOptions = [
