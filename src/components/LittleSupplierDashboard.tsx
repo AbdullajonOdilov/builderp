@@ -905,6 +905,73 @@ export function LittleSupplierDashboard({ requests, onUpdateStatus }: LittleSupp
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {/* Detail Dialog */}
+      <Dialog open={!!detailRequest} onOpenChange={(open) => !open && setDetailRequest(null)}>
+        <DialogContent className="max-w-sm">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <ResourceIcon type={detailRequest?.resourceType || 'materials'} className="h-5 w-5 text-muted-foreground" />
+              {detailRequest?.resourceName}
+            </DialogTitle>
+          </DialogHeader>
+          {detailRequest && assignmentDetails[detailRequest.id] && (() => {
+            const detail = assignmentDetails[detailRequest.id];
+            return (
+              <div className="space-y-3">
+                <div className="text-xs text-muted-foreground">
+                  So'ralgan: {detailRequest.quantity} {detailRequest.unit}
+                </div>
+                
+                <div className="grid grid-cols-2 gap-3 text-sm">
+                  <div className="rounded-lg border p-2.5">
+                    <p className="text-xs text-muted-foreground">Vendor</p>
+                    <p className="font-medium">{detail.vendorName}</p>
+                  </div>
+                  <div className="rounded-lg border p-2.5">
+                    <p className="text-xs text-muted-foreground">Jami narx</p>
+                    <p className="font-semibold text-primary">
+                      ${detail.totalPrice.toLocaleString('en-US', { minimumFractionDigits: 2 })}
+                    </p>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-3 text-sm">
+                  <div className="rounded-lg border p-2.5">
+                    <p className="text-xs text-muted-foreground">Miqdori {detail.useConversion && detail.supplierUnit ? `(${detail.supplierUnit})` : ''}</p>
+                    <p className="font-medium">{detail.givenQuantity.toLocaleString()}</p>
+                  </div>
+                  <div className="rounded-lg border p-2.5">
+                    <p className="text-xs text-muted-foreground">Birlik narx</p>
+                    <p className="font-medium">${detail.unitPrice.toLocaleString()}</p>
+                  </div>
+                </div>
+
+                {detail.useConversion && (
+                  <div className="rounded-lg border border-dashed border-primary/30 bg-primary/5 p-2.5 text-xs text-center">
+                    <p className="text-muted-foreground">
+                      1 <span className="font-semibold">{detailRequest.unit}</span> = {detail.conversionRate.toLocaleString()} <span className="font-semibold">{detail.supplierUnit}</span>
+                    </p>
+                    <p className="text-primary font-medium mt-1">
+                      {(detail.givenQuantity / detail.conversionRate).toLocaleString()} {detailRequest.unit} = {detail.givenQuantity.toLocaleString()} {detail.supplierUnit}
+                    </p>
+                  </div>
+                )}
+
+                {detail.comment && (
+                  <div className="rounded-lg border p-2.5">
+                    <p className="text-xs text-muted-foreground mb-1">Izoh</p>
+                    <p className="text-sm">{detail.comment}</p>
+                  </div>
+                )}
+              </div>
+            );
+          })()}
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setDetailRequest(null)}>Yopish</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
