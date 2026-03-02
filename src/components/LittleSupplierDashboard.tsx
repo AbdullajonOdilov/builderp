@@ -118,7 +118,7 @@ interface BuildingRowProps {
   onCardClick: (request: ResourceRequest) => void;
 }
 
-function BuildingRow({ buildingName, allRequests, getColumnRequests, vendorAssignments, priceAssignments, vendors, onChangeAllStatus }: BuildingRowProps) {
+function BuildingRow({ buildingName, allRequests, getColumnRequests, vendorAssignments, priceAssignments, assignmentDetails, vendors, onChangeAllStatus, onCardClick }: BuildingRowProps) {
   const [isOpen, setIsOpen] = useState(true);
   const [showStatusMenu, setShowStatusMenu] = useState(false);
 
