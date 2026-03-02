@@ -249,6 +249,7 @@ function BuildingRow({ buildingName, allRequests, getColumnRequests, vendorAssig
                 columnId="selected"
                 vendorName={getVendorName(request.id)}
                 totalPrice={getTotalPrice(request.id)}
+                onClick={assignmentDetails[request.id] ? () => onCardClick(request) : undefined}
               />
             ))}
           </div>
@@ -260,6 +261,7 @@ function BuildingRow({ buildingName, allRequests, getColumnRequests, vendorAssig
                 columnId="delivered"
                 vendorName={getVendorName(request.id)}
                 totalPrice={getTotalPrice(request.id)}
+                onClick={assignmentDetails[request.id] ? () => onCardClick(request) : undefined}
               />
             ))}
           </div>
