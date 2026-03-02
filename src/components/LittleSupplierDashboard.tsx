@@ -700,6 +700,8 @@ export function LittleSupplierDashboard({ requests, onUpdateStatus }: LittleSupp
                     setSupplierUnit('');
                     setConversionRate(1);
                     setGivenQuantity(currentRequest.quantity);
+                  } else {
+                    setGivenQuantity(currentRequest.quantity * conversionRate);
                   }
                 }} />
               </div>
