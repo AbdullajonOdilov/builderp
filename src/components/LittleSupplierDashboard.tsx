@@ -733,7 +733,7 @@ export function LittleSupplierDashboard({ requests, onUpdateStatus }: LittleSupp
                     </div>
                   </div>
                   <div className="text-xs text-muted-foreground bg-background rounded p-2 text-center">
-                    1 <span className="font-semibold">{supplierUnit || '?'}</span> = {conversionRate.toLocaleString()} <span className="font-semibold">{currentRequest.unit}</span>
+                    1 <span className="font-semibold">{currentRequest.unit}</span> = {conversionRate.toLocaleString()} <span className="font-semibold">{supplierUnit || '?'}</span>
                     {givenQuantity > 0 && (
                       <span className="block mt-1 text-primary font-medium">
                         {givenQuantity.toLocaleString()} {supplierUnit || '?'} = {equivalentInOriginalUnit.toLocaleString()} {currentRequest.unit}
