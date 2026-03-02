@@ -938,8 +938,8 @@ export function LittleSupplierDashboard({ requests, onUpdateStatus }: LittleSupp
 
                 <div className="grid grid-cols-2 gap-3 text-sm">
                   <div className="rounded-lg border p-2.5">
-                    <p className="text-xs text-muted-foreground">Miqdori {detail.useConversion && detail.supplierUnit ? `(${detail.supplierUnit})` : ''}</p>
-                    <p className="font-medium">{detail.givenQuantity.toLocaleString()}</p>
+                    <p className="text-xs text-muted-foreground">Miqdori</p>
+                    <p className="font-medium">{detail.givenQuantity.toLocaleString()} {detail.useConversion && detail.supplierUnit ? detail.supplierUnit : ''}</p>
                   </div>
                   <div className="rounded-lg border p-2.5">
                     <p className="text-xs text-muted-foreground">Birlik narx</p>
