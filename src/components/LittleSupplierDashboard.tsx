@@ -660,10 +660,12 @@ export function LittleSupplierDashboard({ requests, onUpdateStatus }: LittleSupp
                 getColumnRequests={getColumnRequestsForBuilding}
                 vendorAssignments={vendorAssignments}
                 priceAssignments={priceAssignments}
+                assignmentDetails={assignmentDetails}
                 vendors={vendors}
                 onChangeAllStatus={(requestIds, newStatus) => {
                   requestIds.forEach(id => onUpdateStatus(id, newStatus));
                 }}
+                onCardClick={setDetailRequest}
               />
             </div>
           ))}
