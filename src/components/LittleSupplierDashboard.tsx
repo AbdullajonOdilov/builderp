@@ -112,8 +112,10 @@ interface BuildingRowProps {
   getColumnRequests: (columnId: ColumnId, requests: ResourceRequest[]) => ResourceRequest[];
   vendorAssignments: Record<string, string>;
   priceAssignments: Record<string, number>;
+  assignmentDetails: Record<string, AssignmentDetail>;
   vendors: Vendor[];
   onChangeAllStatus: (requestIds: string[], newStatus: 'pending' | 'selected' | 'delivered') => void;
+  onCardClick: (request: ResourceRequest) => void;
 }
 
 function BuildingRow({ buildingName, allRequests, getColumnRequests, vendorAssignments, priceAssignments, vendors, onChangeAllStatus }: BuildingRowProps) {
