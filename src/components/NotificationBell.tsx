@@ -88,7 +88,20 @@ export function NotificationBell() {
                     <p className="text-xs text-muted-foreground truncate">{n.description}</p>
                     <p className="text-[10px] text-muted-foreground mt-0.5">{formatTime(n.createdAt)}</p>
                   </div>
-                  {!n.read && <span className="mt-1.5 h-2 w-2 rounded-full bg-primary shrink-0" />}
+                  {!n.read && (
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-6 w-6 shrink-0 mt-0.5"
+                      title="Ўқилган деб белгилаш"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        markAsRead(n.id);
+                      }}
+                    >
+                      <Check className="h-3.5 w-3.5" />
+                    </Button>
+                  )}
                 </button>
               ))}
             </div>
