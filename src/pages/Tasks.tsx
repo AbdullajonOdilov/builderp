@@ -88,7 +88,7 @@ const Tasks = () => {
         open={dialogOpen}
         onOpenChange={setDialogOpen}
         buildings={buildings}
-        onAddTask={addTask}
+        onAddTask={handleAddTask}
         allTasks={tasks}
       />
     </div>
