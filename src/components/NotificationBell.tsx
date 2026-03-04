@@ -70,14 +70,14 @@ export function NotificationBell() {
           </div>
         </div>
         <ScrollArea className="max-h-80">
-          {notifications.length === 0 ? (
+          {displayedNotifications.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-8 text-muted-foreground">
               <Bell className="h-8 w-8 mb-2 opacity-40" />
-              <p className="text-sm">Билдиришномалар йўқ</p>
+              <p className="text-sm">{showAll ? 'Билдиришномалар йўқ' : 'Ўқилмаган билдиришномалар йўқ'}</p>
             </div>
           ) : (
             <div className="divide-y">
-              {notifications.map(n => (
+              {displayedNotifications.map(n => (
                 <button
                   key={n.id}
                   className={cn(
