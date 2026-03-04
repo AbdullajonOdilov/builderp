@@ -1,5 +1,6 @@
 import React, { useState, useMemo, useCallback } from 'react';
 import { Search, CalendarIcon, RotateCcw, Banknote, ChevronDown, ChevronUp, PackagePlus, XCircle } from 'lucide-react';
+import { useNotifications } from '@/contexts/NotificationContext';
 import { DragDropContext, Droppable, Draggable, DropResult } from '@hello-pangea/dnd';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -169,6 +170,7 @@ export function IshlarKanbanBoard() {
 function ResourceRequestDialog({ open, onClose, checkedItems }: {
   open: boolean; onClose: () => void; checkedItems: IshlarItem[];
 }) {
+  const { addNotification } = useNotifications();
   const [step, setStep] = useState<1 | 2>(1);
   const [comment, setComment] = useState('');
   const [vendor, setVendor] = useState(VENDORS[0]);
@@ -395,7 +397,15 @@ function ResourceRequestDialog({ open, onClose, checkedItems }: {
 
             <DialogFooter className="mt-4">
               <Button variant="outline" onClick={() => setStep(1)}>Орқага</Button>
-              <Button onClick={handleClose}>Юбориш</Button>
+              <Button onClick={() => {
+                addNotification({
+                  title: `Янги ресурс сўрови`,
+                  description: `${requestedResources.length} та материал — ${vendor}`,
+                  type: 'ish',
+                  route: '/ishlar-doskasi',
+                });
+                handleClose();
+              }}>Юбориш</Button>
             </DialogFooter>
           </>
         )}

@@ -5,11 +5,25 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { useTasks } from '@/hooks/useTasks';
 import { useBuildings } from '@/hooks/useBuildings';
 import { AddTaskDialog } from '@/components/tasks/AddTaskDialog';
+import { useNotifications } from '@/contexts/NotificationContext';
+import { Task } from '@/types/task';
 
 const Tasks = () => {
   const { tasks, addTask, deleteTask } = useTasks();
   const { buildings } = useBuildings();
   const [dialogOpen, setDialogOpen] = useState(false);
+  const { addNotification } = useNotifications();
+
+  const handleAddTask = (task: Omit<Task, 'id' | 'createdAt'>) => {
+    const newTask = addTask(task);
+    addNotification({
+      title: `Янги вазифа: ${task.taskName}`,
+      description: `${task.categoryName} — ${getBuildingName(task.buildingId)}`,
+      type: 'request',
+      route: '/tasks',
+    });
+    return newTask;
+  };
 
   const getBuildingName = (id: string) => {
     const b = buildings.find(b => b.id === id);
@@ -74,7 +88,7 @@ const Tasks = () => {
         open={dialogOpen}
         onOpenChange={setDialogOpen}
         buildings={buildings}
-        onAddTask={addTask}
+        onAddTask={handleAddTask}
         allTasks={tasks}
       />
     </div>

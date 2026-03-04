@@ -3,11 +3,11 @@ import { NavLink } from './NavLink';
 import { useTheme } from 'next-themes';
 import { Button } from './ui/button';
 import { useFeatureFlags } from '@/contexts/FeatureFlagContext';
+import { NotificationBell } from './NotificationBell';
 
 export function AppNavigation() {
   const { theme, setTheme } = useTheme();
   const { isEnabled } = useFeatureFlags();
-
   const navItems = [
     { to: '/buildings', label: 'Buildings', icon: Building2, flag: 'page_buildings' },
     { to: '/tasks', label: 'Tasks', icon: ListTodo, flag: 'page_tasks' },
@@ -50,6 +50,7 @@ export function AppNavigation() {
           </nav>
         </div>
         <div className="flex items-center gap-1">
+          <NotificationBell />
           {isEnabled('feature_dark_mode') && (
             <Button variant="ghost" size="icon" className="h-9 w-9" onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}>
               {theme === 'dark' ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
