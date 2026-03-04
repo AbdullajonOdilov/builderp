@@ -397,7 +397,15 @@ function ResourceRequestDialog({ open, onClose, checkedItems }: {
 
             <DialogFooter className="mt-4">
               <Button variant="outline" onClick={() => setStep(1)}>Орқага</Button>
-              <Button onClick={handleClose}>Юбориш</Button>
+              <Button onClick={() => {
+                addNotification({
+                  title: `Янги ресурс сўрови`,
+                  description: `${requestedResources.length} та материал — ${vendor}`,
+                  type: 'ish',
+                  route: '/ishlar-doskasi',
+                });
+                handleClose();
+              }}>Юбориш</Button>
             </DialogFooter>
           </>
         )}
