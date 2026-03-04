@@ -3,11 +3,11 @@ import { NavLink } from './NavLink';
 import { useTheme } from 'next-themes';
 import { Button } from './ui/button';
 import { useFeatureFlags } from '@/contexts/FeatureFlagContext';
+import { NotificationBell } from './NotificationBell';
 
 export function AppNavigation() {
   const { theme, setTheme } = useTheme();
   const { isEnabled } = useFeatureFlags();
-
   const navItems = [
     { to: '/buildings', label: 'Buildings', icon: Building2, flag: 'page_buildings' },
     { to: '/tasks', label: 'Tasks', icon: ListTodo, flag: 'page_tasks' },
