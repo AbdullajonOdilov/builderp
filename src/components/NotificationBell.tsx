@@ -8,9 +8,12 @@ import { useNotifications, AppNotification } from '@/contexts/NotificationContex
 import { cn } from '@/lib/utils';
 
 export function NotificationBell() {
-  const { notifications, unreadCount, markAsRead, markAllAsRead, clearAll } = useNotifications();
+  const { notifications, unreadCount, markAsRead, markAllAsRead } = useNotifications();
   const navigate = useNavigate();
   const [open, setOpen] = useState(false);
+  const [showAll, setShowAll] = useState(false);
+
+  const displayedNotifications = showAll ? notifications : notifications.filter(n => !n.read);
 
   const handleClick = (notification: AppNotification) => {
     markAsRead(notification.id);
