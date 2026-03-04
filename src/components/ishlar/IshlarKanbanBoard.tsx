@@ -170,6 +170,7 @@ export function IshlarKanbanBoard() {
 function ResourceRequestDialog({ open, onClose, checkedItems }: {
   open: boolean; onClose: () => void; checkedItems: IshlarItem[];
 }) {
+  const { addNotification } = useNotifications();
   const [step, setStep] = useState<1 | 2>(1);
   const [comment, setComment] = useState('');
   const [vendor, setVendor] = useState(VENDORS[0]);
