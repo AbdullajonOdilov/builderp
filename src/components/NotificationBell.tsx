@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Bell, Check, CheckCheck, Trash2, Kanban, ClipboardList } from 'lucide-react';
+import { Bell, Check, CheckCheck, Kanban, ClipboardList } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
@@ -8,9 +8,12 @@ import { useNotifications, AppNotification } from '@/contexts/NotificationContex
 import { cn } from '@/lib/utils';
 
 export function NotificationBell() {
-  const { notifications, unreadCount, markAsRead, markAllAsRead, clearAll } = useNotifications();
+  const { notifications, unreadCount, markAsRead, markAllAsRead } = useNotifications();
   const navigate = useNavigate();
   const [open, setOpen] = useState(false);
+  const [showAll, setShowAll] = useState(false);
+
+  const displayedNotifications = showAll ? notifications : notifications.filter(n => !n.read);
 
   const handleClick = (notification: AppNotification) => {
     markAsRead(notification.id);
@@ -58,22 +61,23 @@ export function NotificationBell() {
                 <CheckCheck className="h-3.5 w-3.5" />
               </Button>
             )}
-            {notifications.length > 0 && (
-              <Button variant="ghost" size="icon" className="h-7 w-7" onClick={clearAll} title="Ҳаммасини тозалаш">
-                <Trash2 className="h-3.5 w-3.5" />
-              </Button>
-            )}
+            <button
+              onClick={() => setShowAll(!showAll)}
+              className="text-xs text-primary hover:underline font-medium px-1"
+            >
+              {showAll ? 'Ўқилмаган' : 'Ҳаммаси'}
+            </button>
           </div>
         </div>
         <ScrollArea className="max-h-80">
-          {notifications.length === 0 ? (
+          {displayedNotifications.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-8 text-muted-foreground">
               <Bell className="h-8 w-8 mb-2 opacity-40" />
-              <p className="text-sm">Билдиришномалар йўқ</p>
+              <p className="text-sm">{showAll ? 'Билдиришномалар йўқ' : 'Ўқилмаган билдиришномалар йўқ'}</p>
             </div>
           ) : (
             <div className="divide-y">
-              {notifications.map(n => (
+              {displayedNotifications.map(n => (
                 <button
                   key={n.id}
                   className={cn(
