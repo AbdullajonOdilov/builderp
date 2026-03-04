@@ -19,6 +19,7 @@ import { AppNavigation } from "./components/AppNavigation";
 import { OfflineBanner } from "./components/OfflineBanner";
 import { FeatureFlagProvider } from "./contexts/FeatureFlagContext";
 import { FeatureRoute } from "./components/FeatureRoute";
+import { NotificationProvider } from "./contexts/NotificationContext";
 
 const queryClient = new QueryClient();
 
