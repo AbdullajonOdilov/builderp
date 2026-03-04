@@ -27,30 +27,32 @@ const App = () => (
   <ThemeProvider attribute="class" defaultTheme="dark" enableSystem={false}>
     <QueryClientProvider client={queryClient}>
       <FeatureFlagProvider>
-        <TooltipProvider>
-          <Toaster />
-          <Sonner />
-          <OfflineBanner />
-          <BrowserRouter>
-            <div className="min-h-screen bg-background">
-              <AppNavigation />
-              <Routes>
-                <Route path="/" element={<Navigate to="/buildings" replace />} />
-                <Route path="/buildings" element={<FeatureRoute flagKey="page_buildings"><Buildings /></FeatureRoute>} />
-                <Route path="/buildings/new" element={<FeatureRoute flagKey="page_buildings"><CreateBuilding /></FeatureRoute>} />
-                <Route path="/buildings/:buildingId" element={<FeatureRoute flagKey="page_buildings"><BuildingView /></FeatureRoute>} />
-                <Route path="/buildings/:buildingId/edit" element={<FeatureRoute flagKey="page_buildings"><EditBuilding /></FeatureRoute>} />
-                <Route path="/buildings/:buildingId/sections/:sectionId" element={<FeatureRoute flagKey="page_buildings"><SectionView /></FeatureRoute>} />
-                <Route path="/tasks" element={<FeatureRoute flagKey="page_tasks"><Tasks /></FeatureRoute>} />
-                <Route path="/finance" element={<FeatureRoute flagKey="page_finance"><Finance /></FeatureRoute>} />
-                <Route path="/ishlar-doskasi" element={<FeatureRoute flagKey="page_ishlar_doskasi"><IshlarDoskasi /></FeatureRoute>} />
-                <Route path="/requests" element={<FeatureRoute flagKey="page_requests"><Index /></FeatureRoute>} />
-                <Route path="/feature-flags" element={<FeatureFlags />} />
-                <Route path="*" element={<NotFound />} />
-              </Routes>
-            </div>
-          </BrowserRouter>
-        </TooltipProvider>
+        <NotificationProvider>
+          <TooltipProvider>
+            <Toaster />
+            <Sonner />
+            <OfflineBanner />
+            <BrowserRouter>
+              <div className="min-h-screen bg-background">
+                <AppNavigation />
+                <Routes>
+                  <Route path="/" element={<Navigate to="/buildings" replace />} />
+                  <Route path="/buildings" element={<FeatureRoute flagKey="page_buildings"><Buildings /></FeatureRoute>} />
+                  <Route path="/buildings/new" element={<FeatureRoute flagKey="page_buildings"><CreateBuilding /></FeatureRoute>} />
+                  <Route path="/buildings/:buildingId" element={<FeatureRoute flagKey="page_buildings"><BuildingView /></FeatureRoute>} />
+                  <Route path="/buildings/:buildingId/edit" element={<FeatureRoute flagKey="page_buildings"><EditBuilding /></FeatureRoute>} />
+                  <Route path="/buildings/:buildingId/sections/:sectionId" element={<FeatureRoute flagKey="page_buildings"><SectionView /></FeatureRoute>} />
+                  <Route path="/tasks" element={<FeatureRoute flagKey="page_tasks"><Tasks /></FeatureRoute>} />
+                  <Route path="/finance" element={<FeatureRoute flagKey="page_finance"><Finance /></FeatureRoute>} />
+                  <Route path="/ishlar-doskasi" element={<FeatureRoute flagKey="page_ishlar_doskasi"><IshlarDoskasi /></FeatureRoute>} />
+                  <Route path="/requests" element={<FeatureRoute flagKey="page_requests"><Index /></FeatureRoute>} />
+                  <Route path="/feature-flags" element={<FeatureFlags />} />
+                  <Route path="*" element={<NotFound />} />
+                </Routes>
+              </div>
+            </BrowserRouter>
+          </TooltipProvider>
+        </NotificationProvider>
       </FeatureFlagProvider>
     </QueryClientProvider>
   </ThemeProvider>
