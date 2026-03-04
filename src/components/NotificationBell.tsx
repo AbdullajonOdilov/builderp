@@ -61,11 +61,12 @@ export function NotificationBell() {
                 <CheckCheck className="h-3.5 w-3.5" />
               </Button>
             )}
-            {notifications.length > 0 && (
-              <Button variant="ghost" size="icon" className="h-7 w-7" onClick={clearAll} title="Ҳаммасини тозалаш">
-                <Trash2 className="h-3.5 w-3.5" />
-              </Button>
-            )}
+            <button
+              onClick={() => setShowAll(!showAll)}
+              className="text-xs text-primary hover:underline font-medium px-1"
+            >
+              {showAll ? 'Ўқилмаган' : 'Ҳаммаси'}
+            </button>
           </div>
         </div>
         <ScrollArea className="max-h-80">
