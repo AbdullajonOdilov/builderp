@@ -1,5 +1,6 @@
 import React, { useState, useMemo, useCallback } from 'react';
 import { Search, CalendarIcon, RotateCcw, Banknote, ChevronDown, ChevronUp, PackagePlus, XCircle } from 'lucide-react';
+import { useNotifications } from '@/contexts/NotificationContext';
 import { DragDropContext, Droppable, Draggable, DropResult } from '@hello-pangea/dnd';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
