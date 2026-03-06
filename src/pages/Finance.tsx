@@ -66,6 +66,7 @@ export default function Finance() {
       case 'project-overview': return <ProjectOverviewReport data={filteredProjects} />;
       case 'foremen': return <ForemenReport data={filteredProjects} selectedProjects={selectedProjects} onSelectProjects={setSelectedProjects} />;
       case 'payment-requests': return <PaymentRequestsBoard />;
+      case 'hodimlar': return <HodimlarReport />;
     }
   };
 
