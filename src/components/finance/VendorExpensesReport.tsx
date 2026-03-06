@@ -261,6 +261,37 @@ export function VendorExpensesReport({ data, onAddVendor, onEditVendor, onDelete
           onClose={() => { setPaymentRequestOpen(false); setCheckedVendors(new Set()); }}
           selectedVendors={vendors.filter(v => checkedVendors.has(v.vendor.vendorId))}
         />
+
+        {/* Payment History Dialog (list view) */}
+        <Dialog open={!!paymentDialogData} onOpenChange={() => setPaymentDialogData(null)}>
+          <DialogContent className="max-w-sm">
+            <DialogHeader>
+              <DialogTitle className="text-base">To'lovlar tarixi</DialogTitle>
+            </DialogHeader>
+            {paymentDialogData && paymentDialogData.length === 0 ? (
+              <p className="text-center text-muted-foreground py-4">To'lovlar mavjud emas</p>
+            ) : (
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead className="text-xs px-2 py-1.5">Sana</TableHead>
+                    <TableHead className="text-xs px-2 py-1.5 text-right">Miqdor</TableHead>
+                    <TableHead className="text-xs px-2 py-1.5">Izoh</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {paymentDialogData?.sort((a, b) => b.date.localeCompare(a.date)).map((p) => (
+                    <TableRow key={p.paymentId}>
+                      <TableCell className="text-xs px-2 py-1.5">{p.date}</TableCell>
+                      <TableCell className="text-xs px-2 py-1.5 text-right font-medium">{formatCurrency(p.amount)}</TableCell>
+                      <TableCell className="text-xs px-2 py-1.5 text-muted-foreground">{p.comment || '—'}</TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            )}
+          </DialogContent>
+        </Dialog>
       </div>
     );
   }
