@@ -1,7 +1,7 @@
-import { DollarSign, Building2, Users, FileText, Banknote } from 'lucide-react';
+import { DollarSign, Building2, Users, FileText, Banknote, UserCheck } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
-export type FinanceReportType = 'vendor-expenses' | 'project-overview' | 'foremen' | 'payment-requests';
+export type FinanceReportType = 'vendor-expenses' | 'project-overview' | 'foremen' | 'payment-requests' | 'hodimlar';
 
 interface FinanceSidebarProps {
   activeReport: FinanceReportType;
