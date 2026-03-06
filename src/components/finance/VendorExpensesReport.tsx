@@ -166,7 +166,7 @@ export function VendorExpensesReport({ data, onAddVendor, onEditVendor, onDelete
               <p className="text-xs text-muted-foreground text-right">Balans</p>
             </div>
             <p className="text-xs text-muted-foreground text-right w-[100px] shrink-0">Qarz</p>
-            
+            <div className="w-8 shrink-0" />
           </div>
           <div className="divide-y">
           {vendors.map(({ vendor, projects }, idx) => {
