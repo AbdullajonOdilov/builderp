@@ -203,10 +203,24 @@ export const MOCK_PROJECT_VENDOR_EXPENSES: ProjectVendorExpense[] = [
           { paymentId: 'pay11', date: '2026-02-14', paidBy: 'Alisher Karimov', amount: 280_000, comment: 'Qoldiq to\'lov', fileName: 'buildright_chek.pdf' },
         ],
       },
-      { vendorId: 'v1', vendorName: 'ABC Building Supplies', contactPerson: 'James Wilson', phone: '+1 555-0101', totalPaid: 650_000, totalPending: 55_000, invoiceCount: 22, requests: [], payments: [] },
-      { vendorId: 'v2', vendorName: 'Metro Equipment Rentals', contactPerson: 'Sarah Chen', phone: '+1 555-0102', totalPaid: 380_000, totalPending: 40_000, invoiceCount: 15, requests: [], payments: [] },
-      { vendorId: 'v4', vendorName: 'Premier Construction Services', contactPerson: 'Emily Brown', phone: '+1 555-0104', totalPaid: 220_000, totalPending: 0, invoiceCount: 7, requests: [], payments: [] },
-      { vendorId: 'v6', vendorName: 'SteelForge Industries', contactPerson: 'Ahmad Reza', phone: '+1 555-0106', totalPaid: 120_000, totalPending: 95_000, invoiceCount: 5, requests: [], payments: [] },
+      { vendorId: 'v1', vendorName: 'ABC Building Supplies', contactPerson: 'James Wilson', phone: '+1 555-0101', totalPaid: 650_000, totalPending: 55_000, invoiceCount: 22, requests: [], payments: [
+          { paymentId: 'pay-v1-1', date: '2026-01-05', paidBy: 'Alisher Karimov', amount: 200_000, comment: 'Sement uchun avans' },
+          { paymentId: 'pay-v1-2', date: '2026-01-15', paidBy: 'Alisher Karimov', amount: 150_000, comment: 'Qum uchun to\'lov', fileName: 'abc_chek_01.pdf' },
+          { paymentId: 'pay-v1-3', date: '2026-02-01', paidBy: 'Bobur Toshmatov', amount: 300_000, comment: 'Armotura uchun to\'lov' },
+        ] },
+      { vendorId: 'v2', vendorName: 'Metro Equipment Rentals', contactPerson: 'Sarah Chen', phone: '+1 555-0102', totalPaid: 380_000, totalPending: 40_000, invoiceCount: 15, requests: [], payments: [
+          { paymentId: 'pay-v2-1', date: '2025-12-20', paidBy: 'Bobur Toshmatov', amount: 110_000, comment: 'Kran ijarasi' },
+          { paymentId: 'pay-v2-2', date: '2026-01-10', paidBy: 'Alisher Karimov', amount: 150_000, comment: 'Ekskavator ijarasi', fileName: 'metro_inv_02.pdf' },
+          { paymentId: 'pay-v2-3', date: '2026-01-28', paidBy: 'Bobur Toshmatov', amount: 120_000, comment: 'Yanvar oylik hisob' },
+        ] },
+      { vendorId: 'v4', vendorName: 'Premier Construction Services', contactPerson: 'Emily Brown', phone: '+1 555-0104', totalPaid: 220_000, totalPending: 0, invoiceCount: 7, requests: [], payments: [
+          { paymentId: 'pay-v4-1', date: '2026-01-08', paidBy: 'Alisher Karimov', amount: 120_000, comment: 'Ish haqi uchun' },
+          { paymentId: 'pay-v4-2', date: '2026-02-03', paidBy: 'Alisher Karimov', amount: 100_000, comment: 'Yakuniy hisob-kitob', fileName: 'premier_final.pdf' },
+        ] },
+      { vendorId: 'v6', vendorName: 'SteelForge Industries', contactPerson: 'Ahmad Reza', phone: '+1 555-0106', totalPaid: 120_000, totalPending: 95_000, invoiceCount: 5, requests: [], payments: [
+          { paymentId: 'pay-v6-1', date: '2026-01-18', paidBy: 'Bobur Toshmatov', amount: 80_000, comment: 'Po\'lat quvurlar uchun avans' },
+          { paymentId: 'pay-v6-2', date: '2026-02-12', paidBy: 'Alisher Karimov', amount: 40_000, comment: 'Qisman to\'lov' },
+        ] },
     ],
   },
   {
