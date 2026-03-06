@@ -4,6 +4,7 @@ import { VendorExpensesReport } from '@/components/finance/VendorExpensesReport'
 import { ProjectOverviewReport } from '@/components/finance/ProjectOverviewReport';
 import { ForemenReport } from '@/components/finance/ForemenReport';
 import { PaymentRequestsBoard } from '@/components/finance/PaymentRequestsBoard';
+import { HodimlarReport } from '@/components/finance/HodimlarReport';
 import { MOCK_PROJECT_VENDOR_EXPENSES, ProjectVendorExpense } from '@/types/finance';
 import { VendorFormData } from '@/components/finance/VendorFormDialog';
 
