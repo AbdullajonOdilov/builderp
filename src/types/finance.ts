@@ -230,9 +230,17 @@ export const MOCK_PROJECT_VENDOR_EXPENSES: ProjectVendorExpense[] = [
     totalBudget: 3_100_000,
     totalSpent: 640_000,
     vendors: [
-      { vendorId: 'v6', vendorName: 'SteelForge Industries', contactPerson: 'Ahmad Reza', phone: '+1 555-0106', totalPaid: 310_000, totalPending: 180_000, invoiceCount: 10, requests: [], payments: [] },
-      { vendorId: 'v2', vendorName: 'Metro Equipment Rentals', contactPerson: 'Sarah Chen', phone: '+1 555-0102', totalPaid: 190_000, totalPending: 35_000, invoiceCount: 6, requests: [], payments: [] },
-      { vendorId: 'v3', vendorName: 'FastTrack Materials Co.', contactPerson: 'Mike Johnson', phone: '+1 555-0103', totalPaid: 140_000, totalPending: 20_000, invoiceCount: 5, requests: [], payments: [] },
+      { vendorId: 'v6', vendorName: 'SteelForge Industries', contactPerson: 'Ahmad Reza', phone: '+1 555-0106', totalPaid: 310_000, totalPending: 180_000, invoiceCount: 10, requests: [], payments: [
+          { paymentId: 'pay-v6-3', date: '2026-01-25', paidBy: 'Alisher Karimov', amount: 160_000, comment: 'Metall konstruksiya uchun' },
+          { paymentId: 'pay-v6-4', date: '2026-02-15', paidBy: 'Bobur Toshmatov', amount: 150_000, comment: 'Ikkinchi partiya to\'lovi', fileName: 'steelforge_inv.pdf' },
+        ] },
+      { vendorId: 'v2', vendorName: 'Metro Equipment Rentals', contactPerson: 'Sarah Chen', phone: '+1 555-0102', totalPaid: 190_000, totalPending: 35_000, invoiceCount: 6, requests: [], payments: [
+          { paymentId: 'pay-v2-4', date: '2026-02-05', paidBy: 'Alisher Karimov', amount: 190_000, comment: 'Fevral ijarasi' },
+        ] },
+      { vendorId: 'v3', vendorName: 'FastTrack Materials Co.', contactPerson: 'Mike Johnson', phone: '+1 555-0103', totalPaid: 140_000, totalPending: 20_000, invoiceCount: 5, requests: [], payments: [
+          { paymentId: 'pay-v3-1', date: '2026-01-20', paidBy: 'Bobur Toshmatov', amount: 90_000, comment: 'Plitka uchun avans' },
+          { paymentId: 'pay-v3-2', date: '2026-02-08', paidBy: 'Alisher Karimov', amount: 50_000, comment: 'Qoldiq to\'lov' },
+        ] },
     ],
   },
 ];
