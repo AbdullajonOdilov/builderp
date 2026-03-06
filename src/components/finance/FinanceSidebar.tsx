@@ -1,7 +1,7 @@
-import { DollarSign, Building2, Users, FileText, Banknote } from 'lucide-react';
+import { DollarSign, Building2, Users, FileText, Banknote, UserCheck } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
-export type FinanceReportType = 'vendor-expenses' | 'project-overview' | 'foremen' | 'payment-requests';
+export type FinanceReportType = 'vendor-expenses' | 'project-overview' | 'foremen' | 'payment-requests' | 'hodimlar';
 
 interface FinanceSidebarProps {
   activeReport: FinanceReportType;
@@ -12,6 +12,7 @@ const REPORTS = [
   { id: 'vendor-expenses' as const, label: 'Kontragentlar', icon: Users, description: 'Kontragentlar xarajatlari' },
   { id: 'payment-requests' as const, label: "So'ralgan pullar", icon: Banknote, description: "Pul so'rovlari board" },
   { id: 'foremen' as const, label: 'Birgadirlar', icon: FileText, description: 'Ish va avanslar' },
+  { id: 'hodimlar' as const, label: 'Ходимлар', icon: UserCheck, description: 'Ходимлар рўйхати' },
   { id: 'project-overview' as const, label: 'Project Overview', icon: Building2, description: 'Budget vs spending' },
 ];
 
