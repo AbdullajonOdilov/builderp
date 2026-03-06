@@ -205,6 +205,16 @@ export function VendorExpensesReport({ data, onAddVendor, onEditVendor, onDelete
               <span className="text-sm font-medium text-right w-[100px] shrink-0 text-[hsl(var(--status-pending))]">
                 {vendor.totalPending > 0 ? formatCurrency(vendor.totalPending, false) : '—'}
               </span>
+              <div className="w-8 shrink-0 flex justify-center" onClick={(e) => e.stopPropagation()}>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-7 w-7"
+                  onClick={() => setPaymentDialogData(vendor.payments)}
+                >
+                  <Eye className="h-4 w-4 text-muted-foreground" />
+                </Button>
+              </div>
             </div>
           );})}
           </div>
