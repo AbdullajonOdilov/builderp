@@ -210,6 +210,7 @@ export function HodimlarReport() {
                 <TableRow className="bg-muted/30 hover:bg-muted/30">
                   <TableHead className="text-xs w-8">№</TableHead>
                   <TableHead className="text-xs">Ф.И.О</TableHead>
+                  <TableHead className="text-xs">Рол</TableHead>
                   <TableHead className="text-xs text-right">Маош</TableHead>
                   <TableHead className="text-xs text-right w-[140px]">Берилаётган миқдор</TableHead>
                   <TableHead className="text-xs w-[160px]">Изоҳ</TableHead>
@@ -220,6 +221,7 @@ export function HodimlarReport() {
                   <TableRow key={h.id}>
                     <TableCell className="text-xs text-muted-foreground">{idx + 1}</TableCell>
                     <TableCell className="text-sm font-medium">{h.fullName}</TableCell>
+                    <TableCell><span className="text-sm" style={{ color: h.roleColor }}>{h.role}</span></TableCell>
                     <TableCell className="text-sm text-right text-muted-foreground">{formatCurrency(h.salary)}</TableCell>
                     <TableCell className="text-right">
                       <Input
