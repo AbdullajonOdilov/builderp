@@ -3,7 +3,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
-import { Search, Eye, EyeOff, Copy, Plus } from 'lucide-react';
+import { Search, Eye, EyeOff, Copy, Plus, History } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
 import { ScrollArea } from '@/components/ui/scroll-area';
@@ -219,7 +219,7 @@ export function HodimlarReport() {
                   <TableCell className="text-muted-foreground text-xs">{h.comment}</TableCell>
                   <TableCell>
                     <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => setPaymentHistoryHodim(h)}>
-                      <Eye className="h-3.5 w-3.5 text-muted-foreground" />
+                      <History className="h-3.5 w-3.5 text-muted-foreground" />
                     </Button>
                   </TableCell>
                 </TableRow>
