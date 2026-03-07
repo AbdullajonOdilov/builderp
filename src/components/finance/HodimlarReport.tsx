@@ -4,9 +4,10 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Search, Eye, EyeOff, Copy, Plus } from 'lucide-react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { Checkbox } from '@/components/ui/checkbox';
 
 interface Hodim {
   id: number;
@@ -34,7 +35,10 @@ const MOCK_HODIMLAR: Hodim[] = [
 export function HodimlarReport() {
   const [search, setSearch] = useState('');
   const [visiblePasswords, setVisiblePasswords] = useState<Set<number>>(new Set());
+  const [selectedIds, setSelectedIds] = useState<Set<number>>(new Set());
   const [pulBerishOpen, setPulBerishOpen] = useState(false);
+  const [amounts, setAmounts] = useState<Record<number, string>>({});
+  const [comments, setComments] = useState<Record<number, string>>({});
 
   const filtered = MOCK_HODIMLAR.filter(h =>
     h.fullName.toLowerCase().includes(search.toLowerCase()) ||
@@ -51,11 +55,43 @@ export function HodimlarReport() {
     });
   };
 
+  const toggleSelect = (id: number) => {
+    setSelectedIds(prev => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  };
+
+  const toggleSelectAll = () => {
+    if (selectedIds.size === filtered.length) {
+      setSelectedIds(new Set());
+    } else {
+      setSelectedIds(new Set(filtered.map(h => h.id)));
+    }
+  };
+
   const copyToClipboard = (text: string) => {
     navigator.clipboard.writeText(text);
   };
 
   const formatCurrency = (val: number) => val.toLocaleString('uz-UZ');
+
+  const selectedHodimlar = MOCK_HODIMLAR.filter(h => selectedIds.has(h.id));
+
+  const handleOpenPulBerish = () => {
+    setAmounts({});
+    setComments({});
+    setPulBerishOpen(true);
+  };
+
+  const handleSubmitPulBerish = () => {
+    setPulBerishOpen(false);
+    setSelectedIds(new Set());
+    setAmounts({});
+    setComments({});
+  };
 
   return (
     <div className="space-y-4">
@@ -74,9 +110,13 @@ export function HodimlarReport() {
               className="pl-8 h-9 text-sm"
             />
           </div>
-          <Button onClick={() => setPulBerishOpen(true)} className="h-9 gap-1.5">
+          <Button
+            onClick={handleOpenPulBerish}
+            className="h-9 gap-1.5"
+            disabled={selectedIds.size === 0}
+          >
             <Plus className="h-4 w-4" />
-            Пул бериш
+            Пул бериш{selectedIds.size > 0 && ` (${selectedIds.size})`}
           </Button>
         </div>
       </div>
@@ -87,6 +127,12 @@ export function HodimlarReport() {
           <Table>
             <TableHeader>
               <TableRow className="bg-muted/50">
+                <TableHead className="w-10">
+                  <Checkbox
+                    checked={filtered.length > 0 && selectedIds.size === filtered.length}
+                    onCheckedChange={toggleSelectAll}
+                  />
+                </TableHead>
                 <TableHead className="w-10">#</TableHead>
                 <TableHead>Ф.И.О</TableHead>
                 <TableHead>Телефон</TableHead>
@@ -101,7 +147,13 @@ export function HodimlarReport() {
             </TableHeader>
             <TableBody>
               {filtered.map((h, i) => (
-                <TableRow key={h.id} className="text-sm">
+                <TableRow key={h.id} className="text-sm" data-state={selectedIds.has(h.id) ? 'selected' : undefined}>
+                  <TableCell>
+                    <Checkbox
+                      checked={selectedIds.has(h.id)}
+                      onCheckedChange={() => toggleSelect(h.id)}
+                    />
+                  </TableCell>
                   <TableCell className="text-muted-foreground">{i + 1}</TableCell>
                   <TableCell className="font-medium text-primary">{h.fullName}</TableCell>
                   <TableCell className="text-muted-foreground">{h.phone}</TableCell>
@@ -148,25 +200,53 @@ export function HodimlarReport() {
 
       {/* Pul berish dialog */}
       <Dialog open={pulBerishOpen} onOpenChange={setPulBerishOpen}>
-        <DialogContent className="sm:max-w-md">
+        <DialogContent className="max-w-3xl max-h-[85vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle>Пул бериш</DialogTitle>
+            <DialogTitle>Пул бериш ({selectedHodimlar.length} ходим)</DialogTitle>
           </DialogHeader>
-          <div className="space-y-4">
-            <div className="space-y-2">
-              <Label>Ходим</Label>
-              <Input placeholder="Ходимни танланг..." />
-            </div>
-            <div className="space-y-2">
-              <Label>Сумма</Label>
-              <Input type="number" placeholder="0" />
-            </div>
-            <div className="space-y-2">
-              <Label>Изоҳ</Label>
-              <Input placeholder="Изоҳ..." />
-            </div>
-            <Button className="w-full">Тасдиқлаш</Button>
+          <div className="border rounded-lg overflow-hidden">
+            <Table>
+              <TableHeader>
+                <TableRow className="bg-muted/30 hover:bg-muted/30">
+                  <TableHead className="text-xs w-8">№</TableHead>
+                  <TableHead className="text-xs">Ф.И.О</TableHead>
+                  <TableHead className="text-xs text-right">Маош</TableHead>
+                  <TableHead className="text-xs text-right w-[140px]">Берилаётган миқдор</TableHead>
+                  <TableHead className="text-xs w-[160px]">Изоҳ</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {selectedHodimlar.map((h, idx) => (
+                  <TableRow key={h.id}>
+                    <TableCell className="text-xs text-muted-foreground">{idx + 1}</TableCell>
+                    <TableCell className="text-sm font-medium">{h.fullName}</TableCell>
+                    <TableCell className="text-sm text-right text-muted-foreground">{formatCurrency(h.salary)}</TableCell>
+                    <TableCell className="text-right">
+                      <Input
+                        type="number"
+                        placeholder="Миқдор"
+                        className="h-8 text-sm w-[120px] ml-auto"
+                        value={amounts[h.id] ?? ''}
+                        onChange={(e) => setAmounts(prev => ({ ...prev, [h.id]: e.target.value }))}
+                      />
+                    </TableCell>
+                    <TableCell>
+                      <Input
+                        placeholder="Изоҳ..."
+                        className="h-8 text-sm w-[140px]"
+                        value={comments[h.id] ?? ''}
+                        onChange={(e) => setComments(prev => ({ ...prev, [h.id]: e.target.value }))}
+                      />
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
           </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setPulBerishOpen(false)}>Бекор қилиш</Button>
+            <Button onClick={handleSubmitPulBerish}>Пул бериш</Button>
+          </DialogFooter>
         </DialogContent>
       </Dialog>
     </div>
