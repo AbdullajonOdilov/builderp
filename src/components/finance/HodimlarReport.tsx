@@ -168,7 +168,7 @@ export function HodimlarReport() {
                 <TableHead>Роллар</TableHead>
                 <TableHead>Статус</TableHead>
                 <TableHead>Изоҳ</TableHead>
-              </TableRow>
+                <TableHead className="w-10"></TableHead>
             </TableHeader>
             <TableBody>
               {filtered.map((h, i) => (
