@@ -165,7 +165,7 @@ export function HodimlarReport() {
                 <TableHead className="text-right">Маош</TableHead>
                 <TableHead className="text-right">Берилган сумма</TableHead>
                 <TableHead>Объектлар</TableHead>
-                <TableHead>Роллар</TableHead>
+                
                 <TableHead>Статус</TableHead>
                 <TableHead>Изоҳ</TableHead>
                 <TableHead className="w-10"></TableHead>
