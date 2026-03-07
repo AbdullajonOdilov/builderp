@@ -181,7 +181,12 @@ export function HodimlarReport() {
                     />
                   </TableCell>
                   <TableCell className="text-muted-foreground">{i + 1}</TableCell>
-                  <TableCell className="font-medium text-primary">{h.fullName}</TableCell>
+                  <TableCell>
+                    <div>
+                      <span className="font-medium text-primary">{h.fullName}</span>
+                      <span className="block text-xs" style={{ color: h.roleColor }}>{h.role}</span>
+                    </div>
+                  </TableCell>
                   <TableCell className="text-muted-foreground">{h.phone}</TableCell>
                   <TableCell>
                     <div className="flex items-center gap-1">
