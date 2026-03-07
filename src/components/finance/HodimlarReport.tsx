@@ -214,9 +214,6 @@ export function HodimlarReport() {
                     </div>
                   </TableCell>
                   <TableCell>
-                    <span className="text-sm" style={{ color: h.roleColor }}>{h.role}</span>
-                  </TableCell>
-                  <TableCell>
                     <Badge variant="outline" className="text-[10px] bg-primary/10 text-primary border-primary/20">
                       {h.status}
                     </Badge>
