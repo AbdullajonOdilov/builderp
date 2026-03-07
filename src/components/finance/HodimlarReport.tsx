@@ -31,12 +31,29 @@ interface Hodim {
 }
 
 const MOCK_HODIMLAR: Hodim[] = [
-  { id: 1, fullName: 'Bugalter', phone: '+998 (99) 333-33-22', password: '12345678', salary: 0, berilganSumma: 5_000_000, objects: [{ name: 'Yangi sergili', color: '#8B5CF6' }], role: 'Бугалтер', roleColor: '#F59E0B', status: 'Faol', comment: 'Izoh yo\'q' },
-  { id: 2, fullName: 'Sanjar', phone: '+998 (99) 444-44-44', password: '12345678', salary: 0, berilganSumma: 3_200_000, objects: [{ name: 'Yangi sergili', color: '#8B5CF6' }], role: 'Омборчи', roleColor: '#10B981', status: 'Faol', comment: 'Izoh yo\'q' },
-  { id: 3, fullName: 'Nuraliyev Jahongir', phone: '+998 (99) 222-22-22', password: '12345678', salary: 0, berilganSumma: 1_500_000, objects: [{ name: 'Yangi sergili', color: '#8B5CF6' }], role: 'Прораб', roleColor: '#3B82F6', status: 'Faol', comment: 'Izoh yo\'q' },
-  { id: 4, fullName: 'Taminotchi', phone: '+998 (99) 555-55-55', password: '12345678', salary: 0, berilganSumma: 8_700_000, objects: [{ name: 'Assalom Do\'stlik', color: '#8B5CF6' }], role: 'Таминотчи', roleColor: '#EF4444', status: 'Faol', comment: 'Izoh yo\'q' },
-  { id: 5, fullName: 'Samandar Xudayberdiyev', phone: '+998 (99) 111-11-11', password: '12345678', salary: 0, berilganSumma: 2_000_000, objects: [{ name: 'Yangi sergili', color: '#8B5CF6' }], role: 'ПТО инжинер', roleColor: '#06B6D4', status: 'Faol', comment: 'Izoh yo\'q' },
-  { id: 6, fullName: 'Abdunabi', phone: '+998 (20) 012-00-00', password: '12345678', salary: 0, berilganSumma: 4_100_000, objects: [{ name: 'Plaza', color: '#8B5CF6' }], role: 'Админ', roleColor: '#A855F7', status: 'Faol', comment: 'Izoh yo\'q' },
+  { id: 1, fullName: 'Bugalter', phone: '+998 (99) 333-33-22', password: '12345678', salary: 0, berilganSumma: 5_000_000, objects: [{ name: 'Yangi sergili', color: '#8B5CF6' }], role: 'Бугалтер', roleColor: '#F59E0B', status: 'Faol', comment: 'Izoh yo\'q', payments: [
+    { date: '2026-01-10', amount: 2_000_000, comment: 'Oylik avans' },
+    { date: '2026-02-01', amount: 3_000_000, comment: 'Oylik to\'lov' },
+  ]},
+  { id: 2, fullName: 'Sanjar', phone: '+998 (99) 444-44-44', password: '12345678', salary: 0, berilganSumma: 3_200_000, objects: [{ name: 'Yangi sergili', color: '#8B5CF6' }], role: 'Омборчи', roleColor: '#10B981', status: 'Faol', comment: 'Izoh yo\'q', payments: [
+    { date: '2026-01-15', amount: 1_500_000, comment: 'Avans' },
+    { date: '2026-02-15', amount: 1_700_000, comment: 'Qoldiq' },
+  ]},
+  { id: 3, fullName: 'Nuraliyev Jahongir', phone: '+998 (99) 222-22-22', password: '12345678', salary: 0, berilganSumma: 1_500_000, objects: [{ name: 'Yangi sergili', color: '#8B5CF6' }], role: 'Прораб', roleColor: '#3B82F6', status: 'Faol', comment: 'Izoh yo\'q', payments: [
+    { date: '2026-02-05', amount: 1_500_000, comment: 'Oylik' },
+  ]},
+  { id: 4, fullName: 'Taminotchi', phone: '+998 (99) 555-55-55', password: '12345678', salary: 0, berilganSumma: 8_700_000, objects: [{ name: 'Assalom Do\'stlik', color: '#8B5CF6' }], role: 'Таминотчи', roleColor: '#EF4444', status: 'Faol', comment: 'Izoh yo\'q', payments: [
+    { date: '2026-01-03', amount: 3_000_000, comment: 'Avans' },
+    { date: '2026-01-20', amount: 2_700_000, comment: 'Ikkinchi to\'lov' },
+    { date: '2026-02-10', amount: 3_000_000, comment: 'Yakuniy' },
+  ]},
+  { id: 5, fullName: 'Samandar Xudayberdiyev', phone: '+998 (99) 111-11-11', password: '12345678', salary: 0, berilganSumma: 2_000_000, objects: [{ name: 'Yangi sergili', color: '#8B5CF6' }], role: 'ПТО инжинер', roleColor: '#06B6D4', status: 'Faol', comment: 'Izoh yo\'q', payments: [
+    { date: '2026-02-01', amount: 2_000_000, comment: 'Oylik to\'lov' },
+  ]},
+  { id: 6, fullName: 'Abdunabi', phone: '+998 (20) 012-00-00', password: '12345678', salary: 0, berilganSumma: 4_100_000, objects: [{ name: 'Plaza', color: '#8B5CF6' }], role: 'Админ', roleColor: '#A855F7', status: 'Faol', comment: 'Izoh yo\'q', payments: [
+    { date: '2026-01-08', amount: 2_100_000, comment: 'Avans' },
+    { date: '2026-02-08', amount: 2_000_000, comment: 'Qoldiq' },
+  ]},
 ];
 
 export function HodimlarReport() {
