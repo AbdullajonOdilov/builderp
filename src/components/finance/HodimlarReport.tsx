@@ -217,6 +217,11 @@ export function HodimlarReport() {
                     </Badge>
                   </TableCell>
                   <TableCell className="text-muted-foreground text-xs">{h.comment}</TableCell>
+                  <TableCell>
+                    <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => setPaymentHistoryHodim(h)}>
+                      <Eye className="h-3.5 w-3.5 text-muted-foreground" />
+                    </Button>
+                  </TableCell>
                 </TableRow>
               ))}
             </TableBody>
