@@ -9,6 +9,12 @@ import { Label } from '@/components/ui/label';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Checkbox } from '@/components/ui/checkbox';
 
+interface HodimPayment {
+  date: string;
+  amount: number;
+  comment: string;
+}
+
 interface Hodim {
   id: number;
   fullName: string;
@@ -21,6 +27,7 @@ interface Hodim {
   roleColor: string;
   status: 'Faol' | 'Nofaol';
   comment: string;
+  payments: HodimPayment[];
 }
 
 const MOCK_HODIMLAR: Hodim[] = [
