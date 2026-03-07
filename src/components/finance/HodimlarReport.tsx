@@ -239,11 +239,11 @@ export function HodimlarReport() {
             <Table>
               <TableHeader>
                 <TableRow className="bg-muted/30 hover:bg-muted/30">
-                  <TableHead className="text-xs w-8">№</TableHead>
+                  <TableHead className="text-xs w-10">№</TableHead>
                   <TableHead className="text-xs">Ф.И.О</TableHead>
                   <TableHead className="text-xs text-right">Маош</TableHead>
-                  <TableHead className="text-xs text-right w-[140px]">Берилаётган миқдор</TableHead>
-                  <TableHead className="text-xs w-[160px]">Изоҳ</TableHead>
+                  <TableHead className="text-xs text-right">Берилаётган миқдор</TableHead>
+                  <TableHead className="text-xs">Изоҳ</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -255,12 +255,11 @@ export function HodimlarReport() {
                       <div className="text-xs" style={{ color: h.roleColor }}>{h.role}</div>
                     </TableCell>
                     <TableCell className="text-sm text-right text-muted-foreground">{formatCurrency(h.salary)}</TableCell>
-                    <TableCell className="text-sm text-right text-muted-foreground">{formatCurrency(h.salary)}</TableCell>
                     <TableCell className="text-right">
                       <Input
                         type="number"
                         placeholder="Миқдор"
-                        className="h-8 text-sm w-[120px] ml-auto"
+                        className="h-8 text-sm"
                         value={amounts[h.id] ?? ''}
                         onChange={(e) => setAmounts(prev => ({ ...prev, [h.id]: e.target.value }))}
                       />
@@ -268,7 +267,7 @@ export function HodimlarReport() {
                     <TableCell>
                       <Input
                         placeholder="Изоҳ..."
-                        className="h-8 text-sm w-[140px]"
+                        className="h-8 text-sm"
                         value={comments[h.id] ?? ''}
                         onChange={(e) => setComments(prev => ({ ...prev, [h.id]: e.target.value }))}
                       />
