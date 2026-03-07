@@ -254,7 +254,7 @@ export function HodimlarReport() {
                       <div className="text-sm font-medium">{h.fullName}</div>
                       <div className="text-xs" style={{ color: h.roleColor }}>{h.role}</div>
                     </TableCell>
-                    <TableCell><span className="text-sm" style={{ color: h.roleColor }}>{h.role}</span></TableCell>
+                    <TableCell className="text-sm text-right text-muted-foreground">{formatCurrency(h.salary)}</TableCell>
                     <TableCell className="text-sm text-right text-muted-foreground">{formatCurrency(h.salary)}</TableCell>
                     <TableCell className="text-right">
                       <Input
