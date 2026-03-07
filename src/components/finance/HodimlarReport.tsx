@@ -63,6 +63,7 @@ export function HodimlarReport() {
   const [pulBerishOpen, setPulBerishOpen] = useState(false);
   const [amounts, setAmounts] = useState<Record<number, string>>({});
   const [comments, setComments] = useState<Record<number, string>>({});
+  const [paymentHistoryHodim, setPaymentHistoryHodim] = useState<Hodim | null>(null);
 
   const filtered = MOCK_HODIMLAR.filter(h =>
     h.fullName.toLowerCase().includes(search.toLowerCase()) ||
