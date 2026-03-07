@@ -165,7 +165,7 @@ export function HodimlarReport() {
                 <TableHead className="text-right">Маош</TableHead>
                 <TableHead className="text-right">Берилган сумма</TableHead>
                 <TableHead>Объектлар</TableHead>
-                <TableHead>Роллар</TableHead>
+                
                 <TableHead>Статус</TableHead>
                 <TableHead>Изоҳ</TableHead>
                 <TableHead className="w-10"></TableHead>
@@ -181,7 +181,12 @@ export function HodimlarReport() {
                     />
                   </TableCell>
                   <TableCell className="text-muted-foreground">{i + 1}</TableCell>
-                  <TableCell className="font-medium text-primary">{h.fullName}</TableCell>
+                  <TableCell>
+                    <div>
+                      <span className="font-medium text-primary">{h.fullName}</span>
+                      <span className="block text-xs" style={{ color: h.roleColor }}>{h.role}</span>
+                    </div>
+                  </TableCell>
                   <TableCell className="text-muted-foreground">{h.phone}</TableCell>
                   <TableCell>
                     <div className="flex items-center gap-1">
@@ -207,9 +212,6 @@ export function HodimlarReport() {
                         <span className="text-[10px] text-muted-foreground">+{h.objects.length - 1}</span>
                       )}
                     </div>
-                  </TableCell>
-                  <TableCell>
-                    <span className="text-sm" style={{ color: h.roleColor }}>{h.role}</span>
                   </TableCell>
                   <TableCell>
                     <Badge variant="outline" className="text-[10px] bg-primary/10 text-primary border-primary/20">
