@@ -115,7 +115,13 @@ export function HodimlarReport() {
   };
 
   return (
-    <div className="space-y-4">
+    <Tabs defaultValue="list" className="space-y-4">
+      <TabsList>
+        <TabsTrigger value="list">Ишчилар рўйхати</TabsTrigger>
+        <TabsTrigger value="monthly">Ойлик маошлар</TabsTrigger>
+      </TabsList>
+
+      <TabsContent value="list" className="space-y-4">
       {/* Header */}
       <div className="flex items-center justify-between gap-4">
         <div className="flex items-center gap-2">
