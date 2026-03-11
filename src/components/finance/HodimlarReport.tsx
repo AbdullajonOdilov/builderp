@@ -262,23 +262,29 @@ export function HodimlarReport() {
               <TableHeader>
                 <TableRow className="bg-muted/30 hover:bg-muted/30">
                   <TableHead className="text-xs w-8">№</TableHead>
+                  <TableHead className="text-xs">Ой</TableHead>
                   <TableHead className="text-xs">Сана</TableHead>
                   <TableHead className="text-xs text-right">Миқдор</TableHead>
                   <TableHead className="text-xs">Изоҳ</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {paymentHistoryHodim?.payments.map((p, idx) => (
-                  <TableRow key={idx}>
-                    <TableCell className="text-xs text-muted-foreground">{idx + 1}</TableCell>
-                    <TableCell className="text-sm">{p.date}</TableCell>
-                    <TableCell className="text-sm text-right font-medium">{formatCurrency(p.amount)}</TableCell>
-                    <TableCell className="text-sm text-muted-foreground">{p.comment}</TableCell>
-                  </TableRow>
-                ))}
+                {paymentHistoryHodim?.payments.map((p, idx) => {
+                  const monthNames = ['Январ', 'Феврал', 'Март', 'Апрел', 'Май', 'Июн', 'Июл', 'Август', 'Сентябр', 'Октябр', 'Ноябр', 'Декабр'];
+                  const monthIndex = new Date(p.date).getMonth();
+                  return (
+                    <TableRow key={idx}>
+                      <TableCell className="text-xs text-muted-foreground">{idx + 1}</TableCell>
+                      <TableCell className="text-sm text-muted-foreground">{monthNames[monthIndex]}</TableCell>
+                      <TableCell className="text-sm">{p.date}</TableCell>
+                      <TableCell className="text-sm text-right font-medium">{formatCurrency(p.amount)}</TableCell>
+                      <TableCell className="text-sm text-muted-foreground">{p.comment}</TableCell>
+                    </TableRow>
+                  );
+                })}
                 {paymentHistoryHodim?.payments.length === 0 && (
                   <TableRow>
-                    <TableCell colSpan={4} className="text-center text-muted-foreground text-sm py-4">To'lovlar yo'q</TableCell>
+                    <TableCell colSpan={5} className="text-center text-muted-foreground text-sm py-4">To'lovlar yo'q</TableCell>
                   </TableRow>
                 )}
               </TableBody>
