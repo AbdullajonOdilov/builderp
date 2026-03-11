@@ -58,7 +58,7 @@ const MOCK_HODIMLAR: Hodim[] = [
 
 export function HodimlarReport() {
   const [search, setSearch] = useState('');
-  const [visiblePasswords, setVisiblePasswords] = useState<Set<number>>(new Set());
+  
   const [selectedIds, setSelectedIds] = useState<Set<number>>(new Set());
   const [pulBerishOpen, setPulBerishOpen] = useState(false);
   const [amounts, setAmounts] = useState<Record<number, string>>({});
