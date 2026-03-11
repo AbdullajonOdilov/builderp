@@ -3,7 +3,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
-import { Search, Eye, EyeOff, Copy, Plus, History } from 'lucide-react';
+import { Search, Plus, History } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
 import { ScrollArea } from '@/components/ui/scroll-area';
@@ -58,7 +58,7 @@ const MOCK_HODIMLAR: Hodim[] = [
 
 export function HodimlarReport() {
   const [search, setSearch] = useState('');
-  const [visiblePasswords, setVisiblePasswords] = useState<Set<number>>(new Set());
+  
   const [selectedIds, setSelectedIds] = useState<Set<number>>(new Set());
   const [pulBerishOpen, setPulBerishOpen] = useState(false);
   const [amounts, setAmounts] = useState<Record<number, string>>({});
@@ -71,14 +71,6 @@ export function HodimlarReport() {
     h.role.toLowerCase().includes(search.toLowerCase())
   );
 
-  const togglePassword = (id: number) => {
-    setVisiblePasswords(prev => {
-      const next = new Set(prev);
-      if (next.has(id)) next.delete(id);
-      else next.add(id);
-      return next;
-    });
-  };
 
   const toggleSelect = (id: number) => {
     setSelectedIds(prev => {
@@ -97,9 +89,6 @@ export function HodimlarReport() {
     }
   };
 
-  const copyToClipboard = (text: string) => {
-    navigator.clipboard.writeText(text);
-  };
 
   const formatCurrency = (val: number) => val.toLocaleString('uz-UZ');
 
@@ -123,7 +112,7 @@ export function HodimlarReport() {
       {/* Header */}
       <div className="flex items-center justify-between gap-4">
         <div className="flex items-center gap-2">
-          <h2 className="text-lg font-semibold">Ходимлар</h2>
+          <h2 className="text-lg font-semibold">Ишчилар</h2>
         </div>
         <div className="flex items-center gap-3">
           <div className="relative w-56">
@@ -161,13 +150,10 @@ export function HodimlarReport() {
                 <TableHead className="w-10">#</TableHead>
                 <TableHead>Ф.И.О</TableHead>
                 <TableHead>Телефон</TableHead>
-                <TableHead>Парол</TableHead>
                 <TableHead className="text-right">Маош</TableHead>
                 <TableHead className="text-right">Берилган сумма</TableHead>
                 <TableHead>Объектлар</TableHead>
                 <TableHead>Роллар</TableHead>
-                <TableHead>Статус</TableHead>
-                <TableHead>Изоҳ</TableHead>
                 <TableHead className="w-10"></TableHead>
               </TableRow>
             </TableHeader>
@@ -183,19 +169,6 @@ export function HodimlarReport() {
                   <TableCell className="text-muted-foreground">{i + 1}</TableCell>
                   <TableCell className="font-medium text-primary">{h.fullName}</TableCell>
                   <TableCell className="text-muted-foreground">{h.phone}</TableCell>
-                  <TableCell>
-                    <div className="flex items-center gap-1">
-                      <span className="text-xs font-mono text-muted-foreground">
-                        {visiblePasswords.has(h.id) ? h.password : '••••••••'}
-                      </span>
-                      <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => copyToClipboard(h.password)}>
-                        <Copy className="h-3 w-3 text-muted-foreground" />
-                      </Button>
-                      <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => togglePassword(h.id)}>
-                        {visiblePasswords.has(h.id) ? <EyeOff className="h-3 w-3 text-muted-foreground" /> : <Eye className="h-3 w-3 text-muted-foreground" />}
-                      </Button>
-                    </div>
-                  </TableCell>
                   <TableCell className="text-right text-muted-foreground">{formatCurrency(h.salary)}</TableCell>
                   <TableCell className="text-right font-medium">{formatCurrency(h.berilganSumma)}</TableCell>
                   <TableCell>
@@ -211,12 +184,6 @@ export function HodimlarReport() {
                   <TableCell>
                     <span className="text-sm" style={{ color: h.roleColor }}>{h.role}</span>
                   </TableCell>
-                  <TableCell>
-                    <Badge variant="outline" className="text-[10px] bg-primary/10 text-primary border-primary/20">
-                      {h.status}
-                    </Badge>
-                  </TableCell>
-                  <TableCell className="text-muted-foreground text-xs">{h.comment}</TableCell>
                   <TableCell>
                     <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => setPaymentHistoryHodim(h)}>
                       <History className="h-3.5 w-3.5 text-muted-foreground" />
