@@ -328,6 +328,11 @@ export function HodimlarReport() {
           </div>
         </DialogContent>
       </Dialog>
-    </div>
+      </TabsContent>
+
+      <TabsContent value="monthly">
+        <IshchilarMonthlySalary />
+      </TabsContent>
+    </Tabs>
   );
 }
