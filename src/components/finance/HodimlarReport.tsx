@@ -89,9 +89,6 @@ export function HodimlarReport() {
     }
   };
 
-  const copyToClipboard = (text: string) => {
-    navigator.clipboard.writeText(text);
-  };
 
   const formatCurrency = (val: number) => val.toLocaleString('uz-UZ');
 
