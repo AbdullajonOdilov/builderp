@@ -71,14 +71,6 @@ export function HodimlarReport() {
     h.role.toLowerCase().includes(search.toLowerCase())
   );
 
-  const togglePassword = (id: number) => {
-    setVisiblePasswords(prev => {
-      const next = new Set(prev);
-      if (next.has(id)) next.delete(id);
-      else next.add(id);
-      return next;
-    });
-  };
 
   const toggleSelect = (id: number) => {
     setSelectedIds(prev => {
