@@ -207,6 +207,29 @@ export function HodimlarReport() {
           <DialogHeader>
             <DialogTitle>Пул бериш ({selectedHodimlar.length} ходим)</DialogTitle>
           </DialogHeader>
+          <div className="flex items-center gap-2 mb-2">
+            <span className="text-sm text-muted-foreground">Ой:</span>
+            <Select value={selectedMonth} onValueChange={setSelectedMonth}>
+              <SelectTrigger className="w-48 h-9 text-sm">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {(() => {
+                  const months = ['Январ', 'Феврал', 'Март', 'Апрел', 'Май', 'Июн', 'Июл', 'Август', 'Сентябр', 'Октябр', 'Ноябр', 'Декабр'];
+                  const now = new Date();
+                  const options = [];
+                  for (let i = -2; i <= 2; i++) {
+                    const d = new Date(now.getFullYear(), now.getMonth() + i, 1);
+                    const val = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
+                    options.push({ value: val, label: `${months[d.getMonth()]} ${d.getFullYear()}` });
+                  }
+                  return options.map(o => (
+                    <SelectItem key={o.value} value={o.value}>{o.label}</SelectItem>
+                  ));
+                })()}
+              </SelectContent>
+            </Select>
+          </div>
           <div className="border rounded-lg overflow-hidden">
             <Table>
               <TableHeader>
