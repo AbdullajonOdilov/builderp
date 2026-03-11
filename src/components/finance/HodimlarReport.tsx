@@ -169,19 +169,6 @@ export function HodimlarReport() {
                   <TableCell className="text-muted-foreground">{i + 1}</TableCell>
                   <TableCell className="font-medium text-primary">{h.fullName}</TableCell>
                   <TableCell className="text-muted-foreground">{h.phone}</TableCell>
-                  <TableCell>
-                    <div className="flex items-center gap-1">
-                      <span className="text-xs font-mono text-muted-foreground">
-                        {visiblePasswords.has(h.id) ? h.password : '••••••••'}
-                      </span>
-                      <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => copyToClipboard(h.password)}>
-                        <Copy className="h-3 w-3 text-muted-foreground" />
-                      </Button>
-                      <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => togglePassword(h.id)}>
-                        {visiblePasswords.has(h.id) ? <EyeOff className="h-3 w-3 text-muted-foreground" /> : <Eye className="h-3 w-3 text-muted-foreground" />}
-                      </Button>
-                    </div>
-                  </TableCell>
                   <TableCell className="text-right text-muted-foreground">{formatCurrency(h.salary)}</TableCell>
                   <TableCell className="text-right font-medium">{formatCurrency(h.berilganSumma)}</TableCell>
                   <TableCell>
@@ -197,12 +184,6 @@ export function HodimlarReport() {
                   <TableCell>
                     <span className="text-sm" style={{ color: h.roleColor }}>{h.role}</span>
                   </TableCell>
-                  <TableCell>
-                    <Badge variant="outline" className="text-[10px] bg-primary/10 text-primary border-primary/20">
-                      {h.status}
-                    </Badge>
-                  </TableCell>
-                  <TableCell className="text-muted-foreground text-xs">{h.comment}</TableCell>
                   <TableCell>
                     <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => setPaymentHistoryHodim(h)}>
                       <History className="h-3.5 w-3.5 text-muted-foreground" />
