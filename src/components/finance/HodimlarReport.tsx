@@ -9,6 +9,8 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '
 import { Label } from '@/components/ui/label';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Checkbox } from '@/components/ui/checkbox';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { IshchilarMonthlySalary } from './IshchilarMonthlySalary';
 
 interface HodimPayment {
   date: string;
@@ -113,7 +115,13 @@ export function HodimlarReport() {
   };
 
   return (
-    <div className="space-y-4">
+    <Tabs defaultValue="list" className="space-y-4">
+      <TabsList>
+        <TabsTrigger value="list">Ишчилар рўйхати</TabsTrigger>
+        <TabsTrigger value="monthly">Ойлик маошлар</TabsTrigger>
+      </TabsList>
+
+      <TabsContent value="list" className="space-y-4">
       {/* Header */}
       <div className="flex items-center justify-between gap-4">
         <div className="flex items-center gap-2">
@@ -320,6 +328,11 @@ export function HodimlarReport() {
           </div>
         </DialogContent>
       </Dialog>
-    </div>
+      </TabsContent>
+
+      <TabsContent value="monthly">
+        <IshchilarMonthlySalary />
+      </TabsContent>
+    </Tabs>
   );
 }
