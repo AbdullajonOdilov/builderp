@@ -64,6 +64,10 @@ export function HodimlarReport() {
   const [pulBerishOpen, setPulBerishOpen] = useState(false);
   const [amounts, setAmounts] = useState<Record<number, string>>({});
   const [comments, setComments] = useState<Record<number, string>>({});
+  const [selectedMonth, setSelectedMonth] = useState<string>(() => {
+    const now = new Date();
+    return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+  });
   const [paymentHistoryHodim, setPaymentHistoryHodim] = useState<Hodim | null>(null);
 
   const filtered = MOCK_HODIMLAR.filter(h =>
