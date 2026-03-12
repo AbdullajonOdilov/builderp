@@ -314,12 +314,24 @@ const BuildingView = () => {
                         <span className="text-xs text-muted-foreground truncate px-2">{doc.name}</span>
                       </div>
                     )}
+                    {/* Hover overlay */}
+                    <div className="absolute inset-0 bg-black/0 group-hover:bg-black/30 transition-all" />
                     <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/60 to-transparent p-2 opacity-0 group-hover:opacity-100 transition-opacity">
                       <p className="text-xs text-white truncate">{doc.name}</p>
                     </div>
+                    {/* Eye icon - view larger */}
                     <button
-                      onClick={() => handleDocumentDelete(doc.id)}
-                      className="absolute top-1.5 right-1.5 p-1 rounded-md bg-black/40 text-white opacity-0 group-hover:opacity-100 transition-opacity hover:bg-destructive"
+                      onClick={() => setLightboxImage(doc)}
+                      className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+                    >
+                      <div className="p-2 rounded-full bg-black/50 text-white hover:bg-black/70 transition-colors">
+                        <Eye className="h-5 w-5" />
+                      </div>
+                    </button>
+                    {/* Delete button */}
+                    <button
+                      onClick={(e) => { e.stopPropagation(); handleDocumentDelete(doc.id); }}
+                      className="absolute top-1.5 right-1.5 p-1 rounded-md bg-black/40 text-white opacity-0 group-hover:opacity-100 transition-opacity hover:bg-destructive z-10"
                     >
                       <Trash2 className="h-3.5 w-3.5" />
                     </button>
