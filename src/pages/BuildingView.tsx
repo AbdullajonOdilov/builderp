@@ -272,59 +272,67 @@ const BuildingView = () => {
           </TabsContent>
 
           {/* Hujjatlar */}
-          <TabsContent value="hujjatlar" className="mt-6">
-            <Tabs defaultValue="shartnoma" className="w-full">
-              <TabsList className="mb-4">
-                <TabsTrigger value="shartnoma">Shartnoma</TabsTrigger>
-                <TabsTrigger value="fayllar">Fayllar</TabsTrigger>
-                <TabsTrigger value="rasmlar">Rasmlar</TabsTrigger>
-              </TabsList>
+          <TabsContent value="hujjatlar" className="mt-6 space-y-8">
+            {/* Shartnoma */}
+            <div>
+              <div className="flex items-center justify-between mb-3">
+                <h2 className="text-lg font-semibold">Shartnoma</h2>
+                <DocumentUpload onUpload={handleDocumentUpload} />
+              </div>
+              {building.documents.filter(d => d.name?.toLowerCase().includes('shartnoma') || d.type?.includes('pdf')).length > 0 ? (
+                <div className="grid gap-2 md:grid-cols-2">
+                  {building.documents.filter(d => d.name?.toLowerCase().includes('shartnoma') || d.type?.includes('pdf')).map(doc => (
+                    <DocumentCard key={doc.id} document={doc} onDelete={() => handleDocumentDelete(doc.id)} />
+                  ))}
+                </div>
+              ) : (
+                <Card className="p-6 text-center border-2 border-dashed">
+                  <p className="text-muted-foreground text-sm">Shartnomalar hali yuklanmagan</p>
+                </Card>
+              )}
+            </div>
 
-              <TabsContent value="shartnoma">
-                <DocumentUpload onUpload={handleDocumentUpload} className="mb-4" />
-                {building.documents.filter(d => d.name?.toLowerCase().includes('shartnoma') || d.type?.includes('pdf')).length > 0 ? (
-                  <div className="grid gap-2 md:grid-cols-2">
-                    {building.documents.filter(d => d.name?.toLowerCase().includes('shartnoma') || d.type?.includes('pdf')).map(doc => (
-                      <DocumentCard key={doc.id} document={doc} onDelete={() => handleDocumentDelete(doc.id)} />
-                    ))}
-                  </div>
-                ) : (
-                  <Card className="p-8 text-center border-2 border-dashed">
-                    <p className="text-muted-foreground">Shartnomalar hali yuklanmagan</p>
-                  </Card>
-                )}
-              </TabsContent>
+            <hr className="border-border" />
 
-              <TabsContent value="fayllar">
-                <DocumentUpload onUpload={handleDocumentUpload} className="mb-4" />
-                {building.documents.filter(d => !d.type?.startsWith('image/')).length > 0 ? (
-                  <div className="grid gap-2 md:grid-cols-2">
-                    {building.documents.filter(d => !d.type?.startsWith('image/')).map(doc => (
-                      <DocumentCard key={doc.id} document={doc} onDelete={() => handleDocumentDelete(doc.id)} />
-                    ))}
-                  </div>
-                ) : (
-                  <Card className="p-8 text-center border-2 border-dashed">
-                    <p className="text-muted-foreground">Fayllar hali yuklanmagan</p>
-                  </Card>
-                )}
-              </TabsContent>
+            {/* Fayllar */}
+            <div>
+              <div className="flex items-center justify-between mb-3">
+                <h2 className="text-lg font-semibold">Fayllar</h2>
+                <DocumentUpload onUpload={handleDocumentUpload} />
+              </div>
+              {building.documents.filter(d => !d.type?.startsWith('image/') && !d.type?.includes('pdf')).length > 0 ? (
+                <div className="grid gap-2 md:grid-cols-2">
+                  {building.documents.filter(d => !d.type?.startsWith('image/') && !d.type?.includes('pdf')).map(doc => (
+                    <DocumentCard key={doc.id} document={doc} onDelete={() => handleDocumentDelete(doc.id)} />
+                  ))}
+                </div>
+              ) : (
+                <Card className="p-6 text-center border-2 border-dashed">
+                  <p className="text-muted-foreground text-sm">Fayllar hali yuklanmagan</p>
+                </Card>
+              )}
+            </div>
 
-              <TabsContent value="rasmlar">
-                <DocumentUpload onUpload={handleDocumentUpload} className="mb-4" />
-                {building.documents.filter(d => d.type?.startsWith('image/')).length > 0 ? (
-                  <div className="grid gap-3 md:grid-cols-3 lg:grid-cols-4">
-                    {building.documents.filter(d => d.type?.startsWith('image/')).map(doc => (
-                      <DocumentCard key={doc.id} document={doc} onDelete={() => handleDocumentDelete(doc.id)} />
-                    ))}
-                  </div>
-                ) : (
-                  <Card className="p-8 text-center border-2 border-dashed">
-                    <p className="text-muted-foreground">Rasmlar hali yuklanmagan</p>
-                  </Card>
-                )}
-              </TabsContent>
-            </Tabs>
+            <hr className="border-border" />
+
+            {/* Rasmlar */}
+            <div>
+              <div className="flex items-center justify-between mb-3">
+                <h2 className="text-lg font-semibold">Rasmlar</h2>
+                <DocumentUpload onUpload={handleDocumentUpload} />
+              </div>
+              {building.documents.filter(d => d.type?.startsWith('image/')).length > 0 ? (
+                <div className="grid gap-3 md:grid-cols-3 lg:grid-cols-4">
+                  {building.documents.filter(d => d.type?.startsWith('image/')).map(doc => (
+                    <DocumentCard key={doc.id} document={doc} onDelete={() => handleDocumentDelete(doc.id)} />
+                  ))}
+                </div>
+              ) : (
+                <Card className="p-6 text-center border-2 border-dashed">
+                  <p className="text-muted-foreground text-sm">Rasmlar hali yuklanmagan</p>
+                </Card>
+              )}
+            </div>
           </TabsContent>
         </Tabs>
       </div>
