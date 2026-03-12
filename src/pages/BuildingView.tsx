@@ -238,24 +238,62 @@ const BuildingView = () => {
               </Card>
             ) : (
               <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-                {building.sections.map((section) => (
-                  <FolderCard
-                    key={section.id}
-                    name={section.name}
-                    subtitle={`${section.documents.length} hujjat`}
-                    onClick={() => navigate(`/buildings/${building.id}/sections/${section.id}`)}
-                    onDelete={() => setDeleteSectionId(section.id)}
-                  />
-                ))}
+                {building.sections.map((section) => {
+                  const sectionImages = section.documents
+                    .filter(d => d.type?.startsWith('image/') && d.url)
+                    .map(d => d.url!);
+                  return (
+                    <FolderCard
+                      key={section.id}
+                      name={section.name}
+                      subtitle={`${section.documents.length} hujjat`}
+                      images={sectionImages}
+                      onClick={() => navigate(`/buildings/${building.id}/sections/${section.id}`)}
+                      onDelete={() => setDeleteSectionId(section.id)}
+                    />
+                  );
+                })}
               </div>
             )}
           </TabsContent>
 
           {/* Smeta */}
           <TabsContent value="smeta" className="mt-6">
-            <Card className="p-8 text-center">
-              <p className="text-muted-foreground">Smeta bo'limi tez orada qo'shiladi</p>
-            </Card>
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-lg font-semibold">Smeta</h2>
+              <div className="flex gap-2">
+                <DocumentUpload 
+                  onUpload={(doc) => {
+                    addDocumentToBuilding(building.id, { ...doc, name: `smeta_${doc.name}` });
+                    toast.success('Smeta fayli yuklandi');
+                  }} 
+                  accept=".xlsx,.xls,.csv,.pdf,.doc,.docx" 
+                  label="Yuklash" 
+                />
+              </div>
+            </div>
+
+            {/* Smeta documents list */}
+            {(() => {
+              const smetaDocs = building.documents.filter(d => d.name?.startsWith('smeta_'));
+              return smetaDocs.length === 0 ? (
+                <Card className="p-8 text-center border-2 border-dashed">
+                  <ClipboardList className="h-10 w-10 mx-auto mb-3 text-muted-foreground" />
+                  <p className="font-medium">Smeta fayllari yo'q</p>
+                  <p className="text-sm text-muted-foreground">Smeta faylini yuklash uchun yuqoridagi tugmani bosing</p>
+                </Card>
+              ) : (
+                <div className="grid gap-2 md:grid-cols-2">
+                  {smetaDocs.map(doc => (
+                    <DocumentCard 
+                      key={doc.id} 
+                      document={{ ...doc, name: doc.name.replace(/^smeta_/, '') }} 
+                      onDelete={() => handleDocumentDelete(doc.id)} 
+                    />
+                  ))}
+                </div>
+              );
+            })()}
           </TabsContent>
 
           {/* Ishlar doskasi */}
