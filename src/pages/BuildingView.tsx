@@ -8,6 +8,7 @@ import { Card } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
 import { Calendar } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { FolderCard } from '@/components/buildings/FolderCard';
 import { Progress } from '@/components/ui/progress';
 import { DocumentCard } from '@/components/buildings/DocumentCard';
