@@ -10,12 +10,12 @@ interface BuildingFinanceReportProps {
 }
 
 const EXPENSE_CATEGORIES = [
-  { name: 'Oyliklarga', type: 'naxt', percent: 0.27 },
-  { name: 'Obyomchilarga', type: 'naxt', percent: 0.415 },
-  { name: 'Hisob raqam + Soliq', type: 'schet', percent: 0.073 },
-  { name: 'Naqtlashtirish', type: 'schet', percent: 0.067 },
-  { name: 'Boshqa xarajatlar', type: 'naxt', percent: 0.139 },
-  { name: 'Inventarlar', type: '', percent: 0.036 },
+  { name: 'Oyliklarga', type: 'naxt', amount: 397_000_000 },
+  { name: 'Obyomchilarga', type: 'naxt', amount: 611_200_000 },
+  { name: 'Hisob raqam + Soliq', type: 'schet', amount: 107_833_598 },
+  { name: 'Naqtlashtirish', type: 'schet', amount: 98_497_043 },
+  { name: 'Boshqa xarajatlar', type: 'naxt', amount: 205_093_900 },
+  { name: 'Inventarlar', type: '', amount: 54_150_000 },
 ];
 
 const COLORS = [
