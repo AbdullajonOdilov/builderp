@@ -41,13 +41,7 @@ const BuildingFinanceReport = ({ totalPrice: rawTotal, usedMoney: rawUsed, pendi
   const kirimPercent = totalPrice > 0 ? ((kirim / totalPrice) * 100).toFixed(2) : '0';
   const qoldiqPercent = totalPrice > 0 ? ((qoldiq / totalPrice) * 100).toFixed(2) : '0';
 
-  const expenses = useMemo(() =>
-    EXPENSE_CATEGORIES.map(c => ({
-      ...c,
-      amount: Math.round(usedMoney * c.percent),
-    })),
-    [usedMoney]
-  );
+  const expenses = EXPENSE_CATEGORIES;
 
   const totalExpenses = expenses.reduce((s, e) => s + e.amount, 0);
 
