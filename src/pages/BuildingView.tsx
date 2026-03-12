@@ -15,6 +15,7 @@ import { DocumentCard } from '@/components/buildings/DocumentCard';
 import { DocumentUpload } from '@/components/buildings/DocumentUpload';
 import { BuildingBreadcrumbs } from '@/components/buildings/BuildingBreadcrumbs';
 import { useBuildings } from '@/hooks/useBuildings';
+import BuildingFinanceReport from '@/components/buildings/BuildingFinanceReport';
 import { useTasks } from '@/hooks/useTasks';
 import { BuildingDocument } from '@/types/building';
 import { cn } from '@/lib/utils';
