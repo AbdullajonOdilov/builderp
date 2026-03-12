@@ -20,7 +20,7 @@ interface FolderCardProps {
   onEdit?: () => void;
 }
 
-export const FolderCard = ({ name, subtitle, completionPercentage, color, onClick, onDelete, onEdit }: FolderCardProps) => {
+export const FolderCard = ({ name, subtitle, completionPercentage, color, images, onClick, onDelete, onEdit }: FolderCardProps) => {
   return (
     <Card 
       className="group relative p-6 cursor-pointer hover:bg-accent/50 transition-all duration-200 border-2 hover:border-primary/30 hover:shadow-lg"
