@@ -39,6 +39,21 @@ export const FolderCard = ({ name, subtitle, completionPercentage, color, images
         </div>
       </div>
       
+      {images && images.length > 0 && (
+        <div className="mt-3 flex gap-1.5">
+          {images.slice(0, 4).map((url, i) => (
+            <div key={i} className="relative w-10 h-10 rounded-lg overflow-hidden border border-border">
+              <img src={url} alt="" className="w-full h-full object-cover" />
+            </div>
+          ))}
+          {images.length > 4 && (
+            <div className="w-10 h-10 rounded-lg bg-muted flex items-center justify-center text-xs font-medium text-muted-foreground">
+              +{images.length - 4}
+            </div>
+          )}
+        </div>
+      )}
+
       {completionPercentage !== undefined && (
         <div className="mt-4 space-y-1.5">
           <div className="flex items-center justify-between text-xs">
