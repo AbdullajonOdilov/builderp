@@ -1,6 +1,6 @@
 import { useState, useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { Plus, FolderPlus, CalendarIcon, ClipboardList, DollarSign } from 'lucide-react';
+import { Plus, FolderPlus, CalendarIcon, ClipboardList, DollarSign, Trash2 } from 'lucide-react';
 import { format } from 'date-fns';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
