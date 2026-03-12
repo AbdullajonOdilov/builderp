@@ -201,8 +201,8 @@ const BuildingView = () => {
             <TabsTrigger value="resurslar" className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:shadow-none px-4 py-2.5 text-sm">
               Resurslar
             </TabsTrigger>
-            <TabsTrigger value="fayllar" className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:shadow-none px-4 py-2.5 text-sm">
-              Fayllar
+            <TabsTrigger value="hujjatlar" className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:shadow-none px-4 py-2.5 text-sm">
+              Hujjatlar
               <span className="ml-1.5 text-xs bg-muted text-muted-foreground rounded-full px-1.5 py-0.5">{building.documents.length}</span>
             </TabsTrigger>
           </TabsList>
@@ -271,21 +271,60 @@ const BuildingView = () => {
             </Card>
           </TabsContent>
 
-          {/* Fayllar */}
-          <TabsContent value="fayllar" className="mt-6">
-            <h2 className="text-lg font-semibold mb-4">Fayllar</h2>
-            <DocumentUpload onUpload={handleDocumentUpload} className="mb-4" />
-            {building.documents.length > 0 && (
-              <div className="grid gap-2 md:grid-cols-2">
-                {building.documents.map(doc => (
-                  <DocumentCard 
-                    key={doc.id} 
-                    document={doc} 
-                    onDelete={() => handleDocumentDelete(doc.id)}
-                  />
-                ))}
-              </div>
-            )}
+          {/* Hujjatlar */}
+          <TabsContent value="hujjatlar" className="mt-6">
+            <Tabs defaultValue="shartnoma" className="w-full">
+              <TabsList className="mb-4">
+                <TabsTrigger value="shartnoma">Shartnoma</TabsTrigger>
+                <TabsTrigger value="fayllar">Fayllar</TabsTrigger>
+                <TabsTrigger value="rasmlar">Rasmlar</TabsTrigger>
+              </TabsList>
+
+              <TabsContent value="shartnoma">
+                <DocumentUpload onUpload={handleDocumentUpload} className="mb-4" />
+                {building.documents.filter(d => d.name?.toLowerCase().includes('shartnoma') || d.type?.includes('pdf')).length > 0 ? (
+                  <div className="grid gap-2 md:grid-cols-2">
+                    {building.documents.filter(d => d.name?.toLowerCase().includes('shartnoma') || d.type?.includes('pdf')).map(doc => (
+                      <DocumentCard key={doc.id} document={doc} onDelete={() => handleDocumentDelete(doc.id)} />
+                    ))}
+                  </div>
+                ) : (
+                  <Card className="p-8 text-center border-2 border-dashed">
+                    <p className="text-muted-foreground">Shartnomalar hali yuklanmagan</p>
+                  </Card>
+                )}
+              </TabsContent>
+
+              <TabsContent value="fayllar">
+                <DocumentUpload onUpload={handleDocumentUpload} className="mb-4" />
+                {building.documents.filter(d => !d.type?.startsWith('image/')).length > 0 ? (
+                  <div className="grid gap-2 md:grid-cols-2">
+                    {building.documents.filter(d => !d.type?.startsWith('image/')).map(doc => (
+                      <DocumentCard key={doc.id} document={doc} onDelete={() => handleDocumentDelete(doc.id)} />
+                    ))}
+                  </div>
+                ) : (
+                  <Card className="p-8 text-center border-2 border-dashed">
+                    <p className="text-muted-foreground">Fayllar hali yuklanmagan</p>
+                  </Card>
+                )}
+              </TabsContent>
+
+              <TabsContent value="rasmlar">
+                <DocumentUpload onUpload={handleDocumentUpload} className="mb-4" />
+                {building.documents.filter(d => d.type?.startsWith('image/')).length > 0 ? (
+                  <div className="grid gap-3 md:grid-cols-3 lg:grid-cols-4">
+                    {building.documents.filter(d => d.type?.startsWith('image/')).map(doc => (
+                      <DocumentCard key={doc.id} document={doc} onDelete={() => handleDocumentDelete(doc.id)} />
+                    ))}
+                  </div>
+                ) : (
+                  <Card className="p-8 text-center border-2 border-dashed">
+                    <p className="text-muted-foreground">Rasmlar hali yuklanmagan</p>
+                  </Card>
+                )}
+              </TabsContent>
+            </Tabs>
           </TabsContent>
         </Tabs>
       </div>
