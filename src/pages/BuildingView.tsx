@@ -208,9 +208,11 @@ const BuildingView = () => {
 
           {/* Hisobotlar */}
           <TabsContent value="hisobotlar" className="mt-6">
-            <Card className="p-8 text-center">
-              <p className="text-muted-foreground">Hisobotlar bo'limi tez orada qo'shiladi</p>
-            </Card>
+            <BuildingFinanceReport
+              totalPrice={building.totalPrice}
+              usedMoney={building.usedMoney}
+              pendingMoney={building.pendingMoney || 0}
+            />
           </TabsContent>
 
           {/* Bo'limlar */}
