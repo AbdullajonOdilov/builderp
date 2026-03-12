@@ -181,72 +181,110 @@ const BuildingView = () => {
           </div>
         </Card>
 
-        {/* Action Buttons */}
-        <div className="flex gap-3 mb-6">
-          <Button variant="outline" className="gap-2" onClick={() => navigate(`/buildings/${building.id}/smeta`)}>
-            <ClipboardList className="h-4 w-4" />
-            Smeta
-          </Button>
-          <Button variant="outline" className="gap-2" onClick={() => navigate('/ishlar-doskasi')}>
-            <CalendarIcon className="h-4 w-4" />
-            Ishlar doskasi
-          </Button>
-          <Button variant="outline" className="gap-2">
-            <DollarSign className="h-4 w-4" />
-            Resurslar
-          </Button>
-        </div>
+        {/* Tabs */}
+        <Tabs defaultValue="bolimlar" className="w-full">
+          <TabsList className="w-full justify-start h-auto p-0 bg-transparent border-b border-border rounded-none gap-0">
+            <TabsTrigger value="hisobotlar" className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:shadow-none px-4 py-2.5 text-sm">
+              Hisobotlar
+            </TabsTrigger>
+            <TabsTrigger value="bolimlar" className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:shadow-none px-4 py-2.5 text-sm">
+              Bo'limlar
+              <span className="ml-1.5 text-xs bg-muted text-muted-foreground rounded-full px-1.5 py-0.5">{building.sections.length}</span>
+            </TabsTrigger>
+            <TabsTrigger value="smeta" className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:shadow-none px-4 py-2.5 text-sm">
+              Smeta
+            </TabsTrigger>
+            <TabsTrigger value="ishlar" className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:shadow-none px-4 py-2.5 text-sm">
+              Ishlar doskasi
+            </TabsTrigger>
+            <TabsTrigger value="resurslar" className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:shadow-none px-4 py-2.5 text-sm">
+              Resurslar
+            </TabsTrigger>
+            <TabsTrigger value="fayllar" className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:shadow-none px-4 py-2.5 text-sm">
+              Fayllar
+              <span className="ml-1.5 text-xs bg-muted text-muted-foreground rounded-full px-1.5 py-0.5">{building.documents.length}</span>
+            </TabsTrigger>
+          </TabsList>
 
-        {/* Sections */}
-        <div className="mb-8">
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-lg font-semibold">Bo'limlar</h2>
-            <Button onClick={() => setShowNewSection(true)}>
-              <Plus className="h-4 w-4 mr-2" />
-              Yangi bo'lim
-            </Button>
-          </div>
-
-          {building.sections.length === 0 ? (
-            <Card 
-              className="p-8 text-center border-2 border-dashed cursor-pointer hover:border-primary/50 transition-colors"
-              onClick={() => setShowNewSection(true)}
-            >
-              <FolderPlus className="h-10 w-10 mx-auto mb-3 text-muted-foreground" />
-              <p className="font-medium">Bo'limlar hali yo'q</p>
-              <p className="text-sm text-muted-foreground">Birinchi bo'limni yaratish uchun bosing</p>
+          {/* Hisobotlar */}
+          <TabsContent value="hisobotlar" className="mt-6">
+            <Card className="p-8 text-center">
+              <p className="text-muted-foreground">Hisobotlar bo'limi tez orada qo'shiladi</p>
             </Card>
-          ) : (
-            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-              {building.sections.map((section) => (
-                <FolderCard
-                  key={section.id}
-                  name={section.name}
-                  subtitle={`${section.documents.length} hujjat`}
-                  onClick={() => navigate(`/buildings/${building.id}/sections/${section.id}`)}
-                  onDelete={() => setDeleteSectionId(section.id)}
-                />
-              ))}
-            </div>
-          )}
-        </div>
+          </TabsContent>
 
-        {/* Documents */}
-        <div>
-          <h2 className="text-lg font-semibold mb-4">Hujjatlar</h2>
-          <DocumentUpload onUpload={handleDocumentUpload} className="mb-4" />
-          {building.documents.length > 0 && (
-            <div className="grid gap-2 md:grid-cols-2">
-              {building.documents.map(doc => (
-                <DocumentCard 
-                  key={doc.id} 
-                  document={doc} 
-                  onDelete={() => handleDocumentDelete(doc.id)}
-                />
-              ))}
+          {/* Bo'limlar */}
+          <TabsContent value="bolimlar" className="mt-6">
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-lg font-semibold">Bo'limlar</h2>
+              <Button onClick={() => setShowNewSection(true)}>
+                <Plus className="h-4 w-4 mr-2" />
+                Yangi bo'lim
+              </Button>
             </div>
-          )}
-        </div>
+
+            {building.sections.length === 0 ? (
+              <Card 
+                className="p-8 text-center border-2 border-dashed cursor-pointer hover:border-primary/50 transition-colors"
+                onClick={() => setShowNewSection(true)}
+              >
+                <FolderPlus className="h-10 w-10 mx-auto mb-3 text-muted-foreground" />
+                <p className="font-medium">Bo'limlar hali yo'q</p>
+                <p className="text-sm text-muted-foreground">Birinchi bo'limni yaratish uchun bosing</p>
+              </Card>
+            ) : (
+              <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+                {building.sections.map((section) => (
+                  <FolderCard
+                    key={section.id}
+                    name={section.name}
+                    subtitle={`${section.documents.length} hujjat`}
+                    onClick={() => navigate(`/buildings/${building.id}/sections/${section.id}`)}
+                    onDelete={() => setDeleteSectionId(section.id)}
+                  />
+                ))}
+              </div>
+            )}
+          </TabsContent>
+
+          {/* Smeta */}
+          <TabsContent value="smeta" className="mt-6">
+            <Card className="p-8 text-center">
+              <p className="text-muted-foreground">Smeta bo'limi tez orada qo'shiladi</p>
+            </Card>
+          </TabsContent>
+
+          {/* Ishlar doskasi */}
+          <TabsContent value="ishlar" className="mt-6">
+            <Card className="p-8 text-center">
+              <p className="text-muted-foreground">Ishlar doskasi tez orada qo'shiladi</p>
+            </Card>
+          </TabsContent>
+
+          {/* Resurslar */}
+          <TabsContent value="resurslar" className="mt-6">
+            <Card className="p-8 text-center">
+              <p className="text-muted-foreground">Resurslar bo'limi tez orada qo'shiladi</p>
+            </Card>
+          </TabsContent>
+
+          {/* Fayllar */}
+          <TabsContent value="fayllar" className="mt-6">
+            <h2 className="text-lg font-semibold mb-4">Fayllar</h2>
+            <DocumentUpload onUpload={handleDocumentUpload} className="mb-4" />
+            {building.documents.length > 0 && (
+              <div className="grid gap-2 md:grid-cols-2">
+                {building.documents.map(doc => (
+                  <DocumentCard 
+                    key={doc.id} 
+                    document={doc} 
+                    onDelete={() => handleDocumentDelete(doc.id)}
+                  />
+                ))}
+              </div>
+            )}
+          </TabsContent>
+        </Tabs>
       </div>
 
       {/* New Section Dialog */}
