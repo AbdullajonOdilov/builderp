@@ -275,10 +275,8 @@ const BuildingView = () => {
           <TabsContent value="hujjatlar" className="mt-6 space-y-8">
             {/* Shartnoma */}
             <div>
-              <div className="flex items-center justify-between mb-3">
-                <h2 className="text-lg font-semibold">Shartnoma</h2>
-                <DocumentUpload onUpload={handleDocumentUpload} />
-              </div>
+              <h2 className="text-lg font-semibold mb-1">Shartnoma</h2>
+              <DocumentUpload onUpload={handleDocumentUpload} accept=".pdf,.doc,.docx" className="mb-3" />
               {building.documents.filter(d => d.name?.toLowerCase().includes('shartnoma') || d.type?.includes('pdf')).length > 0 ? (
                 <div className="grid gap-2 md:grid-cols-2">
                   {building.documents.filter(d => d.name?.toLowerCase().includes('shartnoma') || d.type?.includes('pdf')).map(doc => (
@@ -296,10 +294,8 @@ const BuildingView = () => {
 
             {/* Fayllar */}
             <div>
-              <div className="flex items-center justify-between mb-3">
-                <h2 className="text-lg font-semibold">Fayllar</h2>
-                <DocumentUpload onUpload={handleDocumentUpload} />
-              </div>
+              <h2 className="text-lg font-semibold mb-1">Fayllar</h2>
+              <DocumentUpload onUpload={handleDocumentUpload} className="mb-3" />
               {building.documents.filter(d => !d.type?.startsWith('image/') && !d.type?.includes('pdf')).length > 0 ? (
                 <div className="grid gap-2 md:grid-cols-2">
                   {building.documents.filter(d => !d.type?.startsWith('image/') && !d.type?.includes('pdf')).map(doc => (
@@ -317,10 +313,8 @@ const BuildingView = () => {
 
             {/* Rasmlar */}
             <div>
-              <div className="flex items-center justify-between mb-3">
-                <h2 className="text-lg font-semibold">Rasmlar</h2>
-                <DocumentUpload onUpload={handleDocumentUpload} />
-              </div>
+              <h2 className="text-lg font-semibold mb-1">Rasmlar</h2>
+              <DocumentUpload onUpload={handleDocumentUpload} accept="image/*" className="mb-3" />
               {building.documents.filter(d => d.type?.startsWith('image/')).length > 0 ? (
                 <div className="grid gap-3 md:grid-cols-3 lg:grid-cols-4">
                   {building.documents.filter(d => d.type?.startsWith('image/')).map(doc => (
