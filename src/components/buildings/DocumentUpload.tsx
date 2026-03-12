@@ -1,16 +1,17 @@
-import { useCallback, useState } from 'react';
-import { Upload, X } from 'lucide-react';
-import { Card } from '@/components/ui/card';
+import { useCallback, useRef } from 'react';
+import { Plus } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 import { BuildingDocument } from '@/types/building';
 import { cn } from '@/lib/utils';
 
 interface DocumentUploadProps {
   onUpload: (doc: BuildingDocument) => void;
   className?: string;
+  accept?: string;
 }
 
-export const DocumentUpload = ({ onUpload, className }: DocumentUploadProps) => {
-  const [isDragging, setIsDragging] = useState(false);
+export const DocumentUpload = ({ onUpload, className, accept }: DocumentUploadProps) => {
+  const inputRef = useRef<HTMLInputElement>(null);
 
   const handleFiles = useCallback((files: FileList) => {
     Array.from(files).forEach(file => {
@@ -25,48 +26,25 @@ export const DocumentUpload = ({ onUpload, className }: DocumentUploadProps) => 
     });
   }, [onUpload]);
 
-  const handleDrop = useCallback((e: React.DragEvent) => {
-    e.preventDefault();
-    setIsDragging(false);
-    if (e.dataTransfer.files.length) {
-      handleFiles(e.dataTransfer.files);
-    }
-  }, [handleFiles]);
-
-  const handleDragOver = useCallback((e: React.DragEvent) => {
-    e.preventDefault();
-    setIsDragging(true);
-  }, []);
-
-  const handleDragLeave = useCallback((e: React.DragEvent) => {
-    e.preventDefault();
-    setIsDragging(false);
-  }, []);
-
   return (
-    <Card
-      className={cn(
-        "border-2 border-dashed p-6 text-center transition-colors cursor-pointer",
-        isDragging 
-          ? "border-primary bg-primary/5" 
-          : "border-muted-foreground/25 hover:border-primary/50",
-        className
-      )}
-      onDrop={handleDrop}
-      onDragOver={handleDragOver}
-      onDragLeave={handleDragLeave}
-      onClick={() => document.getElementById('file-upload')?.click()}
-    >
+    <>
       <input
-        id="file-upload"
+        ref={inputRef}
         type="file"
         multiple
+        accept={accept}
         className="hidden"
         onChange={(e) => e.target.files && handleFiles(e.target.files)}
       />
-      <Upload className="h-8 w-8 mx-auto mb-2 text-muted-foreground" />
-      <p className="text-sm font-medium">Drop files here or click to upload</p>
-      <p className="text-xs text-muted-foreground mt-1">PDF, Images, Documents</p>
-    </Card>
+      <Button
+        variant="outline"
+        size="sm"
+        className={cn("gap-1.5", className)}
+        onClick={() => inputRef.current?.click()}
+      >
+        <Plus className="h-4 w-4" />
+        Yuklash
+      </Button>
+    </>
   );
 };
