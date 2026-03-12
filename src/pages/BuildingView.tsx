@@ -238,15 +238,21 @@ const BuildingView = () => {
               </Card>
             ) : (
               <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-                {building.sections.map((section) => (
-                  <FolderCard
-                    key={section.id}
-                    name={section.name}
-                    subtitle={`${section.documents.length} hujjat`}
-                    onClick={() => navigate(`/buildings/${building.id}/sections/${section.id}`)}
-                    onDelete={() => setDeleteSectionId(section.id)}
-                  />
-                ))}
+                {building.sections.map((section) => {
+                  const sectionImages = section.documents
+                    .filter(d => d.type?.startsWith('image/') && d.url)
+                    .map(d => d.url!);
+                  return (
+                    <FolderCard
+                      key={section.id}
+                      name={section.name}
+                      subtitle={`${section.documents.length} hujjat`}
+                      images={sectionImages}
+                      onClick={() => navigate(`/buildings/${building.id}/sections/${section.id}`)}
+                      onDelete={() => setDeleteSectionId(section.id)}
+                    />
+                  );
+                })}
               </div>
             )}
           </TabsContent>
