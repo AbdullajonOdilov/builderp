@@ -14,6 +14,7 @@ interface FolderCardProps {
   subtitle?: string;
   completionPercentage?: number;
   color?: string;
+  images?: string[];
   onClick: () => void;
   onDelete?: () => void;
   onEdit?: () => void;
