@@ -201,8 +201,8 @@ const BuildingView = () => {
             <TabsTrigger value="resurslar" className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:shadow-none px-4 py-2.5 text-sm">
               Resurslar
             </TabsTrigger>
-            <TabsTrigger value="fayllar" className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:shadow-none px-4 py-2.5 text-sm">
-              Fayllar
+            <TabsTrigger value="hujjatlar" className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:shadow-none px-4 py-2.5 text-sm">
+              Hujjatlar
               <span className="ml-1.5 text-xs bg-muted text-muted-foreground rounded-full px-1.5 py-0.5">{building.documents.length}</span>
             </TabsTrigger>
           </TabsList>
