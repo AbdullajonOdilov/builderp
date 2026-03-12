@@ -50,6 +50,7 @@ const BuildingView = () => {
   const [newSectionEndDate, setNewSectionEndDate] = useState<Date | undefined>();
   const [newSectionPrice, setNewSectionPrice] = useState('');
   const [deleteSectionId, setDeleteSectionId] = useState<string | null>(null);
+  const [lightboxImage, setLightboxImage] = useState<BuildingDocument | null>(null);
 
   const building = getBuilding(buildingId || '');
 
