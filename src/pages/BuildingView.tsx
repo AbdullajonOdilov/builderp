@@ -452,6 +452,35 @@ const BuildingView = () => {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      {/* Lightbox */}
+      {lightboxImage && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm"
+          onClick={() => setLightboxImage(null)}
+        >
+          <button
+            className="absolute top-4 right-4 p-2 rounded-full bg-white/10 text-white hover:bg-white/20 transition-colors"
+            onClick={() => setLightboxImage(null)}
+          >
+            <X className="h-6 w-6" />
+          </button>
+          <div className="max-w-[90vw] max-h-[90vh] relative" onClick={e => e.stopPropagation()}>
+            {lightboxImage.url ? (
+              <img
+                src={lightboxImage.url}
+                alt={lightboxImage.name}
+                className="max-w-full max-h-[85vh] object-contain rounded-lg shadow-2xl"
+              />
+            ) : (
+              <div className="bg-muted rounded-lg p-12 text-center">
+                <p className="text-muted-foreground">{lightboxImage.name}</p>
+              </div>
+            )}
+            <p className="text-center text-white/80 text-sm mt-3">{lightboxImage.name}</p>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
