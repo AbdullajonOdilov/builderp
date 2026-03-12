@@ -30,7 +30,12 @@ const COLORS = [
 const formatNumber = (n: number) =>
   n.toLocaleString('ru-RU', { maximumFractionDigits: 0 });
 
-const BuildingFinanceReport = ({ totalPrice, usedMoney, pendingMoney }: BuildingFinanceReportProps) => {
+const BuildingFinanceReport = ({ totalPrice: rawTotal, usedMoney: rawUsed, pendingMoney: rawPending }: BuildingFinanceReportProps) => {
+  // Use mock data if building has no financial data
+  const totalPrice = rawTotal || 4_600_000_000;
+  const usedMoney = rawUsed || 1_473_774_540;
+  const pendingMoney = rawPending || 346_225_460;
+
   const kirim = usedMoney + pendingMoney;
   const qoldiq = totalPrice - kirim;
   const kirimPercent = totalPrice > 0 ? ((kirim / totalPrice) * 100).toFixed(2) : '0';
