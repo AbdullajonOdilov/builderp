@@ -275,57 +275,39 @@ const BuildingView = () => {
           <TabsContent value="hujjatlar" className="mt-6 space-y-8">
             {/* Shartnoma */}
             <div>
-              <h2 className="text-lg font-semibold mb-1">Shartnoma</h2>
-              <DocumentUpload onUpload={handleDocumentUpload} accept=".pdf,.doc,.docx" className="mb-3" />
-              {building.documents.filter(d => d.name?.toLowerCase().includes('shartnoma') || d.type?.includes('pdf')).length > 0 ? (
-                <div className="grid gap-2 md:grid-cols-2">
-                  {building.documents.filter(d => d.name?.toLowerCase().includes('shartnoma') || d.type?.includes('pdf')).map(doc => (
-                    <DocumentCard key={doc.id} document={doc} onDelete={() => handleDocumentDelete(doc.id)} />
-                  ))}
-                </div>
-              ) : (
-                <Card className="p-6 text-center border-2 border-dashed">
-                  <p className="text-muted-foreground text-sm">Shartnomalar hali yuklanmagan</p>
-                </Card>
-              )}
+              <h2 className="text-lg font-semibold mb-2">Shartnoma</h2>
+              <div className="flex flex-wrap items-start gap-3">
+                <DocumentUpload onUpload={handleDocumentUpload} accept=".pdf,.doc,.docx" label="File" />
+                {building.documents.filter(d => d.name?.toLowerCase().includes('shartnoma') || d.type?.includes('pdf')).map(doc => (
+                  <DocumentCard key={doc.id} document={doc} onDelete={() => handleDocumentDelete(doc.id)} />
+                ))}
+              </div>
             </div>
 
             <hr className="border-border" />
 
             {/* Fayllar */}
             <div>
-              <h2 className="text-lg font-semibold mb-1">Fayllar</h2>
-              <DocumentUpload onUpload={handleDocumentUpload} className="mb-3" />
-              {building.documents.filter(d => !d.type?.startsWith('image/') && !d.type?.includes('pdf')).length > 0 ? (
-                <div className="grid gap-2 md:grid-cols-2">
-                  {building.documents.filter(d => !d.type?.startsWith('image/') && !d.type?.includes('pdf')).map(doc => (
-                    <DocumentCard key={doc.id} document={doc} onDelete={() => handleDocumentDelete(doc.id)} />
-                  ))}
-                </div>
-              ) : (
-                <Card className="p-6 text-center border-2 border-dashed">
-                  <p className="text-muted-foreground text-sm">Fayllar hali yuklanmagan</p>
-                </Card>
-              )}
+              <h2 className="text-lg font-semibold mb-2">Fayllar</h2>
+              <div className="flex flex-wrap items-start gap-3">
+                <DocumentUpload onUpload={handleDocumentUpload} label="File" />
+                {building.documents.filter(d => !d.type?.startsWith('image/') && !d.type?.includes('pdf')).map(doc => (
+                  <DocumentCard key={doc.id} document={doc} onDelete={() => handleDocumentDelete(doc.id)} />
+                ))}
+              </div>
             </div>
 
             <hr className="border-border" />
 
             {/* Rasmlar */}
             <div>
-              <h2 className="text-lg font-semibold mb-1">Rasmlar</h2>
-              <DocumentUpload onUpload={handleDocumentUpload} accept="image/*" className="mb-3" />
-              {building.documents.filter(d => d.type?.startsWith('image/')).length > 0 ? (
-                <div className="grid gap-3 md:grid-cols-3 lg:grid-cols-4">
-                  {building.documents.filter(d => d.type?.startsWith('image/')).map(doc => (
-                    <DocumentCard key={doc.id} document={doc} onDelete={() => handleDocumentDelete(doc.id)} />
-                  ))}
-                </div>
-              ) : (
-                <Card className="p-6 text-center border-2 border-dashed">
-                  <p className="text-muted-foreground text-sm">Rasmlar hali yuklanmagan</p>
-                </Card>
-              )}
+              <h2 className="text-lg font-semibold mb-2">Rasmlar</h2>
+              <div className="flex flex-wrap items-start gap-3">
+                <DocumentUpload onUpload={handleDocumentUpload} accept="image/*" label="File" />
+                {building.documents.filter(d => d.type?.startsWith('image/')).map(doc => (
+                  <DocumentCard key={doc.id} document={doc} onDelete={() => handleDocumentDelete(doc.id)} />
+                ))}
+              </div>
             </div>
           </TabsContent>
         </Tabs>

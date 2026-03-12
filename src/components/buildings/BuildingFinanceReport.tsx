@@ -18,12 +18,12 @@ const EXPENSE_CATEGORIES = [
 ];
 
 const COLORS = [
-  'hsl(var(--chart-1))',
-  'hsl(var(--chart-2))',
-  'hsl(var(--chart-3))',
-  'hsl(var(--chart-4))',
-  'hsl(var(--chart-5))',
-  'hsl(210 40% 60%)',
+  'hsl(220 70% 50%)',
+  'hsl(150 60% 45%)',
+  'hsl(30 90% 55%)',
+  'hsl(350 70% 55%)',
+  'hsl(270 60% 55%)',
+  'hsl(190 70% 45%)',
 ];
 
 const formatNumber = (n: number) =>
