@@ -3,6 +3,7 @@ export interface BuildingDocument {
   name: string;
   size: number;
   type: string;
+  url?: string;
   uploadedAt: Date;
 }
 
