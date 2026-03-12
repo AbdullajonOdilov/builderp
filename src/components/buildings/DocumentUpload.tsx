@@ -1,6 +1,5 @@
 import { useCallback, useRef } from 'react';
-import { Plus } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import { Upload } from 'lucide-react';
 import { BuildingDocument } from '@/types/building';
 import { cn } from '@/lib/utils';
 
@@ -27,24 +26,26 @@ export const DocumentUpload = ({ onUpload, className, accept }: DocumentUploadPr
   }, [onUpload]);
 
   return (
-    <>
+    <div className={cn("inline-flex", className)}>
       <input
         ref={inputRef}
         type="file"
         multiple
         accept={accept}
         className="hidden"
-        onChange={(e) => e.target.files && handleFiles(e.target.files)}
+        onChange={(e) => {
+          if (e.target.files) handleFiles(e.target.files);
+          e.target.value = '';
+        }}
       />
-      <Button
-        variant="outline"
-        size="sm"
-        className={cn("gap-1.5", className)}
+      <button
+        type="button"
+        className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors"
         onClick={() => inputRef.current?.click()}
       >
-        <Plus className="h-4 w-4" />
-        Yuklash
-      </Button>
-    </>
+        <Upload className="h-3.5 w-3.5" />
+        <span>Fayl yuklash</span>
+      </button>
+    </div>
   );
 };
