@@ -15,6 +15,7 @@ import { DocumentCard } from '@/components/buildings/DocumentCard';
 import { DocumentUpload } from '@/components/buildings/DocumentUpload';
 import { BuildingBreadcrumbs } from '@/components/buildings/BuildingBreadcrumbs';
 import { useBuildings } from '@/hooks/useBuildings';
+import BuildingFinanceReport from '@/components/buildings/BuildingFinanceReport';
 import { useTasks } from '@/hooks/useTasks';
 import { BuildingDocument } from '@/types/building';
 import { cn } from '@/lib/utils';
@@ -208,9 +209,11 @@ const BuildingView = () => {
 
           {/* Hisobotlar */}
           <TabsContent value="hisobotlar" className="mt-6">
-            <Card className="p-8 text-center">
-              <p className="text-muted-foreground">Hisobotlar bo'limi tez orada qo'shiladi</p>
-            </Card>
+            <BuildingFinanceReport
+              totalPrice={building.totalPrice}
+              usedMoney={building.usedMoney}
+              pendingMoney={building.pendingMoney || 0}
+            />
           </TabsContent>
 
           {/* Bo'limlar */}
