@@ -1,6 +1,6 @@
 import { useState, useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { Plus, FolderPlus, CalendarIcon, ClipboardList, DollarSign } from 'lucide-react';
+import { Plus, FolderPlus, CalendarIcon, ClipboardList, DollarSign, Trash2 } from 'lucide-react';
 import { format } from 'date-fns';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -302,10 +302,27 @@ const BuildingView = () => {
             {/* Rasmlar */}
             <div>
               <h2 className="text-lg font-semibold mb-2">Rasmlar</h2>
-              <div className="flex flex-wrap items-start gap-3">
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">
                 <DocumentUpload onUpload={handleDocumentUpload} accept="image/*" label="File" />
                 {building.documents.filter(d => d.type?.startsWith('image/')).map(doc => (
-                  <DocumentCard key={doc.id} document={doc} onDelete={() => handleDocumentDelete(doc.id)} />
+                  <div key={doc.id} className="group relative aspect-square rounded-xl overflow-hidden border border-border bg-muted/20">
+                    {doc.url ? (
+                      <img src={doc.url} alt={doc.name} className="w-full h-full object-cover" />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center bg-muted/40">
+                        <span className="text-xs text-muted-foreground truncate px-2">{doc.name}</span>
+                      </div>
+                    )}
+                    <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/60 to-transparent p-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                      <p className="text-xs text-white truncate">{doc.name}</p>
+                    </div>
+                    <button
+                      onClick={() => handleDocumentDelete(doc.id)}
+                      className="absolute top-1.5 right-1.5 p-1 rounded-md bg-black/40 text-white opacity-0 group-hover:opacity-100 transition-opacity hover:bg-destructive"
+                    >
+                      <Trash2 className="h-3.5 w-3.5" />
+                    </button>
+                  </div>
                 ))}
               </div>
             </div>

@@ -15,11 +15,13 @@ export const DocumentUpload = ({ onUpload, className, accept, label = 'File' }: 
 
   const handleFiles = useCallback((files: FileList) => {
     Array.from(files).forEach(file => {
+      const url = file.type.startsWith('image/') ? URL.createObjectURL(file) : undefined;
       const doc: BuildingDocument = {
         id: crypto.randomUUID(),
         name: file.name,
         size: file.size,
         type: file.type,
+        url,
         uploadedAt: new Date(),
       };
       onUpload(doc);
