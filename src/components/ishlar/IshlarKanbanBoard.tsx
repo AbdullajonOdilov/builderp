@@ -132,6 +132,19 @@ export function IshlarKanbanBoard() {
             </Button>
           </div>
         )}
+        <div className="space-y-1 ml-auto">
+          <label className="text-[10px] font-medium text-muted-foreground">&nbsp;</label>
+          <Button
+            variant="default"
+            size="sm"
+            className="h-10 gap-2"
+            onClick={() => setAnalyticsOpen(true)}
+            disabled={checkedIds.size === 0}
+          >
+            <BarChart3 className="h-4 w-4" />
+            Аналитикани олиш {checkedIds.size > 0 && `(${checkedIds.size})`}
+          </Button>
+        </div>
       </div>
 
       {/* Detail Dialog */}
