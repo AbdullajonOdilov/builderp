@@ -776,6 +776,7 @@ function AnalyticsDialog({ open, onClose, checkedItems }: {
 }) {
   const FLOORS = 17;
   const [norms, setNorms] = React.useState<Record<string, number>>({});
+  const [domName, setDomName] = React.useState('Дом 1.1');
 
   React.useEffect(() => {
     const init: Record<string, number> = {};
@@ -810,6 +811,14 @@ function AnalyticsDialog({ open, onClose, checkedItems }: {
           <DialogTitle className="text-center text-base font-bold uppercase tracking-wider">
             Аналитика — танланган ишлар
           </DialogTitle>
+          <div className="flex items-center justify-center gap-2 pt-1">
+            <span className="text-xs text-muted-foreground">Дом:</span>
+            <Input
+              value={domName}
+              onChange={e => setDomName(e.target.value)}
+              className="h-7 text-xs font-semibold w-32 text-center"
+            />
+          </div>
           <p className="text-center text-xs text-muted-foreground">Этажлар бўйича бажарилиш ҳисоботи</p>
         </DialogHeader>
 
