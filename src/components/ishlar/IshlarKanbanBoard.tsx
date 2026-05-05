@@ -157,6 +157,13 @@ export function IshlarKanbanBoard() {
         checkedItems={checkedItems}
       />
 
+      {/* Analytics Dialog */}
+      <AnalyticsDialog
+        open={analyticsOpen}
+        onClose={() => setAnalyticsOpen(false)}
+        checkedItems={checkedItems}
+      />
+
       {/* Kanban Board */}
       <DragDropContext onDragEnd={handleDragEnd}>
         <div className="flex-1 overflow-x-auto px-6 pb-4">
