@@ -147,7 +147,6 @@ export function IshlarKanbanBoard() {
             size="sm"
             className="h-10 gap-2"
             onClick={() => setAnalyticsOpen(true)}
-            disabled={checkedIds.size === 0}
           >
             <BarChart3 className="h-4 w-4" />
             Аналитикани олиш {checkedIds.size > 0 && `(${checkedIds.size})`}
