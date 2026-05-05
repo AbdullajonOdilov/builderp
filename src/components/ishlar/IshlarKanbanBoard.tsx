@@ -43,6 +43,7 @@ export function IshlarKanbanBoard() {
   const [selectedItem, setSelectedItem] = useState<IshlarItem | null>(null);
   const [checkedIds, setCheckedIds] = useState<Set<string>>(new Set());
   const [resourceRequestOpen, setResourceRequestOpen] = useState(false);
+  const [analyticsOpen, setAnalyticsOpen] = useState(false);
 
   const toggleChecked = useCallback((id: string) => {
     setCheckedIds(prev => {
