@@ -776,6 +776,7 @@ function AnalyticsDialog({ open, onClose, checkedItems }: {
 }) {
   const FLOORS = 17;
   const [norms, setNorms] = React.useState<Record<string, number>>({});
+  const [domName, setDomName] = React.useState('Дом 1.1');
 
   React.useEffect(() => {
     const init: Record<string, number> = {};
