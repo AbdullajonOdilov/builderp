@@ -776,13 +776,21 @@ function AnalyticsDialog({ open, onClose, checkedItems }: {
   open: boolean; onClose: () => void; checkedItems: IshlarItem[];
 }) {
   const FLOORS = 17;
-  // Deterministic per-cell pseudo-random based on item.id+floor for stability
+  const [norms, setNorms] = React.useState<Record<string, number>>({});
+
+  React.useEffect(() => {
+    const init: Record<string, number> = {};
+    checkedItems.forEach(it => {
+      init[it.id] = Math.round(it.totalQuantity / FLOORS);
+    });
+    setNorms(init);
+  }, [checkedItems]);
+
   const cellPercent = (itemId: string, floor: number, baseProgress: number) => {
     let h = 0;
     const s = `${itemId}-${floor}`;
     for (let i = 0; i < s.length; i++) h = (h * 31 + s.charCodeAt(i)) | 0;
-    const variance = ((h % 100) + 100) % 100; // 0-99
-    // Mix base progress with variance to look like real construction data
+    const variance = ((h % 100) + 100) % 100;
     const v = floor === FLOORS
       ? Math.round(baseProgress * 0.3 * (variance / 100))
       : Math.max(0, Math.round(baseProgress + (variance - 50)));
@@ -817,8 +825,16 @@ function AnalyticsDialog({ open, onClose, checkedItems }: {
                     Норма
                   </TableHead>
                   {checkedItems.map(it => (
-                    <TableHead key={`norm-${it.id}`} className="text-[11px] text-center font-bold text-foreground border-r">
-                      {formatNum(Math.round(it.totalQuantity / FLOORS))}
+                    <TableHead key={`norm-${it.id}`} className="text-[11px] text-center font-bold text-foreground border-r p-1">
+                      <Input
+                        type="text"
+                        value={formatNum(norms[it.id] ?? 0)}
+                        onChange={e => {
+                          const num = parseInt(e.target.value.replace(/\s/g, ''), 10);
+                          setNorms(prev => ({ ...prev, [it.id]: isNaN(num) ? 0 : num }));
+                        }}
+                        className="h-7 text-[11px] text-center font-bold w-20 mx-auto"
+                      />
                     </TableHead>
                   ))}
                 </TableRow>
@@ -847,7 +863,7 @@ function AnalyticsDialog({ open, onClose, checkedItems }: {
                     </TableCell>
                     {checkedItems.map(it => {
                       const pct = cellPercent(it.id, floor, it.progress || 50);
-                      const norm = Math.round(it.totalQuantity / FLOORS);
+                      const norm = norms[it.id] ?? 0;
                       const qty = Math.round((norm * pct) / 100);
                       return (
                         <TableCell key={`${it.id}-${floor}`} className={cn("text-[11px] text-center border-r py-1", colorForPercent(pct))}>
