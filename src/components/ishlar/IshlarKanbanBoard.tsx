@@ -97,12 +97,10 @@ export function IshlarKanbanBoard() {
       <div className="px-6 pt-4 pb-2 flex items-center justify-between">
         <h1 className="text-lg font-bold">Ишлар доскаси</h1>
         <div className="flex items-center gap-2">
-          {checkedIds.size > 0 && (
-            <Button size="sm" variant="outline" className="h-9 gap-2" onClick={() => setAnalyticsOpen(true)}>
-              <BarChart3 className="h-4 w-4" />
-              Аналитика ({checkedIds.size})
-            </Button>
-          )}
+          <Button size="sm" variant="outline" className="h-9 gap-2" onClick={() => setAnalyticsOpen(true)}>
+            <BarChart3 className="h-4 w-4" />
+            Аналитика {checkedIds.size > 0 && `(${checkedIds.size})`}
+          </Button>
           {checkedIds.size > 0 && (
             <Button size="sm" className="h-9 gap-2" onClick={() => setResourceRequestOpen(true)}>
               <PackagePlus className="h-4 w-4" />
