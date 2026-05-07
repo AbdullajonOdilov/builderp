@@ -155,6 +155,7 @@ export function IshlarKanbanBoard() {
         open={analyticsOpen}
         onClose={() => setAnalyticsOpen(false)}
         checkedItems={checkedItems}
+        allItems={items}
       />
 
       {/* Kanban Board */}
