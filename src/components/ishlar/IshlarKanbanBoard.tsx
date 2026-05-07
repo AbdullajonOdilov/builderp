@@ -758,20 +758,65 @@ function KanbanCard({ item }: { item: IshlarItem }) {
 }
 
 /* ===== Analytics Dialog ===== */
-function AnalyticsDialog({ open, onClose, checkedItems }: {
-  open: boolean; onClose: () => void; checkedItems: IshlarItem[];
+type DomTab = { id: string; name: string; itemIds: string[] };
+
+function AnalyticsDialog({ open, onClose, checkedItems, allItems }: {
+  open: boolean; onClose: () => void; checkedItems: IshlarItem[]; allItems: IshlarItem[];
 }) {
   const FLOORS = 17;
   const [norms, setNorms] = React.useState<Record<string, number>>({});
-  const [domName, setDomName] = React.useState('Дом 1.1');
+  const [tabs, setTabs] = React.useState<DomTab[]>([
+    { id: 'dom-1.1', name: 'Дом 1.1', itemIds: [] },
+    { id: 'dom-1.2', name: 'Дом 1.2', itemIds: [] },
+  ]);
+  const [activeTabId, setActiveTabId] = React.useState('dom-1.1');
+  const [pickerOpen, setPickerOpen] = React.useState(false);
+
+  // Sync first tab with checked items when opening
+  React.useEffect(() => {
+    if (!open) return;
+    setTabs(prev => prev.map((t, idx) =>
+      idx === 0 ? { ...t, itemIds: Array.from(new Set([...t.itemIds, ...checkedItems.map(i => i.id)])) } : t
+    ));
+  }, [open, checkedItems]);
+
+  const activeTab = tabs.find(t => t.id === activeTabId) ?? tabs[0];
+  const activeItems = React.useMemo(
+    () => activeTab.itemIds.map(id => allItems.find(i => i.id === id)).filter(Boolean) as IshlarItem[],
+    [activeTab.itemIds, allItems]
+  );
 
   React.useEffect(() => {
-    const init: Record<string, number> = {};
-    checkedItems.forEach(it => {
-      init[it.id] = Math.round(it.totalQuantity / FLOORS);
+    setNorms(prev => {
+      const next = { ...prev };
+      activeItems.forEach(it => {
+        if (next[it.id] == null) next[it.id] = Math.round(it.totalQuantity / FLOORS);
+      });
+      return next;
     });
-    setNorms(init);
-  }, [checkedItems]);
+  }, [activeItems]);
+
+  const renameTab = (id: string, name: string) => {
+    setTabs(prev => prev.map(t => t.id === id ? { ...t, name } : t));
+  };
+
+  const addTab = () => {
+    const id = `dom-${Date.now()}`;
+    setTabs(prev => [...prev, { id, name: `Дом ${prev.length + 1}`, itemIds: [] }]);
+    setActiveTabId(id);
+  };
+
+  const toggleItemInTab = (itemId: string) => {
+    setTabs(prev => prev.map(t => {
+      if (t.id !== activeTabId) return t;
+      const has = t.itemIds.includes(itemId);
+      return { ...t, itemIds: has ? t.itemIds.filter(x => x !== itemId) : [...t.itemIds, itemId] };
+    }));
+  };
+
+  const removeItemFromTab = (itemId: string) => {
+    setTabs(prev => prev.map(t => t.id === activeTabId ? { ...t, itemIds: t.itemIds.filter(x => x !== itemId) } : t));
+  };
 
   const cellPercent = (itemId: string, floor: number, baseProgress: number) => {
     let h = 0;
@@ -798,19 +843,61 @@ function AnalyticsDialog({ open, onClose, checkedItems }: {
           <DialogTitle className="text-center text-base font-bold uppercase tracking-wider">
             Аналитика — танланган ишлар
           </DialogTitle>
-          <div className="flex items-center justify-center gap-2 pt-1">
-            <span className="text-xs text-muted-foreground">Дом:</span>
-            <Input
-              value={domName}
-              onChange={e => setDomName(e.target.value)}
-              className="h-7 text-xs font-semibold w-32 text-center"
-            />
-          </div>
           <p className="text-center text-xs text-muted-foreground">Этажлар бўйича бажарилиш ҳисоботи</p>
         </DialogHeader>
 
-        {checkedItems.length === 0 ? (
-          <p className="text-center text-sm text-muted-foreground py-8">Ишлар танланмаган</p>
+        {/* Tabs row */}
+        <div className="flex items-center gap-2 border-b pb-2 flex-wrap">
+          {tabs.map(t => (
+            <div
+              key={t.id}
+              className={cn(
+                'flex items-center gap-1 px-2 py-1 rounded-md cursor-pointer text-xs border',
+                activeTabId === t.id ? 'bg-primary text-primary-foreground border-primary' : 'bg-background hover:bg-accent'
+              )}
+              onClick={() => setActiveTabId(t.id)}
+            >
+              {activeTabId === t.id ? (
+                <Input
+                  value={t.name}
+                  onChange={e => renameTab(t.id, e.target.value)}
+                  onClick={e => e.stopPropagation()}
+                  className="h-6 text-xs font-semibold w-24 bg-background text-foreground"
+                />
+              ) : (
+                <span className="font-medium">{t.name}</span>
+              )}
+            </div>
+          ))}
+          <Button variant="outline" size="sm" className="h-7 text-xs" onClick={addTab}>+ Дом</Button>
+          <div className="ml-auto">
+            <Button variant="default" size="sm" className="h-7 text-xs gap-1" onClick={() => setPickerOpen(o => !o)}>
+              <PackagePlus className="h-3.5 w-3.5" /> Ишлар қўшиш
+            </Button>
+          </div>
+        </div>
+
+        {/* Item picker */}
+        {pickerOpen && (
+          <div className="border rounded-md p-2 max-h-48 overflow-auto">
+            <p className="text-xs font-semibold mb-1">"{activeTab.name}" учун ишлар танланг:</p>
+            <div className="grid grid-cols-2 gap-1">
+              {allItems.map(it => (
+                <label key={it.id} className="flex items-center gap-2 px-2 py-1 rounded hover:bg-accent cursor-pointer text-xs">
+                  <Checkbox
+                    checked={activeTab.itemIds.includes(it.id)}
+                    onCheckedChange={() => toggleItemInTab(it.id)}
+                  />
+                  <span className="truncate">{it.name}</span>
+                  <span className="text-muted-foreground ml-auto">{it.unit}</span>
+                </label>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {activeItems.length === 0 ? (
+          <p className="text-center text-sm text-muted-foreground py-8">Ишлар танланмаган. "Ишлар қўшиш" тугмасини босинг.</p>
         ) : (
           <div className="border rounded-md overflow-auto">
             <Table>
@@ -819,7 +906,7 @@ function AnalyticsDialog({ open, onClose, checkedItems }: {
                   <TableHead className="text-[11px] font-bold text-foreground sticky left-0 bg-[hsl(var(--status-delivered))]/20 z-10 border-r">
                     Норма
                   </TableHead>
-                  {checkedItems.map(it => (
+                  {activeItems.map(it => (
                     <TableHead key={`norm-${it.id}`} className="text-[11px] text-center font-bold text-foreground border-r p-1">
                       <Input
                         type="text"
@@ -835,7 +922,7 @@ function AnalyticsDialog({ open, onClose, checkedItems }: {
                 </TableRow>
                 <TableRow>
                   <TableHead className="text-[11px] font-semibold sticky left-0 bg-background z-10 border-r">Бирлик</TableHead>
-                  {checkedItems.map(it => (
+                  {activeItems.map(it => (
                     <TableHead key={`unit-${it.id}`} className="text-[11px] text-center font-semibold border-r">
                       {it.unit}
                     </TableHead>
@@ -843,9 +930,14 @@ function AnalyticsDialog({ open, onClose, checkedItems }: {
                 </TableRow>
                 <TableRow>
                   <TableHead className="text-[11px] font-semibold sticky left-0 bg-background z-10 border-r">№</TableHead>
-                  {checkedItems.map(it => (
-                    <TableHead key={`name-${it.id}`} className="text-[11px] text-center font-semibold border-r min-w-[100px] max-w-[140px]">
-                      <div className="truncate" title={it.name}>{it.name}</div>
+                  {activeItems.map(it => (
+                    <TableHead key={`name-${it.id}`} className="text-[11px] text-center font-semibold border-r min-w-[100px] max-w-[140px] p-1">
+                      <div className="flex items-center justify-center gap-1">
+                        <div className="truncate" title={it.name}>{it.name}</div>
+                        <Button variant="ghost" size="icon" className="h-5 w-5 shrink-0 text-muted-foreground hover:text-destructive" onClick={() => removeItemFromTab(it.id)}>
+                          <XCircle className="h-3 w-3" />
+                        </Button>
+                      </div>
                     </TableHead>
                   ))}
                 </TableRow>
@@ -856,7 +948,7 @@ function AnalyticsDialog({ open, onClose, checkedItems }: {
                     <TableCell className="text-[11px] font-medium sticky left-0 bg-background z-10 border-r whitespace-nowrap">
                       {floor}-Қават
                     </TableCell>
-                    {checkedItems.map(it => {
+                    {activeItems.map(it => {
                       const pct = cellPercent(it.id, floor, it.progress || 50);
                       const norm = norms[it.id] ?? 0;
                       const qty = Math.round((norm * pct) / 100);
@@ -881,4 +973,5 @@ function AnalyticsDialog({ open, onClose, checkedItems }: {
     </Dialog>
   );
 }
+
 
