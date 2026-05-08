@@ -436,9 +436,30 @@ function DetailDialog({ item, onClose }: { item: IshlarItem | null; onClose: () 
   const [paymentsOpen, setPaymentsOpen] = useState(false);
   const [quantity, setQuantity] = useState(item?.totalQuantity ?? 0);
   const [unitPrice, setUnitPrice] = useState(item?.unitPrice ?? 0);
+  const [floors, setFloors] = useState(15);
+  const [floorQty, setFloorQty] = useState<number[]>([]);
 
   // Recalc when item changes
-  React.useEffect(() => { if (item) { setQuantity(item.totalQuantity); setUnitPrice(item.unitPrice); } }, [item]);
+  React.useEffect(() => {
+    if (item) {
+      setQuantity(item.totalQuantity);
+      setUnitPrice(item.unitPrice);
+    }
+  }, [item]);
+
+  // Sync floor quantities when floors or quantity change
+  React.useEffect(() => {
+    const def = Math.round((quantity || 0) / Math.max(1, floors));
+    setFloorQty(prev => Array.from({ length: floors }, (_, i) => prev[i] ?? def));
+  }, [floors, quantity]);
+
+  const setFloorVal = (idx: number, val: number) => {
+    setFloorQty(prev => {
+      const next = [...prev];
+      next[idx] = val;
+      return next;
+    });
+  };
 
   if (!item) return null;
 
