@@ -831,7 +831,7 @@ function AnalyticsDialog({ open, onClose, checkedItems, allItems }: {
 
   const addTab = () => {
     const id = `dom-${Date.now()}`;
-    setTabs(prev => [...prev, { id, name: `Дом ${prev.length + 1}`, itemIds: [] }]);
+    setTabs(prev => [...prev, { id, name: `Дом ${prev.length + 1}`, itemIds: [], floors: DEFAULT_FLOORS }]);
     setActiveTabId(id);
   };
 
