@@ -436,9 +436,30 @@ function DetailDialog({ item, onClose }: { item: IshlarItem | null; onClose: () 
   const [paymentsOpen, setPaymentsOpen] = useState(false);
   const [quantity, setQuantity] = useState(item?.totalQuantity ?? 0);
   const [unitPrice, setUnitPrice] = useState(item?.unitPrice ?? 0);
+  const [floors, setFloors] = useState(15);
+  const [floorQty, setFloorQty] = useState<number[]>([]);
 
   // Recalc when item changes
-  React.useEffect(() => { if (item) { setQuantity(item.totalQuantity); setUnitPrice(item.unitPrice); } }, [item]);
+  React.useEffect(() => {
+    if (item) {
+      setQuantity(item.totalQuantity);
+      setUnitPrice(item.unitPrice);
+    }
+  }, [item]);
+
+  // Sync floor quantities when floors or quantity change
+  React.useEffect(() => {
+    const def = Math.round((quantity || 0) / Math.max(1, floors));
+    setFloorQty(prev => Array.from({ length: floors }, (_, i) => prev[i] ?? def));
+  }, [floors, quantity]);
+
+  const setFloorVal = (idx: number, val: number) => {
+    setFloorQty(prev => {
+      const next = [...prev];
+      next[idx] = val;
+      return next;
+    });
+  };
 
   if (!item) return null;
 
@@ -517,6 +538,40 @@ function DetailDialog({ item, onClose }: { item: IshlarItem | null; onClose: () 
                   <div>
                     <p className="text-[10px] text-muted-foreground mb-0.5">Тугаш сана</p>
                     <Input type="date" defaultValue="2026-03-14" className="h-7 text-xs" />
+                  </div>
+                </div>
+
+                {/* Floors */}
+                <div className="space-y-2 border-t pt-3">
+                  <div className="flex items-center gap-3">
+                    <p className="text-[10px] text-muted-foreground uppercase tracking-wider font-medium">Қаватлар сони</p>
+                    <Input
+                      type="number"
+                      min={1}
+                      max={99}
+                      value={floors}
+                      onChange={e => setFloors(Math.max(1, Math.min(99, parseInt(e.target.value, 10) || 1)))}
+                      className="h-7 w-20 text-xs"
+                    />
+                    <span className="text-[10px] text-muted-foreground">
+                      Бир қаватга: <strong>{formatNum(Math.round((quantity || 0) / Math.max(1, floors)))} {item.unit}</strong>
+                    </span>
+                  </div>
+                  <div className="grid grid-cols-5 sm:grid-cols-8 md:grid-cols-10 gap-2">
+                    {Array.from({ length: floors }, (_, i) => (
+                      <div key={i} className="space-y-0.5">
+                        <p className="text-[10px] text-muted-foreground text-center">{i + 1}-Қават</p>
+                        <Input
+                          type="text"
+                          value={formatNum(floorQty[i] ?? 0)}
+                          onChange={e => {
+                            const num = parseInt(e.target.value.replace(/\s/g, ''), 10);
+                            setFloorVal(i, isNaN(num) ? 0 : num);
+                          }}
+                          className="h-7 text-xs text-center px-1"
+                        />
+                      </div>
+                    ))}
                   </div>
                 </div>
 
