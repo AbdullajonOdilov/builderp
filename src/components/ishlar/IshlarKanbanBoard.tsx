@@ -758,16 +758,18 @@ function KanbanCard({ item }: { item: IshlarItem }) {
 }
 
 /* ===== Analytics Dialog ===== */
-type DomTab = { id: string; name: string; itemIds: string[] };
+type DomTab = { id: string; name: string; itemIds: string[]; floors: number };
 
 function AnalyticsDialog({ open, onClose, checkedItems, allItems }: {
   open: boolean; onClose: () => void; checkedItems: IshlarItem[]; allItems: IshlarItem[];
 }) {
-  const FLOORS = 17;
+  const DEFAULT_FLOORS = 15;
   const [norms, setNorms] = React.useState<Record<string, number>>({});
+  // floorQty[tabId][itemId] = number[] length = floors
+  const [floorQty, setFloorQty] = React.useState<Record<string, Record<string, number[]>>>({});
   const [tabs, setTabs] = React.useState<DomTab[]>([
-    { id: 'dom-1.1', name: 'Дом 1.1', itemIds: [] },
-    { id: 'dom-1.2', name: 'Дом 1.2', itemIds: [] },
+    { id: 'dom-1.1', name: 'Дом 1.1', itemIds: [], floors: DEFAULT_FLOORS },
+    { id: 'dom-1.2', name: 'Дом 1.2', itemIds: [], floors: DEFAULT_FLOORS },
   ]);
   const [activeTabId, setActiveTabId] = React.useState('dom-1.1');
   const [pickerOpen, setPickerOpen] = React.useState(false);
@@ -781,6 +783,7 @@ function AnalyticsDialog({ open, onClose, checkedItems, allItems }: {
   }, [open, checkedItems]);
 
   const activeTab = tabs.find(t => t.id === activeTabId) ?? tabs[0];
+  const FLOORS = activeTab.floors;
   const activeItems = React.useMemo(
     () => activeTab.itemIds.map(id => allItems.find(i => i.id === id)).filter(Boolean) as IshlarItem[],
     [activeTab.itemIds, allItems]
@@ -794,7 +797,33 @@ function AnalyticsDialog({ open, onClose, checkedItems, allItems }: {
       });
       return next;
     });
-  }, [activeItems]);
+    // Initialize/resize floorQty array per item to match current floors
+    setFloorQty(prev => {
+      const tabMap = { ...(prev[activeTabId] ?? {}) };
+      activeItems.forEach(it => {
+        const def = Math.round(it.totalQuantity / FLOORS);
+        const cur = tabMap[it.id] ?? [];
+        const arr = Array.from({ length: FLOORS }, (_, i) => cur[i] ?? def);
+        tabMap[it.id] = arr;
+      });
+      return { ...prev, [activeTabId]: tabMap };
+    });
+  }, [activeItems, FLOORS, activeTabId]);
+
+  const setTabFloors = (id: string, floors: number) => {
+    const f = Math.max(1, Math.min(99, floors || 1));
+    setTabs(prev => prev.map(t => t.id === id ? { ...t, floors: f } : t));
+  };
+
+  const setFloorCellQty = (itemId: string, floor: number, qty: number) => {
+    setFloorQty(prev => {
+      const tabMap = { ...(prev[activeTabId] ?? {}) };
+      const arr = [...(tabMap[itemId] ?? [])];
+      arr[floor - 1] = isNaN(qty) ? 0 : qty;
+      tabMap[itemId] = arr;
+      return { ...prev, [activeTabId]: tabMap };
+    });
+  };
 
   const renameTab = (id: string, name: string) => {
     setTabs(prev => prev.map(t => t.id === id ? { ...t, name } : t));
