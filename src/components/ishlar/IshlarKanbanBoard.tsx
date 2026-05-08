@@ -989,13 +989,21 @@ function AnalyticsDialog({ open, onClose, checkedItems, allItems }: {
                       {floor}-Қават
                     </TableCell>
                     {activeItems.map(it => {
-                      const pct = cellPercent(it.id, floor, it.progress || 50);
-                      const norm = norms[it.id] ?? 0;
-                      const qty = Math.round((norm * pct) / 100);
+                      const norm = norms[it.id] ?? Math.max(1, Math.round(it.totalQuantity / FLOORS));
+                      const qty = floorQty[activeTabId]?.[it.id]?.[floor - 1] ?? Math.round(it.totalQuantity / FLOORS);
+                      const pct = norm > 0 ? Math.round((qty / norm) * 100) : 0;
                       return (
                         <TableCell key={`${it.id}-${floor}`} className={cn("text-[11px] text-center border-r py-1", colorForPercent(pct))}>
-                          <div className="font-semibold">{pct}%</div>
-                          <div className="text-[9px] text-muted-foreground">{formatNum(qty)} {it.unit}</div>
+                          <Input
+                            type="text"
+                            value={formatNum(qty)}
+                            onChange={e => {
+                              const num = parseInt(e.target.value.replace(/\s/g, ''), 10);
+                              setFloorCellQty(it.id, floor, isNaN(num) ? 0 : num);
+                            }}
+                            className="h-6 text-[11px] text-center w-16 mx-auto px-1"
+                          />
+                          <div className="text-[10px] font-semibold mt-0.5">{pct}%</div>
                         </TableCell>
                       );
                     })}
