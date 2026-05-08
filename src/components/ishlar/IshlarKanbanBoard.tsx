@@ -899,6 +899,17 @@ function AnalyticsDialog({ open, onClose, checkedItems, allItems }: {
             </div>
           ))}
           <Button variant="outline" size="sm" className="h-7 text-xs" onClick={addTab}>+ Дом</Button>
+          <div className="flex items-center gap-1 ml-2">
+            <span className="text-xs text-muted-foreground">Қаватлар:</span>
+            <Input
+              type="number"
+              min={1}
+              max={99}
+              value={activeTab.floors}
+              onChange={e => setTabFloors(activeTab.id, parseInt(e.target.value, 10))}
+              className="h-7 w-16 text-xs"
+            />
+          </div>
           <div className="ml-auto">
             <Button variant="default" size="sm" className="h-7 text-xs gap-1" onClick={() => setPickerOpen(o => !o)}>
               <PackagePlus className="h-3.5 w-3.5" /> Ишлар қўшиш
