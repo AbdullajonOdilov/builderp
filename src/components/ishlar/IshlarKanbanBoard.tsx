@@ -758,16 +758,18 @@ function KanbanCard({ item }: { item: IshlarItem }) {
 }
 
 /* ===== Analytics Dialog ===== */
-type DomTab = { id: string; name: string; itemIds: string[] };
+type DomTab = { id: string; name: string; itemIds: string[]; floors: number };
 
 function AnalyticsDialog({ open, onClose, checkedItems, allItems }: {
   open: boolean; onClose: () => void; checkedItems: IshlarItem[]; allItems: IshlarItem[];
 }) {
-  const FLOORS = 17;
+  const DEFAULT_FLOORS = 15;
   const [norms, setNorms] = React.useState<Record<string, number>>({});
+  // floorQty[tabId][itemId] = number[] length = floors
+  const [floorQty, setFloorQty] = React.useState<Record<string, Record<string, number[]>>>({});
   const [tabs, setTabs] = React.useState<DomTab[]>([
-    { id: 'dom-1.1', name: 'Дом 1.1', itemIds: [] },
-    { id: 'dom-1.2', name: 'Дом 1.2', itemIds: [] },
+    { id: 'dom-1.1', name: 'Дом 1.1', itemIds: [], floors: DEFAULT_FLOORS },
+    { id: 'dom-1.2', name: 'Дом 1.2', itemIds: [], floors: DEFAULT_FLOORS },
   ]);
   const [activeTabId, setActiveTabId] = React.useState('dom-1.1');
   const [pickerOpen, setPickerOpen] = React.useState(false);
@@ -781,6 +783,7 @@ function AnalyticsDialog({ open, onClose, checkedItems, allItems }: {
   }, [open, checkedItems]);
 
   const activeTab = tabs.find(t => t.id === activeTabId) ?? tabs[0];
+  const FLOORS = activeTab.floors;
   const activeItems = React.useMemo(
     () => activeTab.itemIds.map(id => allItems.find(i => i.id === id)).filter(Boolean) as IshlarItem[],
     [activeTab.itemIds, allItems]
@@ -794,7 +797,33 @@ function AnalyticsDialog({ open, onClose, checkedItems, allItems }: {
       });
       return next;
     });
-  }, [activeItems]);
+    // Initialize/resize floorQty array per item to match current floors
+    setFloorQty(prev => {
+      const tabMap = { ...(prev[activeTabId] ?? {}) };
+      activeItems.forEach(it => {
+        const def = Math.round(it.totalQuantity / FLOORS);
+        const cur = tabMap[it.id] ?? [];
+        const arr = Array.from({ length: FLOORS }, (_, i) => cur[i] ?? def);
+        tabMap[it.id] = arr;
+      });
+      return { ...prev, [activeTabId]: tabMap };
+    });
+  }, [activeItems, FLOORS, activeTabId]);
+
+  const setTabFloors = (id: string, floors: number) => {
+    const f = Math.max(1, Math.min(99, floors || 1));
+    setTabs(prev => prev.map(t => t.id === id ? { ...t, floors: f } : t));
+  };
+
+  const setFloorCellQty = (itemId: string, floor: number, qty: number) => {
+    setFloorQty(prev => {
+      const tabMap = { ...(prev[activeTabId] ?? {}) };
+      const arr = [...(tabMap[itemId] ?? [])];
+      arr[floor - 1] = isNaN(qty) ? 0 : qty;
+      tabMap[itemId] = arr;
+      return { ...prev, [activeTabId]: tabMap };
+    });
+  };
 
   const renameTab = (id: string, name: string) => {
     setTabs(prev => prev.map(t => t.id === id ? { ...t, name } : t));
@@ -802,7 +831,7 @@ function AnalyticsDialog({ open, onClose, checkedItems, allItems }: {
 
   const addTab = () => {
     const id = `dom-${Date.now()}`;
-    setTabs(prev => [...prev, { id, name: `Дом ${prev.length + 1}`, itemIds: [] }]);
+    setTabs(prev => [...prev, { id, name: `Дом ${prev.length + 1}`, itemIds: [], floors: DEFAULT_FLOORS }]);
     setActiveTabId(id);
   };
 
@@ -870,6 +899,17 @@ function AnalyticsDialog({ open, onClose, checkedItems, allItems }: {
             </div>
           ))}
           <Button variant="outline" size="sm" className="h-7 text-xs" onClick={addTab}>+ Дом</Button>
+          <div className="flex items-center gap-1 ml-2">
+            <span className="text-xs text-muted-foreground">Қаватлар:</span>
+            <Input
+              type="number"
+              min={1}
+              max={99}
+              value={activeTab.floors}
+              onChange={e => setTabFloors(activeTab.id, parseInt(e.target.value, 10))}
+              className="h-7 w-16 text-xs"
+            />
+          </div>
           <div className="ml-auto">
             <Button variant="default" size="sm" className="h-7 text-xs gap-1" onClick={() => setPickerOpen(o => !o)}>
               <PackagePlus className="h-3.5 w-3.5" /> Ишлар қўшиш
@@ -949,13 +989,21 @@ function AnalyticsDialog({ open, onClose, checkedItems, allItems }: {
                       {floor}-Қават
                     </TableCell>
                     {activeItems.map(it => {
-                      const pct = cellPercent(it.id, floor, it.progress || 50);
-                      const norm = norms[it.id] ?? 0;
-                      const qty = Math.round((norm * pct) / 100);
+                      const norm = norms[it.id] ?? Math.max(1, Math.round(it.totalQuantity / FLOORS));
+                      const qty = floorQty[activeTabId]?.[it.id]?.[floor - 1] ?? Math.round(it.totalQuantity / FLOORS);
+                      const pct = norm > 0 ? Math.round((qty / norm) * 100) : 0;
                       return (
                         <TableCell key={`${it.id}-${floor}`} className={cn("text-[11px] text-center border-r py-1", colorForPercent(pct))}>
-                          <div className="font-semibold">{pct}%</div>
-                          <div className="text-[9px] text-muted-foreground">{formatNum(qty)} {it.unit}</div>
+                          <Input
+                            type="text"
+                            value={formatNum(qty)}
+                            onChange={e => {
+                              const num = parseInt(e.target.value.replace(/\s/g, ''), 10);
+                              setFloorCellQty(it.id, floor, isNaN(num) ? 0 : num);
+                            }}
+                            className="h-6 text-[11px] text-center w-16 mx-auto px-1"
+                          />
+                          <div className="text-[10px] font-semibold mt-0.5">{pct}%</div>
                         </TableCell>
                       );
                     })}
