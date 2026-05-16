@@ -552,19 +552,6 @@ function DetailDialog({ item, onClose }: { item: IshlarItem | null; onClose: () 
                   </div>
                 </div>
 
-                {/* Floors */}
-                <div className="space-y-2 border-t pt-3">
-                  <div className="flex items-center gap-3">
-                    <p className="text-[10px] text-muted-foreground uppercase tracking-wider font-medium">Қаватлар сони</p>
-                    <Input
-                      type="number"
-                      min={1}
-                      max={99}
-                      value={floors}
-                      onChange={e => setFloors(Math.max(1, Math.min(99, parseInt(e.target.value, 10) || 1)))}
-                      className="h-7 w-20 text-xs"
-                    />
-                {/* Floors – per-floor planned & done */}
                 <div className="space-y-3 border-t pt-3">
                   <div className="flex items-end justify-between gap-3 flex-wrap">
                     <div>
