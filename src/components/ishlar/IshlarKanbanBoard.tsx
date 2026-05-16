@@ -564,25 +564,165 @@ function DetailDialog({ item, onClose }: { item: IshlarItem | null; onClose: () 
                       onChange={e => setFloors(Math.max(1, Math.min(99, parseInt(e.target.value, 10) || 1)))}
                       className="h-7 w-20 text-xs"
                     />
-                    <span className="text-[10px] text-muted-foreground">
-                      Бир қаватга: <strong>{formatNum(Math.round((quantity || 0) / Math.max(1, floors)))} {item.unit}</strong>
-                    </span>
-                  </div>
-                  <div className="grid grid-cols-5 sm:grid-cols-8 md:grid-cols-10 gap-2">
-                    {Array.from({ length: floors }, (_, i) => (
-                      <div key={i} className="space-y-0.5">
-                        <p className="text-[10px] text-muted-foreground text-center">{i + 1}-Қават</p>
+                {/* Floors – per-floor planned & done */}
+                <div className="space-y-3 border-t pt-3">
+                  <div className="flex items-end justify-between gap-3 flex-wrap">
+                    <div>
+                      <p className="text-sm font-semibold">Қаватлар бўйича тақсимот</p>
+                      <p className="text-[11px] text-muted-foreground">Ҳар қават учун режа ва бажарилган миқдорни кўрсатинг</p>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <div className="flex items-center gap-2">
+                        <span className="text-[10px] uppercase tracking-wider text-muted-foreground font-medium">Қаватлар:</span>
                         <Input
-                          type="text"
-                          value={formatNum(floorQty[i] ?? 0)}
-                          onChange={e => {
-                            const num = parseInt(e.target.value.replace(/\s/g, ''), 10);
-                            setFloorVal(i, isNaN(num) ? 0 : num);
-                          }}
-                          className="h-7 text-xs text-center px-1"
+                          type="number"
+                          min={1}
+                          max={99}
+                          value={floors}
+                          onChange={e => setFloors(Math.max(1, Math.min(99, parseInt(e.target.value, 10) || 1)))}
+                          className="h-7 w-16 text-xs"
                         />
                       </div>
-                    ))}
+                      <div className="text-right">
+                        <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-bold">Умумий</p>
+                        <div className="flex items-center gap-2">
+                          <span className="text-sm font-bold">
+                            {formatNum(totalDone)} <span className="text-muted-foreground">/ {formatNum(totalPlan)}</span> <span className="text-[10px] text-muted-foreground">{item.unit}</span>
+                          </span>
+                          <Badge
+                            variant="outline"
+                            className={cn(
+                              "text-[10px] font-bold border",
+                              overallPct >= 100 ? "bg-emerald-500/10 text-emerald-500 border-emerald-500/30" :
+                              overallPct > 0 ? "bg-amber-500/10 text-amber-500 border-amber-500/30" :
+                              "bg-muted text-muted-foreground"
+                            )}
+                          >
+                            {overallPct}%
+                          </Badge>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Overall progress bar */}
+                  <div className="h-1.5 w-full bg-muted rounded-full overflow-hidden">
+                    <div
+                      className={cn(
+                        "h-full transition-all",
+                        overallPct >= 100 ? "bg-emerald-500" : "bg-amber-500"
+                      )}
+                      style={{ width: `${Math.min(overallPct, 100)}%` }}
+                    />
+                  </div>
+
+                  {/* Floor cards grid */}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
+                    {Array.from({ length: floors }, (_, i) => {
+                      const plan = floorPlan[i] ?? 0;
+                      const done = floorDone[i] ?? 0;
+                      const pct = plan > 0 ? Math.min(100, Math.round((done / plan) * 100)) : 0;
+                      const status: 'done' | 'partial' | 'empty' = pct >= 100 ? 'done' : done > 0 ? 'partial' : 'empty';
+                      const statusLabel = status === 'done' ? 'Бажарилди' : status === 'partial' ? 'Қисман' : 'Кутилмоқда';
+                      const statusClass =
+                        status === 'done' ? 'bg-emerald-500/10 text-emerald-500 border-emerald-500/30' :
+                        status === 'partial' ? 'bg-amber-500/10 text-amber-500 border-amber-500/30' :
+                        'bg-muted text-muted-foreground border-border';
+                      const ringColor =
+                        status === 'done' ? 'text-emerald-500' :
+                        status === 'partial' ? 'text-amber-500' : 'text-muted-foreground';
+                      const cardBorder =
+                        status === 'done' ? 'border-emerald-500/30' :
+                        status === 'partial' ? 'border-amber-500/40' : 'border-border';
+
+                      return (
+                        <div key={i} className={cn("rounded-xl border bg-card p-3 transition-all", cardBorder)}>
+                          <div className="flex items-start justify-between mb-2">
+                            <div className="flex flex-col gap-1">
+                              <span className="text-[11px] font-semibold uppercase tracking-tighter text-muted-foreground">
+                                {String(i + 1).padStart(2, '0')}-Қават
+                              </span>
+                              <Badge variant="outline" className={cn("text-[9px] font-bold px-1.5 py-0 h-4 uppercase tracking-wide w-fit", statusClass)}>
+                                {statusLabel}
+                              </Badge>
+                            </div>
+                            {/* Circular progress / check */}
+                            {status === 'done' ? (
+                              <div className="w-9 h-9 rounded-full bg-emerald-500 flex items-center justify-center shrink-0">
+                                <Check className="w-4 h-4 text-background" strokeWidth={3} />
+                              </div>
+                            ) : (
+                              <div className="relative w-9 h-9 shrink-0">
+                                <svg className="w-full h-full -rotate-90" viewBox="0 0 36 36">
+                                  <circle cx="18" cy="18" r="15" fill="none" strokeWidth="3" className="stroke-muted" />
+                                  <circle
+                                    cx="18" cy="18" r="15" fill="none" strokeWidth="3" strokeLinecap="round"
+                                    className={cn("transition-all", ringColor)}
+                                    stroke="currentColor"
+                                    strokeDasharray={`${(pct / 100) * 94.25} 94.25`}
+                                  />
+                                </svg>
+                                <span className="absolute inset-0 flex items-center justify-center text-[9px] font-bold">
+                                  {pct}%
+                                </span>
+                              </div>
+                            )}
+                          </div>
+
+                          <div className="grid grid-cols-2 gap-2">
+                            <div className="space-y-1">
+                              <label className="text-[9px] text-muted-foreground font-medium uppercase tracking-wide">Режа</label>
+                              <Input
+                                type="text"
+                                value={formatNum(plan)}
+                                onChange={e => {
+                                  const num = parseInt(e.target.value.replace(/\s/g, ''), 10);
+                                  setPlanVal(i, isNaN(num) ? 0 : num);
+                                }}
+                                className="h-7 text-xs text-center px-1"
+                              />
+                            </div>
+                            <div className="space-y-1">
+                              <label className="text-[9px] text-muted-foreground font-medium uppercase tracking-wide">Бажарилган</label>
+                              <Input
+                                type="text"
+                                value={formatNum(done)}
+                                onChange={e => {
+                                  const num = parseInt(e.target.value.replace(/\s/g, ''), 10);
+                                  setDoneVal(i, isNaN(num) ? 0 : num);
+                                }}
+                                className={cn(
+                                  "h-7 text-xs text-center px-1 font-bold",
+                                  status === 'done' ? "text-emerald-500" : status === 'partial' ? "text-amber-500" : ""
+                                )}
+                              />
+                            </div>
+                          </div>
+
+                          {/* Action button */}
+                          <div className="mt-2 flex gap-1.5">
+                            {status === 'done' ? (
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                className="h-6 text-[10px] flex-1 gap-1"
+                                onClick={() => resetFloor(i)}
+                              >
+                                <RotateCcw className="w-3 h-3" /> Қайтариш
+                              </Button>
+                            ) : (
+                              <Button
+                                size="sm"
+                                className="h-6 text-[10px] flex-1 gap-1 bg-emerald-500 hover:bg-emerald-600 text-background"
+                                onClick={() => markFloorDone(i)}
+                              >
+                                <Check className="w-3 h-3" strokeWidth={3} /> Бажарилди
+                              </Button>
+                            )}
+                          </div>
+                        </div>
+                      );
+                    })}
                   </div>
                 </div>
 
